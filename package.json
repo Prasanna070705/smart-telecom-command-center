@@ -11,5 +11,8 @@
     "test:e2e": "node tests/e2e.test.mjs",
     "verify": "node tests/run-verify.mjs",
     "verify:coupling": "node tests/run-verify.mjs H"
+  },
+  "devDependencies": {
+    "playwright": "^1.63.0"
   }
 }
