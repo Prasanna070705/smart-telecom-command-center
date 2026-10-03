@@ -1,0 +1,93 @@
+import { useState } from 'react'
+import { api } from '../api.js'
+import { Card, Kpi, Button, Slider, ErrorNote, Empty, Badge } from '../components/ui.jsx'
+import { money, int } from '../format.js'
+
+const OFFER_LABEL = { '1yr': 'One-year contract', '2yr': 'Two-year contract', tech: 'Free tech support', sec: 'Free online security', auto: 'Autopay switch', '2yr+tech': 'Two-year + tech support' }
+const PAGE = 15
+
+function downloadCsv(rows) {
+  const cols = ['customerID', 'offerName', 'contract', 'monthlyBill', 'monthlyHazardPct', 'expectedCost', 'expectedValue', 'hours']
+  const csv = [cols.join(','), ...rows.map((r) => cols.map((c) => r[c]).join(','))].join('\n')
+  const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }))
+  const a = Object.assign(document.createElement('a'), { href: url, download: 'call-list.csv' }); a.click(); URL.revokeObjectURL(url)
+}
+
+export default function Retention() {
+  const [s, setS] = useState({ budget: 30000, hours: 500, cap: 350, acceptance: 0.3, threshold: 0.03, haircut: 1 })
+  const [res, setRes] = useState(null); const [busy, setBusy] = useState(false); const [error, setError] = useState(null); const [page, setPage] = useState(0)
+  const set = (k) => (v) => setS((o) => ({ ...o, [k]: v }))
+  const run = async () => { setBusy(true); setError(null); try { setRes(await api.engine2(s)); setPage(0) } catch (e) { setError(e.message) } finally { setBusy(false) } }
+  const rows = res ? res.callList.slice(page * PAGE, page * PAGE + PAGE) : []
+  const pages = res ? Math.ceil(res.callList.length / PAGE) : 0
+  return (
+    <div className="grid gap-6 xl:grid-cols-[320px_1fr]">
+      <Card title="Campaign settings" subtitle="Budget, time and offer limits for the call centre"
+        action={<Button onClick={run} busy={busy} tone="emerald">Run Engine 2</Button>}>
+        <div className="space-y-5">
+          <Slider label="Retention budget" value={s.budget} min={5000} max={90000} step={5000} onChange={set('budget')} format={money} />
+          <Slider label="Agent hours" value={s.hours} min={100} max={1500} step={50} onChange={set('hours')} format={int} />
+          <Slider label="Cap per offer" value={s.cap} min={50} max={1000} step={25} onChange={set('cap')} format={int} />
+          <Slider label="Acceptance rate" value={s.acceptance} min={0.05} max={0.6} step={0.05} onChange={set('acceptance')} format={(v) => `${Math.round(v * 100)}%`} help="EMPC prior: mean 30%" />
+          <Slider label="Risk threshold" value={s.threshold} min={0.01} max={0.06} step={0.005} onChange={set('threshold')} format={(v) => `${(v * 100).toFixed(1)}% / month`} />
+          <Slider label="Contract-effect haircut" value={s.haircut} min={0.25} max={1} step={0.25} onChange={set('haircut')} format={(v) => `×${v}`} help="discounts the most selection-prone effects" />
+          <ErrorNote error={error} />
+        </div>
+      </Card>
+      <div className="space-y-6">
+        <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+          <Kpi label="Value preserved" value={res ? money(res.value) : '—'} hint={res ? `LP bound ${money(res.lpBound)}` : null} tone="emerald" />
+          <Kpi label="Customers called" value={res ? int(res.called) : '—'} hint={res ? `of ${int(res.pool)} candidates` : null} />
+          <Kpi label="Optimality gap" value={res ? `${res.gapPct.toFixed(3)}%` : '—'} hint={res ? `greedy is ${res.greedyShortfallPct.toFixed(1)}% worse` : null} tone="indigo" />
+          <Kpi label="Budget · hours used" value={res ? `${Math.round(res.budgetUsedPct)}% · ${Math.round(res.hoursUsedPct)}%` : '—'} tone="amber" />
+        </div>
+        {res && (
+          <Card title="Offer mix" subtitle="Customers per offer and the value each offer preserves">
+            <div className="space-y-3">
+              {Object.entries(res.mix).sort((a, b) => b[1] - a[1]).map(([k, n]) => (
+                <div key={k} className="grid grid-cols-[180px_1fr_120px] items-center gap-3 text-sm">
+                  <span className="text-slate-700">{OFFER_LABEL[k]}</span>
+                  <div className="h-2 rounded-full bg-slate-100"><div className="h-2 rounded-full bg-emerald-500" style={{ width: `${(100 * n) / res.called}%` }} /></div>
+                  <span className="text-right tabular-nums text-slate-900">{int(n)} · {money(res.valueByOffer[k])}</span>
+                </div>
+              ))}
+            </div>
+          </Card>
+        )}
+        <Card title="Call list" subtitle={res ? `${int(res.callList.length)} customers, highest value first · solved in ${(res.runtimeMs / 1000).toFixed(1)} s` : 'Run the campaign to build the list'}
+          action={res && <button type="button" onClick={() => downloadCsv(res.callList)} className="rounded-lg px-3 py-1.5 text-xs font-semibold text-emerald-700 ring-1 ring-emerald-200 hover:bg-emerald-50">Export CSV</button>}>
+          {!res ? <Empty>No call list yet</Empty> : (
+            <>
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead><tr className="text-left text-xs uppercase tracking-wide text-slate-500">
+                    <th className="pb-2 font-medium">Customer</th><th className="pb-2 font-medium">Offer</th><th className="pb-2 font-medium">Contract</th>
+                    <th className="pb-2 text-right font-medium">Risk / mo</th><th className="pb-2 text-right font-medium">Cost</th><th className="pb-2 text-right font-medium">Value</th></tr></thead>
+                  <tbody className="divide-y divide-slate-100">
+                    {rows.map((r) => (
+                      <tr key={r.customerID}>
+                        <td className="py-2 font-mono text-xs text-slate-700">{r.customerID}</td>
+                        <td className="py-2"><Badge tone="emerald">{r.offerName}</Badge></td>
+                        <td className="py-2 text-slate-600">{r.contract}</td>
+                        <td className="py-2 text-right tabular-nums text-slate-600">{r.monthlyHazardPct.toFixed(1)}%</td>
+                        <td className="py-2 text-right tabular-nums text-slate-600">{money(r.expectedCost)}</td>
+                        <td className="py-2 text-right font-medium tabular-nums text-slate-900">{money(r.expectedValue)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              <div className="mt-4 flex items-center justify-between text-xs text-slate-500">
+                <span>Page {page + 1} of {pages}</span>
+                <div className="flex gap-2">
+                  <button type="button" disabled={page === 0} onClick={() => setPage(page - 1)} className="rounded-md px-2.5 py-1 ring-1 ring-slate-200 disabled:opacity-40">Previous</button>
+                  <button type="button" disabled={page >= pages - 1} onClick={() => setPage(page + 1)} className="rounded-md px-2.5 py-1 ring-1 ring-slate-200 disabled:opacity-40">Next</button>
+                </div>
+              </div>
+            </>
+          )}
+        </Card>
+      </div>
+    </div>
+  )
+}

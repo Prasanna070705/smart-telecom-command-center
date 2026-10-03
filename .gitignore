@@ -1,0 +1,19 @@
+# dependencies and environments
+node_modules/
+.venv/
+venv/
+__pycache__/
+*.pyc
+
+# build, run and test outputs (rebuilt by the scripts)
+ui/dist/
+engine/results/
+test-results/
+playwright-report/
+*.log
+
+# secrets and machine files (never commit tokens)
+.env
+.env.*
+.DS_Store
+Thumbs.db

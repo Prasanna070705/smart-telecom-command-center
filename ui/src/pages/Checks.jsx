@@ -1,0 +1,33 @@
+import { Card, Badge } from '../components/ui.jsx'
+
+const ASSUMPTIONS = [
+  ['Churn means "left during the recorded tenure"', 'the dataset card says "last month", which contradicts the file'],
+  ['One price sensitivity for every customer', 'no price ever changed in the data'],
+  ['Offer effects are model what-ifs', 'no offer was ever made; contract effects are selection-prone'],
+  ['Acceptance rate', 'not in the data; 30% from the EMPC literature'],
+  ['Margin, discount rate, budget, hours, caps', 'manager inputs, not data'],
+]
+
+export default function Checks({ meta }) {
+  return (
+    <div className="grid gap-6 lg:grid-cols-2">
+      <Card title="Verification status" subtitle="Rerun with: python verify.py">
+        {meta && (
+          <div className="flex flex-wrap gap-2">
+            <Badge tone="emerald">{meta.verification.passed} passed</Badge>
+            <Badge tone="rose">{meta.verification.refuted} refuted</Badge>
+            <Badge tone="amber">{meta.verification.updated} updated</Badge>
+            <Badge>{meta.verification.checks} total</Badge>
+          </div>
+        )}
+      </Card>
+      <Card title="Assumptions behind every number" subtitle="State these on the slides">
+        <ul className="space-y-3">
+          {ASSUMPTIONS.map(([a, why]) => (
+            <li key={a} className="text-sm"><p className="font-medium text-slate-800">{a}</p><p className="text-xs text-slate-500">{why}</p></li>
+          ))}
+        </ul>
+      </Card>
+    </div>
+  )
+}

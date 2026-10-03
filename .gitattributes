@@ -1,0 +1,6 @@
+# normalise line endings so Windows and macOS/Linux teammates do not fight over CRLF/LF
+* text=auto
+# keep the dataset byte-for-byte as downloaded (it uses CRLF line endings)
+*.csv -text
+*.png binary
+*.zip binary

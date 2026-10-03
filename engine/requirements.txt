@@ -1,0 +1,10 @@
+# versions the verification ran on (pin them; SLSQP multipliers were confirmed on scipy 1.17.1)
+numpy==2.4.4
+pandas==3.0.2
+scipy==1.17.1
+scikit-learn==1.8.0
+# your stack, not verified here:
+# pulp
+# streamlit
+# plotly
+# pyarrow
