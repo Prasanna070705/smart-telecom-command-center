@@ -24,6 +24,18 @@
   Identical to G9/G10 on this Mac ($126,886 in the plan is the sandbox value, 0.005% away). At 0.1%: $152,614, $248,230.
 - RobustnessPanel on Retention uses the page's settings. Tests: api (matches G9/G10: true, 400 on haircut 2), e2e 13/13.
 
+## Day 4 (coupling)
+- verify.py stage H now solves Engine 2 with the API's settings (gap 0.1%, 30 s). H2 used to print only; it now checks
+  the haircut-1 net gains against the acceptance table (each within 1%; $15k row a 2.32-2.34 range). Still 3 checks.
+  Result: 1.294 / 2.321 / 3.151 / 3.278 / 3.304 $M, PASS 3, 11.6 s (was 74.6 s at 0.01%). Haircut 0.5: 1.776 / 2.427.
+- Coupling page, full sweep in the browser: $1.29M, $2.32M, $3.15M, $3.28M, $3.30M = acceptance table.
+- Could item done: `DELETE /api/jobs/:id` + Cancel button on Coupling and Robustness. Cancel restarts the jobs worker
+  (a running solve cannot be interrupted); back in ~2 s; 409 if the job already stopped, 503 while restarting. Other
+  running jobs fail with "jobs worker restarted to cancel job ...". Job polling moved into `ui/src/useJob.js`.
+- Fixed while there: a job write racing a worker restart could crash the API (stdin EPIPE); now ignored.
+- Tests: test:api (cancel 200, again 409, worker back 2.2 s, robustness still matches G9/G10), test:e2e 14/14.
+- Problem: e2e `getByText('Finished')` matched the hidden Retention panel too (pages stay mounted) -> exact match.
+
 ## Problems hit and fixes
 - `npm run check` FAIL on pinned libraries before install: expected.
 - `npm run test:api` "API not reachable": API not started (it also appears when workers fail to start).
