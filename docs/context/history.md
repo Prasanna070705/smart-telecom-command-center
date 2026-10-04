@@ -121,6 +121,17 @@
 - Problems: e2e text matches found hidden pages / chart labels -> scoped locators (no expected values changed).
   The $15k coupling row is $2,336,994 on arm64 Docker (gap 0.1%), inside its 2.32-2.34M acceptance range.
 
+## Live app (Render, free plan) and Index
+- https://smart-telecom-command-center.onrender.com, linked from the showcase site's "Try it live".
+- The service was NOT created from the Blueprint: render.yaml is not applied to it. Environment variables are set by hand
+  in the dashboard (Environment page): ENGINE2_TIME_LIMIT=180, API_TIMEOUT_MS=300000. Code auto-deploys from main.
+- Free plan = 0.1 CPU / 512 MB. With the laptop's 30 s limit Engine 2 once stopped early ($182,763 / 900, flagged);
+  with 180 s it gives $182,949 / 901. Maths libraries run single-threaded in the image (OPENBLAS_NUM_THREADS=1 etc.):
+  under a CPU quota their thread-per-core default made Engine 1 ~40x slower.
+- Probing a deploy with a 1 s Engine 2 limit does not work on 0.1 CPU (no list found -> 400); probe /api/meta instead.
+- Data & checks replaced by an Index tab (terms, formulas, methods, agent time and cost per offer from /api/meta).
+  Retention budget is a typed number ($0-1,000,000). e2e has 22 steps.
+
 ## Problems hit and fixes
 - `npm run check` FAIL on pinned libraries before install: expected.
 - `npm run test:api` "API not reachable": API not started (it also appears when workers fail to start).
