@@ -1,3 +1,4 @@
+import { useId } from 'react'
 // Shared building blocks. Class names are always complete strings so Tailwind can detect them.
 export function Card({ title, subtitle, action, children, className = '' }) {
   return (
@@ -17,10 +18,10 @@ export function Card({ title, subtitle, action, children, className = '' }) {
 }
 
 const KPI_TONES = { slate: 'text-slate-900 dark:text-slate-100', indigo: 'text-indigo-600 dark:text-indigo-400', emerald: 'text-emerald-600 dark:text-emerald-400', amber: 'text-amber-600 dark:text-amber-400', rose: 'text-rose-600 dark:text-rose-400' }
-export function Kpi({ label, value, hint, tone = 'slate' }) {
+export function Kpi({ label, value, hint, tone = 'slate', term }) {
   return (
     <div className="rounded-2xl bg-white/70 backdrop-blur-sm dark:bg-slate-900/70 p-5 shadow-sm ring-1 ring-slate-200 dark:ring-slate-800">
-      <p className="text-xs font-medium uppercase tracking-wide text-slate-600 dark:text-slate-400">{label}</p>
+      <p className="flex items-center gap-1.5 text-xs font-medium uppercase tracking-wide text-slate-600 dark:text-slate-400">{label}{term && <TermLink id={term} name={label} />}</p>
       <p key={value} className={`fade-up mt-2 text-2xl font-semibold tabular-nums ${KPI_TONES[tone]}`}>{value}</p>
       {hint && <p className="mt-1 text-xs text-slate-600 dark:text-slate-400">{hint}</p>}
     </div>
@@ -28,10 +29,10 @@ export function Kpi({ label, value, hint, tone = 'slate' }) {
 }
 
 const BUTTON_TONES = { indigo: 'bg-indigo-600 hover:bg-indigo-500 focus-visible:outline-indigo-600', emerald: 'bg-emerald-600 hover:bg-emerald-500 focus-visible:outline-emerald-600', amber: 'bg-amber-600 hover:bg-amber-500 focus-visible:outline-amber-600' }
-export function Button({ children, onClick, busy, tone = 'indigo' }) {
+export function Button({ children, onClick, busy, disabled, tone = 'indigo' }) {
   return (
-    <button type="button" onClick={onClick} disabled={busy}
-      className={`inline-flex shrink-0 items-center gap-2 whitespace-nowrap rounded-lg px-4 py-2 text-sm font-semibold text-white shadow-sm focus-visible:outline-2 focus-visible:outline-offset-2 disabled:cursor-wait disabled:opacity-60 ${BUTTON_TONES[tone]}`}>
+    <button type="button" onClick={onClick} disabled={busy || disabled}
+      className={`inline-flex shrink-0 items-center gap-2 whitespace-nowrap rounded-lg px-4 py-2 text-sm font-semibold text-white shadow-sm focus-visible:outline-2 focus-visible:outline-offset-2 disabled:cursor-not-allowed disabled:opacity-60 ${BUTTON_TONES[tone]}`}>
       {busy && <Spinner />}{children}
     </button>
   )
@@ -50,26 +51,58 @@ export function Badge({ children, tone = 'slate' }) {
   return <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${BADGE_TONES[tone]}`}>{children}</span>
 }
 
-export function Slider({ label, value, min, max, step, onChange, format = (v) => v, help }) {
+export function Slider({ label, value, min, max, step, onChange, format = (v) => v, help, term }) {
+  const id = useId()
   return (
-    <label className="block">
-      <span className="flex items-baseline justify-between">
-        <span className="text-xs font-medium text-slate-600 dark:text-slate-300">{label}</span>
+    <div>
+      <div className="flex items-baseline justify-between">
+        <span className="flex items-center gap-1.5"><label htmlFor={id} className="text-xs font-medium text-slate-600 dark:text-slate-300">{label}</label>{term && <TermLink id={term} name={label} />}</span>
         <span className="text-xs font-semibold tabular-nums text-slate-900 dark:text-slate-100">{format(value)}</span>
-      </span>
-      <input type="range" min={min} max={max} step={step} value={value} aria-label={label}
+      </div>
+      <input id={id} type="range" min={min} max={max} step={step} value={value}
         onChange={(e) => onChange(Number(e.target.value))} className="range mt-3 w-full" style={{ '--pct': `${(100 * (value - min)) / (max - min)}%` }} />
       {help && <span className="mt-1 block text-[11px] text-slate-600 dark:text-slate-400">{help}</span>}
-    </label>
+    </div>
   )
 }
 
-export function Toggle({ label, checked, onChange }) {
+// A typed amount (the retention budget): any whole number in [min, max]; `error` is shown under it and the page
+// keeps its Run button disabled while it is set.
+export function NumberField({ label, value, onChange, min, max, prefix, help, term, error }) {
+  const id = useId()
   return (
-    <label className="flex cursor-pointer items-center justify-between gap-3">
-      <span className="text-xs font-medium text-slate-600 dark:text-slate-300">{label}</span>
-      <input type="checkbox" checked={checked} onChange={(e) => onChange(e.target.checked)} className="h-4 w-4 accent-indigo-600" />
-    </label>
+    <div>
+      <span className="flex items-center gap-1.5"><label htmlFor={id} className="text-xs font-medium text-slate-600 dark:text-slate-300">{label}</label>{term && <TermLink id={term} name={label} />}</span>
+      <div className={`mt-2 flex items-center rounded-lg bg-white/80 ring-1 focus-within:ring-2 dark:bg-slate-900/60 ${error ? 'ring-rose-400 focus-within:ring-rose-500 dark:ring-rose-500/60' : 'ring-slate-300 focus-within:ring-indigo-500 dark:ring-slate-700'}`}>
+        {prefix && <span className="pl-3 text-sm text-slate-600 dark:text-slate-400">{prefix}</span>}
+        <input id={id} type="number" inputMode="numeric" min={min} max={max} step="1" value={Number.isNaN(value) ? '' : value} aria-invalid={!!error}
+          aria-describedby={`${id}-note`} onChange={(e) => onChange(e.target.value === '' ? NaN : Number(e.target.value))}
+          className="w-full bg-transparent px-2 py-2 text-sm tabular-nums text-slate-900 outline-none dark:text-slate-100" />
+      </div>
+      <span id={`${id}-note`} className={`mt-1 block text-[11px] ${error ? 'text-rose-700 dark:text-rose-300' : 'text-slate-600 dark:text-slate-400'}`}>{error || help}</span>
+    </div>
+  )
+}
+
+// A small "?" that opens the Index at a term (App listens for the event and switches page).
+export function TermLink({ id, name }) {
+  return (
+    <button type="button" onClick={() => window.dispatchEvent(new CustomEvent('open-term', { detail: id }))} title={`What is "${name}"? Opens the Index`}
+      aria-label={`${name}: explain in the Index`}
+      className="inline-grid h-4 w-4 place-items-center rounded-full text-[10px] font-bold normal-case leading-none text-slate-600 ring-1 ring-slate-300 hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-2 focus-visible:outline-indigo-500 dark:text-slate-300 dark:ring-slate-600 dark:hover:bg-slate-800 dark:hover:text-white">?</button>
+  )
+}
+
+export function Toggle({ label, checked, onChange, help, term }) {
+  const id = useId()
+  return (
+    <div>
+      <div className="flex items-center justify-between gap-3">
+        <span className="flex items-center gap-1.5"><label htmlFor={id} className="cursor-pointer text-xs font-medium text-slate-600 dark:text-slate-300">{label}</label>{term && <TermLink id={term} name={label} />}</span>
+        <input id={id} type="checkbox" checked={checked} onChange={(e) => onChange(e.target.checked)} className="h-4 w-4 accent-indigo-600" />
+      </div>
+      {help && <span className="mt-1 block text-[11px] text-slate-600 dark:text-slate-400">{help}</span>}
+    </div>
   )
 }
 
@@ -98,7 +131,7 @@ export function TimeLimitNote({ seconds, gapPct, count, of }) {
     <p role="note" className="mb-3 rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-800 ring-1 ring-amber-200 dark:bg-amber-500/15 dark:text-amber-300 dark:ring-amber-500/30">
       {count ? `${count} of ${of} solves stopped at the ${limit}; their values are the best found in that time, not proven within the gap.`
         : <>Stopped at the {limit}{gapPct != null && <>: this call list is within {gapPct.toFixed(3)}% of the best possible</>}.</>}
-      {' '}A faster machine or a longer limit closes the gap.
+      {' '}A faster machine or a longer limit closes the gap. <TermLink id="time-limit" name="Solver time limit" />
     </p>
   )
 }
