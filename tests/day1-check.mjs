@@ -5,7 +5,8 @@ import { readFileSync, existsSync } from 'node:fs';
 const py = process.env.PYTHON || (process.platform === 'win32' ? 'python' : 'python3');
 const rows = [];
 const check = (name, fn) => { try { const [ok, detail] = fn(); rows.push([ok ? 'PASS' : 'FAIL', name, detail]); } catch (e) { rows.push(['FAIL', name, e.message.split('\n')[0]]); } };
-const run = (cmd, args) => execFileSync(cmd, args, { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], shell: process.platform === 'win32' }).trim();
+// Only npm needs a shell on Windows (it is npm.cmd); through cmd.exe the multi-line `python -c` scripts below would be mangled.
+const run = (cmd, args) => execFileSync(cmd, args, { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], shell: process.platform === 'win32' && cmd === 'npm' }).trim();
 
 check('Node.js 20.19+ or 22.12+', () => {
   const [maj, min] = process.versions.node.split('.').map(Number);

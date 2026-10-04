@@ -53,6 +53,6 @@ await step('Data & checks: verification counts and assumptions shown', async () 
   await page.getByText('One price sensitivity for every customer').waitFor(); });
 await step('Invalid input surfaces the API error message', async () => {
   const r = await page.evaluate(async () => (await fetch('/api/engine1', { method: 'POST', body: JSON.stringify({ eta: 99 }) })).status); if (r !== 400) throw new Error('status ' + r); });
-await page.screenshot({ path: '/tmp/e2e_unstyled.png' });
+await page.screenshot({ path: (await import('node:path')).join((await import('node:os')).tmpdir(), 'e2e_last_page.png') });
 console.log(errors.length ? 'BROWSER ERRORS: ' + errors.join(' | ') : 'no browser console errors');
 await browser.close();
