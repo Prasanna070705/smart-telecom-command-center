@@ -29,6 +29,7 @@ await step('Retention: run Engine 2 → $182,949, 901 called', async () => {
   await page.getByRole('button', { name: 'Retention' }).click(); await page.getByRole('button', { name: 'Run Engine 2' }).click();
   await page.getByText('$182,949').waitFor({ timeout: 60000 }); await page.getByText('901', { exact: true }).waitFor(); });
 await step('Retention: the budget is typed; an invalid amount disables Run', async () => {
+  await page.getByText('each call takes 30-60 minutes').waitFor(); await page.getByText('published studies average 30%').waitFor();   // help text from /api/meta
   const b = page.getByLabel('Retention budget', { exact: true }); await b.fill(''); await page.getByText('Enter a whole number of dollars').waitFor();
   if (await page.getByRole('button', { name: 'Run Engine 2' }).isEnabled()) throw new Error('Run enabled with no budget');
   await b.fill('45000'); await page.getByRole('button', { name: 'Run Engine 2' }).click(); await page.getByText('expected · LP bound').waitFor();
