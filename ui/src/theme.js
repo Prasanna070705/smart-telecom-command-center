@@ -11,6 +11,13 @@ export function applyTheme(theme) {
   document.documentElement.style.colorScheme = dark ? 'dark' : 'light'   // native controls and scrollbars follow
 }
 
+let fadeTimer
+// Called on a user switch (not on first load): colours fade instead of snapping.
+function fadeColours() {
+  const el = document.documentElement; el.classList.add('theme-fade')
+  clearTimeout(fadeTimer); fadeTimer = setTimeout(() => el.classList.remove('theme-fade'), 300)
+}
+
 export function useTheme() {
   const [theme, setTheme] = useState(read)
   useEffect(() => {
@@ -20,5 +27,5 @@ export function useTheme() {
     const m = media(); const on = () => applyTheme('system')
     m.addEventListener('change', on); return () => m.removeEventListener('change', on)
   }, [theme])
-  return [theme, setTheme]
+  return [theme, (t) => { fadeColours(); setTheme(t) }]
 }

@@ -26,13 +26,13 @@ function RobustnessPanel({ settings }) {
     <Card title="Does the call list survive weaker assumptions?" subtitle="Engine 2 re-solved with contract effects cut and other acceptance rates; both are scenario inputs, not measured"
       action={<div className="flex gap-2">{running && <CancelButton onClick={cancel} />}<Button onClick={() => { setRan(key); start(() => api.startRobustness(settings), 4) }} busy={running} tone="emerald">Run robustness</Button></div>}>
       <ErrorNote error={error || job?.error} />
-      {job && <p className="mb-3 text-xs text-slate-500 dark:text-slate-400">{JOB_STATUS[job.status]} · {job.progress.done} of {job.progress.total} cases solved</p>}
+      {job && <p className="mb-3 text-xs text-slate-600 dark:text-slate-400">{JOB_STATUS[job.status]} · {job.progress.done} of {job.progress.total} cases solved</p>}
       {!rows.length ? (running ? <Loading>Solving the base case…</Loading> : <Empty>Run it to compare four cases with this list</Empty>) : (
         <>
           <StaleNote show={ran !== key} />
           <div className="overflow-x-auto">
             <table className="w-full text-sm" aria-label="Robustness of the call list">
-              <thead><tr className="text-left text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">
+              <thead><tr className="text-left text-xs uppercase tracking-wide text-slate-600 dark:text-slate-400">
                 <th className="pb-2 font-medium">Case</th><th className="pb-2 text-right font-medium">Value</th><th className="pb-2 text-right font-medium">vs base</th>
                 <th className="pb-2 text-right font-medium">Called</th><th className="pb-2 text-right font-medium">Still called</th><th className="pb-2 text-right font-medium">Same offer</th></tr></thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
@@ -41,8 +41,8 @@ function RobustnessPanel({ settings }) {
                     <td className="py-2 text-right text-slate-400 dark:text-slate-500">—</td><td className="py-2 text-right tabular-nums text-slate-600 dark:text-slate-300">{int(base.called)}</td>
                     <td className="py-2 text-right text-slate-400 dark:text-slate-500">—</td><td className="py-2 text-right text-slate-400 dark:text-slate-500">—</td></tr>
                 )}
-                {rows.map((c) => (
-                  <tr key={c.kind + c.factor}>
+                {rows.map((c, i) => (
+                  <tr key={c.kind + c.factor} className="fade-up" style={{ '--i': i }}>
                     <td className="py-2 text-slate-800 dark:text-slate-200">{caseLabel(c)}</td>
                     <td className="py-2 text-right font-medium tabular-nums text-slate-900 dark:text-slate-100">{money(c.value)}</td>
                     <td className={`py-2 text-right tabular-nums ${c.valueChangePct >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}`}>{pct(c.valueChangePct)}</td>
@@ -54,7 +54,7 @@ function RobustnessPanel({ settings }) {
               </tbody>
             </table>
           </div>
-          <p className="mt-3 text-xs text-slate-500 dark:text-slate-400">Still called: share of the base list's customers called again. Same offer: share of those given the same offer.
+          <p className="mt-3 text-xs text-slate-600 dark:text-slate-400">Still called: share of the base list's customers called again. Same offer: share of those given the same offer.
             {job.result && ` Solved in ${(job.result.runtimeMs / 1000).toFixed(1)} s at a ${job.result.mipGapPct}% gap.`}</p>
         </>
       )}
@@ -97,7 +97,7 @@ export default function Retention({ shared }) {
               {Object.entries(res.mix).sort((a, b) => b[1] - a[1]).map(([k, n]) => (
                 <div key={k} className="grid grid-cols-[180px_1fr_120px] items-center gap-3 text-sm">
                   <span className="text-slate-700 dark:text-slate-300">{OFFER_LABEL[k]}</span>
-                  <div className="h-2 rounded-full bg-slate-100 dark:bg-slate-800"><div className="h-2 rounded-full bg-emerald-500" style={{ width: `${(100 * n) / res.called}%` }} /></div>
+                  <div className="h-2 rounded-full bg-slate-100 dark:bg-slate-800"><div className="bar-grow h-2 rounded-full bg-emerald-500" style={{ width: `${(100 * n) / res.called}%` }} /></div>
                   <span className="text-right tabular-nums text-slate-900 dark:text-slate-100">{int(n)} · {money(res.valueByOffer[k])}</span>
                 </div>
               ))}
@@ -112,12 +112,12 @@ export default function Retention({ shared }) {
               <StaleNote show={ran !== key} />
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
-                  <thead><tr className="text-left text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">
+                  <thead><tr className="text-left text-xs uppercase tracking-wide text-slate-600 dark:text-slate-400">
                     <th className="pb-2 font-medium">Customer</th><th className="pb-2 font-medium">Offer</th><th className="pb-2 font-medium">Contract</th>
                     <th className="pb-2 text-right font-medium">Risk / mo</th><th className="pb-2 text-right font-medium">Cost</th><th className="pb-2 text-right font-medium">Value</th></tr></thead>
                   <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                    {rows.map((r) => (
-                      <tr key={r.customerID}>
+                    {rows.map((r, i) => (
+                      <tr key={r.customerID} className="fade-up" style={{ '--i': i }}>
                         <td className="py-2 font-mono text-xs text-slate-700 dark:text-slate-300">{r.customerID}</td>
                         <td className="py-2"><Badge tone="emerald">{r.offerName}</Badge></td>
                         <td className="py-2 text-slate-600 dark:text-slate-300">{r.contract}</td>
@@ -129,7 +129,7 @@ export default function Retention({ shared }) {
                   </tbody>
                 </table>
               </div>
-              <div className="mt-4 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
+              <div className="mt-4 flex items-center justify-between text-xs text-slate-600 dark:text-slate-400">
                 <span>Page {page + 1} of {pages}</span>
                 <div className="flex gap-2">
                   <button type="button" disabled={page === 0} onClick={() => setPage(page - 1)} className="rounded-md px-2.5 py-1 ring-1 ring-slate-200 dark:ring-slate-800 disabled:opacity-40">Previous</button>
