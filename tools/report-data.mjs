@@ -1,7 +1,7 @@
 // Collects every number the results chapter quotes from the running API (default settings) into
 // docs/report/results-data.json, so the report can be checked against the app. Run: npm run report:data (API running).
 import { writeFile } from 'node:fs/promises';
-const B = 'http://localhost:8787';
+const B = process.env.API_URL || 'http://localhost:8787';
 const j = async (p, body) => { const r = await fetch(B + p, body ? { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) } : {}); if (!r.ok && r.status !== 202) throw new Error(`${p} ${r.status}`); return r.json(); };
 const job = async (p, body) => { const { jobId } = await j(p, body); for (;;) { const s = await j(`/api/jobs/${jobId}`); if (s.status !== 'running') return s.result; await new Promise((r) => setTimeout(r, 500)); } };
 
