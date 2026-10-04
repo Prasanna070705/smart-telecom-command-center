@@ -22,7 +22,10 @@ COPY --from=ui /app/ui/dist ui/dist
 RUN python -m compileall -q engine \
  && useradd --create-home --uid 1000 app && mkdir -p results && chown app results
 USER app
-ENV PORT=8787 PYTHON=python3 PYTHONUNBUFFERED=1
+ENV PORT=8787 PYTHON=python3 PYTHONUNBUFFERED=1 \
+    # One maths thread per process. OpenBLAS otherwise starts a thread per host core and, under a CPU quota
+    # (cloud hosts, --cpus), they fight: at 0.5 CPU Engine 1 took 24 s with them and 0.6 s without.
+    OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1
 EXPOSE 8787
 HEALTHCHECK --interval=10s --timeout=3s --start-period=60s --retries=3 \
   CMD node -e "fetch('http://localhost:8787/api/health').then(r=>r.json()).then(j=>process.exit(j.ok?0:1)).catch(()=>process.exit(1))"
