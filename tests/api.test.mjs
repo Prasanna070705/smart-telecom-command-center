@@ -52,4 +52,6 @@ for (const c of rj.result?.cases || []) {
 console.log('  matches G9/G10:', rok, '| base', rj.result?.base.value);
 const rbBad = await j('POST', '/api/engine2/robustness', { haircuts: [2] });
 console.log('  invalid haircut status', rbBad.status, rbBad.body.error);
+const { existsSync } = await import('node:fs'); const saved = (id) => existsSync(new URL(`../results/jobs/${id}.json`, import.meta.url));
+console.log('finished jobs saved to disk:', [job.body.jobId, cj.body.jobId, rb.body.jobId].every(saved), '(coupling, cancelled, robustness)');
 console.log('unknown endpoint status', (await j('GET', '/api/nope')).status, '| missing job status', (await j('GET', '/api/jobs/xyz')).status);
