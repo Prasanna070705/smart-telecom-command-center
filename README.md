@@ -48,6 +48,13 @@ The image holds the API, both Python engine workers and the built UI (Python 3.1
 on /api/health). Finished jobs are kept in `./results`. The tests run from the host against the container as usual:
 `npm run test:api`, `npm run test:e2e`. `.github/workflows/docker.yml` does exactly that on Linux for every push to v2.
 
+## Live demo (Render, free plan)
+
+`render.yaml` deploys the Docker image from `main` to Render's free plan (0.1 CPU, 512 MB). It sleeps after 15 minutes
+without visitors: the first visit then takes about 1.5-2 minutes to wake the engines, and solves are slower than on a
+laptop (measured with the same limits: Engine 1 13.5 s, Engine 2 46 s, five-budget sweep 2 min 45 s). For a live
+presentation, run it locally or with Docker instead.
+
 ## Test it
 
     npm run test:api                # with the API running
