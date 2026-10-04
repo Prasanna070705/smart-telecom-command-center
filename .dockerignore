@@ -1,0 +1,15 @@
+# Only engine/, server/ and ui/ go into the image
+.git
+.github
+.venv
+node_modules
+ui/node_modules
+ui/dist
+results
+engine/results
+engine/__pycache__
+docs
+tests
+tools
+*.log
+.DS_Store

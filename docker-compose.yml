@@ -1,0 +1,11 @@
+# docker compose up --build   ->  http://localhost:8787
+services:
+  app:
+    build: .
+    image: smart-telecom-command-center:local
+    ports:
+      - "8787:8787"
+    init: true                  # forwards stop signals to node, so `docker compose down` is instant
+    volumes:
+      - ./results:/app/results  # finished jobs survive restarts (and tests/api.test.mjs can see them)
+    restart: unless-stopped
