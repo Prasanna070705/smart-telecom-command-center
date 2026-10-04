@@ -45,7 +45,7 @@ export default function App() {
   return (
     <div className="isolate flex min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100">
       <AmbientBackground page={page} />
-      <aside className="hidden w-64 shrink-0 flex-col bg-slate-900 px-4 py-6 text-slate-300 md:flex dark:border-r dark:border-slate-800">
+      <aside className="sticky top-0 hidden h-screen w-64 shrink-0 flex-col self-start overflow-y-auto bg-slate-900 px-4 py-6 text-slate-300 md:flex dark:border-r dark:border-slate-800">
         <div className="px-2"><Logo /></div>
         <nav className="mt-8 space-y-1" aria-label="Main">
           {PAGES.map((p) => (
