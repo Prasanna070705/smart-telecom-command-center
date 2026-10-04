@@ -44,7 +44,8 @@ await step('Shared settings: changing margin marks the call list stale; reset cl
 await step('Coupling: background job for $0 and $15,000 finishes, curve drawn', async () => {
   await page.getByRole('button', { name: 'Coupling' }).click(); await page.getByLabel('Budgets in dollars, comma separated').fill('0, 15000');
   await page.getByRole('button', { name: 'Run sweep' }).click(); await page.getByText('Finished', { exact: true }).waitFor({ timeout: 120000 });
-  await page.getByText('$1.29M').waitFor(); await page.getByText(/^\$2\.3\dM$/).first().waitFor(); await page.locator('svg[aria-label="Net lifetime-profit gain by retention budget"] circle').nth(1).waitFor(); });
+  const sweep = page.locator('table', { hasText: 'Net gain' });   // the chart's axis labels can show the same amounts
+  await sweep.getByText('$1.29M', { exact: true }).waitFor(); await sweep.getByText(/^\$2\.3\dM$/).waitFor(); await page.locator('svg[aria-label="Net lifetime-profit gain by retention budget"] circle').nth(1).waitFor(); });
 await step('Coupling: a running sweep can be cancelled', async () => {
   await page.getByRole('button', { name: 'Run sweep' }).click(); await page.getByRole('button', { name: 'Cancel' }).click();
   await page.getByText('Cancelled', { exact: true }).waitFor({ timeout: 10000 }); });
