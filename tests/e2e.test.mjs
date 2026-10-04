@@ -40,6 +40,9 @@ await step('Coupling: background job for $0 and $15,000 finishes, curve drawn', 
 await step('Coupling: a running sweep can be cancelled', async () => {
   await page.getByRole('button', { name: 'Run sweep' }).click(); await page.getByRole('button', { name: 'Cancel' }).click();
   await page.getByText('Cancelled', { exact: true }).waitFor({ timeout: 10000 }); });
+await step('Data & checks: verification counts and assumptions shown', async () => {
+  await page.getByRole('button', { name: 'Data & checks' }).click(); await page.getByText('76 total').waitFor();
+  await page.getByText('One price sensitivity for every customer').waitFor(); });
 await step('Invalid input surfaces the API error message', async () => {
   const r = await page.evaluate(async () => (await fetch('/api/engine1', { method: 'POST', body: JSON.stringify({ eta: 99 }) })).status); if (r !== 400) throw new Error('status ' + r); });
 await page.screenshot({ path: '/tmp/e2e_unstyled.png' });
