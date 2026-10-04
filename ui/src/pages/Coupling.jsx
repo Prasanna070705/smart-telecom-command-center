@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { api } from '../api.js'
-import { useJob, JOB_STATUS } from '../useJob.js'
-import { Card, Button, CancelButton, ErrorNote, Empty, Loading, StaleNote, TimeLimitNote, TermLink } from '../components/ui.jsx'
+import { useJob, useElapsed } from '../useJob.js'
+import { Card, Button, CancelButton, ErrorNote, Empty, Loading, StaleNote, TimeLimitNote, TermLink, JobStatus } from '../components/ui.jsx'
 import { pick } from '../settings.js'
 import { money, pct } from '../format.js'
 
@@ -28,12 +28,13 @@ function GainChart({ rows }) {           // net gain against retention budget, p
 
 export default function Coupling({ shared }) {
   const [budgets, setBudgets] = useState('0, 15000, 30000, 60000, 90000')
-  const { job, error, start: startJob, cancel, running } = useJob(); const [inputError, setInputError] = useState(null); const [ran, setRan] = useState(null)
+  const { job, error, start: startJob, cancel, running, reused, startedAt } = useJob(); const [inputError, setInputError] = useState(null); const [ran, setRan] = useState(null)
+  const [runList, setRunList] = useState([]); const elapsed = useElapsed(startedAt, running)
   const req = pick(shared, ['eta', 'margin', 'discount']); const key = JSON.stringify(req)
   const start = () => {
     const list = budgets.split(',').map((v) => Number(v.trim())).filter((v) => Number.isFinite(v) && v >= 0)
     setInputError(list.length ? null : 'Enter at least one budget')
-    if (list.length) { setRan(key); startJob(() => api.startCoupling({ ...req, budgets: list }), list.length) }
+    if (list.length) { setRan(key); setRunList(list); startJob(() => api.startCoupling({ ...req, budgets: list }), list.length) }
   }
   const rows = job?.progress.rows || []
   return (
@@ -45,7 +46,7 @@ export default function Coupling({ shared }) {
         </label>
         {job && (
           <div className="mt-4">
-            <div className="mb-1 flex justify-between text-xs text-slate-600 dark:text-slate-400"><span>{JOB_STATUS[job.status]}</span><span>{job.progress.done} of {job.progress.total}</span></div>
+            <JobStatus job={job} running={running} reused={reused} elapsed={elapsed} step={runList[job.progress.done] != null ? `budget ${money(runList[job.progress.done])}` : null} />
             <div className="h-2 rounded-full bg-slate-100 dark:bg-slate-800"><div className="h-2 rounded-full bg-amber-500 transition-all" style={{ width: `${(100 * job.progress.done) / job.progress.total}%` }} /></div>
           </div>
         )}
