@@ -36,7 +36,6 @@ $182,949" (expected value under stated settings); an interior optimum from Engin
 greedy ranking matching the integer program (4-6% worse).
 
 ## Known gaps (open, not decided)
-- Settings don't carry across pages: Retention and Coupling use their own margin 70% / discount 1%; Coupling ignores
-  the Pricing eta slider (uses 0.8).
+- Settings across pages: CLOSED Day 6. One shared margin / discount / eta for Pricing, Retention and Coupling.
 - Offer terms (10%/12 mo, 15%/24 mo, 6 months free, hours per offer, eligibility) are hard-coded in engine2.py.
 - Coupling results depend on which near-optimal list the 0.1% gap returns ($15k row differed 0.66% on the Mac).
