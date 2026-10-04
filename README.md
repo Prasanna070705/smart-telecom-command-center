@@ -11,7 +11,7 @@ Three parts, one repo:
 
 ## Run it
 
-Needs Node.js 20.19+ or 22.12+ (Vite's requirement) and Python 3.12 with the pinned libraries.
+Needs Node.js 20.19+ or 22.12+ (Vite's requirement) and Python 3.12 or newer with the pinned libraries (all 76 model checks run on 3.12.3 and 3.14.3).
 
     npm run check                   # Node, npm, git, Python, pinned libraries, dataset
     pip install -r engine/requirements.txt
@@ -34,7 +34,7 @@ Then:
     npm run test:api                # with the API running
     npm i -D playwright && npx playwright install chromium
     npm run test:e2e                # with the API running and ui/dist built
-    npm run verify                  # 73 model checks; npm run verify:coupling adds stage H
+    npm run verify                  # 73 of verify.py's 76 checks (stages A-G, I, J); npm run verify:coupling runs the other 3 (stage H)
 
 ## What was verified before handover (offline sandbox, 1 CPU)
 
@@ -42,6 +42,13 @@ Then:
 - Browser end-to-end: 11 steps from page load to CSV export, against the real API.
 - UI source bundled with esbuild + React 19.2.5. NOT verified offline: Vite 8 build, Tailwind 4 styling
   (packages not installable offline). Day 1 of the plan checks both.
+
+## Where it has run
+
+| Machine | Node / Python | API ready | Engine 1 | Engine 2 | Coupling (3 budgets) | verify (73 checks) | test:api | test:e2e |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Sandbox, Linux, 1 CPU, 3 GB | 22.22.2 / 3.12.3 | 4.2-4.6 s | 0.6 s | 7.4 s | 16 s | 81 s, 67 PASS + 6 expected FAIL | all match | 11 steps PASS |
+| MacBook Air, macOS 27.0.1 | 24.12.0 / 3.14.3 | 1.3 s | 0.27 s | 1.6 s | 4.0 s | 38.8 s, 67 PASS + 6 expected FAIL | all match | 12/12 PASS |
 
 ## Tools
 

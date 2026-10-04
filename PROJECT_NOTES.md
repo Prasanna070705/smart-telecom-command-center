@@ -11,7 +11,7 @@ retention spend frees room to raise prices. Read `docs/context/` before starting
 ## Layout
 - `engine/` Python, all modelling. `common.py` load + price recovery, `hazard.py` monthly hazard model,
   `engine1.py` SLSQP price optimizer, `engine2.py` offer assignment (SciPy HiGHS), `worker.py` JSON-lines worker,
-  `verify.py` 76 model checks.
+  `verify.py` 76 model checks (73 in stages A-G, I, J via `npm run verify`; 3 in stage H via `npm run verify:coupling`).
 - `server/server.mjs` Node.js API, no npm dependencies. Spawns two Python workers (interactive + background jobs).
 - `ui/` React + Tailwind 4, built with Vite 8 (scaffolded from the official react template; our files are in `ui/src`).
 - `tests/` `day1-check.mjs` (prerequisites), `api.test.mjs`, `e2e.test.mjs` (Playwright, 12 steps), `run-verify.mjs`.
@@ -19,8 +19,8 @@ retention spend frees room to raise prices. Read `docs/context/` before starting
 
 ## Commands (macOS, zsh, Python env in .venv)
 - `source .venv/bin/activate` first in every terminal that runs Python or the API.
-- `npm run check` prerequisites; `npm run verify` model checks (expect PASS 67 | FAIL 6; the six expected FAILs are
-  A5b, A7b, B2b, D6, D8, D9); `npm run verify -- G` Engine 2 checks only; `npm run verify:coupling` stage H.
+- `npm run check` prerequisites; `npm run verify` runs 73 of the 76 model checks, stages A-G, I, J (expect PASS 67 | FAIL 6; the six expected FAILs are
+  A5b, A7b, B2b, D6, D8, D9); `npm run verify -- G` Engine 2 checks only; `npm run verify:coupling` runs the other 3 (stage H).
 - `npm run api` API on :8787 (long-running; keep in its own terminal). `npm run ui` Vite dev on :5173.
 - `npm run test:api` (API must be running). `npm run build:ui` then `npm run test:e2e` (tests the built app on :8787).
 
@@ -44,6 +44,6 @@ retention spend frees room to raise prices. Read `docs/context/` before starting
 ## Current state
 - Day 1 done: tag `g1-toolchain`. Day 2 done: sensitivity call + Pricing panel + Engine 2 speed-up + tests
   (HEAD was f63898a "test: cover the sensitivity call and panel"), pushed to origin/main.
-- Still to record in `docs/day1-baseline.md` and README "Where it has run": `npm run verify` result and time on this
-  Mac, API cold start, `npm run test:e2e` result after a fresh build.
+- Mac measurements recorded (docs/day1-baseline.md, README "Where it has run"): verify (73 checks) 67/6 in 38.8 s, API ready
+  1.3 s, test:e2e 12/12.
 - Next: Day 3 (Engine 2 robustness call + Retention panel, gate G2). See `docs/context/plan.md`.
