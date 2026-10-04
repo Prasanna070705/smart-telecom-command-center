@@ -1,7 +1,7 @@
 """Long-lived engine worker. Protocol: one JSON object per line on stdin -> one JSON object per line on stdout.
-Request  {"id": str, "op": "meta"|"engine1"|"engine2"|"coupling", "params": {...}}
+Request  {"id": str, "op": "meta"|"engine1"|"sensitivity"|"engine2"|"robustness"|"coupling", "params": {...}}
 Reply    {"id": str, "ok": true, "result": {...}} | {"id": str, "ok": false, "error": str}
-Progress {"id": str, "progress": {"done": int, "total": int, "row": {...}}}   (coupling only)
+Progress {"id": str, "progress": {"done": int, "total": int, "row": {...}}}   (coupling and robustness)
 C-level solver output is diverted to stderr so it can never corrupt the protocol stream."""
 import os, sys, json, time, traceback
 PROTO = os.fdopen(os.dup(1), 'w', buffering=1)
@@ -101,6 +101,37 @@ def op_engine2(p):
                 pool=npool, pairs=o['pairs'], called=len(calls), mix=o['mix'], valueByOffer={k: round(float(v), 0) for k, v in vbo.items()},
                 feasible={k: bool(v) for k, v in o['feasible'].items()}, solverStatus=int(o['ip_status']), callList=calls, runtimeMs=round(1000 * (time.time() - t)))
 
+def robustness_params(p):
+    """Validated settings and the cases to solve; also called alone so the API can return 400 before starting a job."""
+    q = e2params(p); todo = []
+    for name, kind, default, lo in (('haircuts', 'haircut', [0.5, 0.25], 0), ('acceptances', 'acceptance', [0.15, 0.5], 0.01)):
+        xs = p.get(name, default)
+        if not isinstance(xs, list) or len(xs) > 4: raise ValueError(f'{name} must be a list of at most 4 numbers')
+        todo += [(kind, num({kind: x}, kind, 1, lo, 1)) for x in xs]
+    if not todo: raise ValueError('give at least one haircut or acceptance rate')
+    return q, todo
+
+def op_robustness(p, rid):
+    """Engine 2 re-solved with weaker contract effects and other acceptance rates, everything else as the request.
+    kept = share of the base list's customers still called; sameOffer = share of those keeping their offer (verify G9/G10)."""
+    q, todo = robustness_params(p); t = time.time()
+    def run(**over):
+        r = {**q, **over}
+        R, _ = E2.build(H, m=r['m'], d=r['d'], thr=r['thr'], accept=r['accept'], haircut=r['haircut'], credit=r['credit'], premium=r['premium'])
+        return E2.solve(R, r['budget'], r['hours'], r['cap'], gap=r['gap'], tlimit=r['tlimit'])
+    base = run(); b = base['sel'][['i', 'j']]
+    def case(kind, factor, o):
+        s = o['sel'][['i', 'j']]; both = pd.merge(s, b, on='i')
+        return dict(kind=kind, factor=factor, value=round(o['ip'], 0), valueChangePct=round(100 * (o['ip'] - base['ip']) / base['ip'], 1) if base['ip'] else 0,
+                    called=len(s), keptPct=round(100 * len(both) / len(b), 1) if len(b) else 0,
+                    sameOfferPct=round(100 * float((both.j_x == both.j_y).mean()), 1) if len(both) else 0, mix=o['mix'])
+    cases = []
+    for kind, f in todo:
+        cases.append(case(kind, f, run(**({'haircut': f} if kind == 'haircut' else {'accept': f}))))
+        send(dict(id=rid, progress=dict(done=len(cases), total=len(todo), row=cases[-1])))
+    return dict(base=dict(value=round(base['ip'], 0), called=len(b), mix=base['mix'], haircut=q['haircut'], acceptance=q['accept']),
+                cases=cases, mipGapPct=round(100 * q['gap'], 4), runtimeMs=round(1000 * (time.time() - t)))
+
 def op_coupling(p, rid):
     budgets = [float(b) for b in p.get('budgets', [0, 15000, 30000, 60000, 90000])]
     eta = num(p, 'eta', 0.8, 0.05, 10); m = num(p, 'margin', 0.7, 0.01, 0.99); d = num(p, 'discount', 0.01, 0.0001, 0.2); hc = num(p, 'haircut', 1.0, 0, 1)
@@ -130,6 +161,8 @@ for line in sys.stdin:
         elif op == 'engine1': res = op_engine1(p)
         elif op == 'engine2': res = op_engine2(p)
         elif op == 'sensitivity': res = op_sensitivity(p)
+        elif op == 'robustness': res = op_robustness(p, rid)
+        elif op == 'robustness_check': res = dict(cases=len(robustness_params(p)[1]))
         elif op == 'coupling': res = op_coupling(p, rid)
         else: raise ValueError(f'unknown op {op!r}')
         send(dict(id=rid, ok=True, result=res))

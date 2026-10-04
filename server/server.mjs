@@ -46,8 +46,8 @@ class Worker {                      // one long-lived Python process, JSON lines
     });
   }
 }
-const fast = new Worker('fast');      // meta, engine1, engine2
-const slow = new Worker('jobs');      // coupling sweeps, so they never block interactive calls
+const fast = new Worker('fast');      // meta, engine1, sensitivity, engine2
+const slow = new Worker('jobs');      // coupling sweeps and robustness runs, so they never block interactive calls
 
 const cache = new Map();              // identical requests return instantly
 async function cached(op, params) {
@@ -58,11 +58,11 @@ async function cached(op, params) {
   return res;
 }
 
-const jobs = new Map();
-function startCoupling(params) {
-  const job = { id: randomUUID(), status: 'running', progress: { done: 0, total: (params.budgets || [0, 15000, 30000, 60000, 90000]).length, rows: [] }, createdAt: Date.now() };
+const jobs = new Map();               // coupling sweeps and robustness runs: several solves each, run on the jobs worker
+function startJob(op, params, total) {
+  const job = { id: randomUUID(), op, status: 'running', progress: { done: 0, total, rows: [] }, createdAt: Date.now() };
   jobs.set(job.id, job);
-  slow.call('coupling', params, { timeoutMs: 30 * 60 * 1000, onProgress: (p) => { job.progress.done = p.done; job.progress.total = p.total; job.progress.rows.push(p.row); } })
+  slow.call(op, params, { timeoutMs: 30 * 60 * 1000, onProgress: (p) => { job.progress.done = p.done; job.progress.total = p.total; job.progress.rows.push(p.row); } })
     .then((r) => { job.status = 'done'; job.result = r; job.finishedAt = Date.now(); })
     .catch((e) => { job.status = 'failed'; job.error = e.message; });
   return job;
@@ -92,7 +92,11 @@ const server = http.createServer(async (req, res) => {
     if (req.method === 'POST' && url.pathname === '/api/engine1') return send(res, 200, await cached('engine1', await readJson(req)));
     if (req.method === 'POST' && url.pathname === '/api/engine1/sensitivity') return send(res, 200, await cached('sensitivity', await readJson(req)));
     if (req.method === 'POST' && url.pathname === '/api/engine2') return send(res, 200, await cached('engine2', await readJson(req)));
-    if (req.method === 'POST' && url.pathname === '/api/jobs/coupling') { const j = startCoupling(await readJson(req)); return send(res, 202, { jobId: j.id }); }
+    if (req.method === 'POST' && url.pathname === '/api/engine2/robustness') {
+      const p = await readJson(req); const { cases } = await fast.call('robustness_check', p);   // bad input -> 400 before any job starts
+      return send(res, 202, { jobId: startJob('robustness', p, cases).id });
+    }
+    if (req.method === 'POST' && url.pathname === '/api/jobs/coupling') { const p = await readJson(req); return send(res, 202, { jobId: startJob('coupling', p, (p.budgets || [0, 15000, 30000, 60000, 90000]).length).id }); }
     if (req.method === 'GET' && url.pathname.startsWith('/api/jobs/')) { const j = jobs.get(url.pathname.split('/').pop()); return j ? send(res, 200, j) : send(res, 404, { error: 'no such job' }); }
     if (url.pathname.startsWith('/api/')) return send(res, 404, { error: 'unknown endpoint' });
     if (req.method === 'GET') return serveStatic(res, url.pathname);
