@@ -10,6 +10,7 @@ export const api = {
   health: () => call('/api/health'),
   meta: () => call('/api/meta'),
   engine1: (params) => post('/api/engine1', params),
+  sensitivity: (params) => post('/api/engine1/sensitivity', params),
   engine2: (params) => post('/api/engine2', params),
   startCoupling: (params) => post('/api/jobs/coupling', params),
   job: (id) => call(`/api/jobs/${id}`),

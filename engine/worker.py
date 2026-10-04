@@ -57,6 +57,27 @@ def op_engine1(p):
                 shadowPricePerPctHeadroom=shadow, starts=dict(requested=starts, succeeded=r['nsol'], spread=r['spread']),
                 maxViolation=r['viol'], runtimeMs=round(1000 * (time.time() - t)))
 
+def pattern_of(prices, pb):
+    """One letter per service: U/L = at the +/- price bound, + / - = moved up/down inside it, 0 = within 0.5%."""
+    out = ''
+    for x in prices:
+        v = x['changePct'] / 100
+        out += 'U' if abs(v - pb) < 1e-4 else 'L' if abs(v + pb) < 1e-4 else '+' if v > 0.005 else '-' if v < -0.005 else '0'
+    return out
+
+def op_sensitivity(p):
+    """Engine 1 re-solved at several price sensitivities, every other setting unchanged."""
+    etas = p.get('etas', [0.4, 0.8, 1.2, 1.5])
+    if not isinstance(etas, list) or not 1 <= len(etas) <= 8: raise ValueError('etas must be a list of 1 to 8 numbers')
+    pb = num(p, 'priceBound', 0.25, 0.01, 0.9); t = time.time(); cases = []
+    for e in etas:
+        q = {k: v for k, v in p.items() if k != 'etas'}; q['eta'] = float(e)
+        r = op_engine1(q)
+        cases.append(dict(eta=float(e), pattern=pattern_of(r['prices'], pb), revenueChangePct=r['revenueChangePct'],
+                          profitUpliftPct=r['profitUpliftPct'], prices=[{k: x[k] for k in ('key', 'name', 'changePct', 'limitedBy')} for x in r['prices']]))
+    patterns = sorted({c['pattern'] for c in cases})
+    return dict(cases=cases, samePattern=len(patterns) == 1, patterns=patterns, runtimeMs=round(1000 * (time.time() - t)))
+
 def e2params(p):
     return dict(budget=num(p, 'budget', 30000, 0, 1e7), hours=num(p, 'hours', 500, 0, 1e5), cap=int(num(p, 'cap', 350, 0, 1e5)),
                 accept=num(p, 'acceptance', 0.3, 0.01, 1), thr=num(p, 'threshold', 0.03, 0, 1), haircut=num(p, 'haircut', 1.0, 0, 1),
@@ -108,6 +129,7 @@ for line in sys.stdin:
         if op == 'meta': res = op_meta(p)
         elif op == 'engine1': res = op_engine1(p)
         elif op == 'engine2': res = op_engine2(p)
+        elif op == 'sensitivity': res = op_sensitivity(p)
         elif op == 'coupling': res = op_coupling(p, rid)
         else: raise ValueError(f'unknown op {op!r}')
         send(dict(id=rid, ok=True, result=res))

@@ -90,6 +90,7 @@ const server = http.createServer(async (req, res) => {
     if (url.pathname.startsWith('/api/') && !fast.ready) return send(res, 503, { error: 'engine starting, retry shortly' });
     if (req.method === 'GET' && url.pathname === '/api/meta') return send(res, 200, await cached('meta', {}));
     if (req.method === 'POST' && url.pathname === '/api/engine1') return send(res, 200, await cached('engine1', await readJson(req)));
+    if (req.method === 'POST' && url.pathname === '/api/engine1/sensitivity') return send(res, 200, await cached('sensitivity', await readJson(req)));
     if (req.method === 'POST' && url.pathname === '/api/engine2') return send(res, 200, await cached('engine2', await readJson(req)));
     if (req.method === 'POST' && url.pathname === '/api/jobs/coupling') { const j = startCoupling(await readJson(req)); return send(res, 202, { jobId: j.id }); }
     if (req.method === 'GET' && url.pathname.startsWith('/api/jobs/')) { const j = jobs.get(url.pathname.split('/').pop()); return j ? send(res, 200, j) : send(res, 404, { error: 'no such job' }); }
