@@ -8,6 +8,7 @@ __pycache__/
 # build, run and test outputs (rebuilt by the scripts)
 ui/dist/
 engine/results/
+results/
 test-results/
 playwright-report/
 *.log
