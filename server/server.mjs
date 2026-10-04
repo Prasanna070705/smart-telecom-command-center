@@ -2,7 +2,7 @@
 // static hosting of the built UI. Python owns all modelling. Run: node server/server.mjs   (PORT env, default 8787)
 import http from 'node:http';
 import { spawn } from 'node:child_process';
-import { readFile, stat } from 'node:fs/promises';
+import { readFile, stat, writeFile, mkdir, readdir } from 'node:fs/promises';
 import { randomUUID } from 'node:crypto';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -10,6 +10,7 @@ import { fileURLToPath } from 'node:url';
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const ENGINE_DIR = path.join(ROOT, 'engine');
 const DIST = path.join(ROOT, 'ui', 'dist');
+const JOB_DIR = path.join(ROOT, 'results', 'jobs');   // finished jobs, reloaded at start (gitignored)
 const PORT = Number(process.env.PORT || 8787);
 const PYTHON = process.env.PYTHON || (process.platform === 'win32' ? 'python' : 'python3');
 
@@ -62,19 +63,25 @@ async function cached(op, params) {
 }
 
 const jobs = new Map();               // coupling sweeps and robustness runs: several solves each, run on the jobs worker
+const saveJob = (job) => mkdir(JOB_DIR, { recursive: true }).then(() => writeFile(path.join(JOB_DIR, `${job.id}.json`), JSON.stringify(job))).catch((e) => console.error('could not save job', job.id, e.message));
+async function loadJobs() {
+  let files = []; try { files = (await readdir(JOB_DIR)).filter((f) => f.endsWith('.json')); } catch { return; }
+  for (const f of files) { try { const j = JSON.parse(await readFile(path.join(JOB_DIR, f), 'utf8')); if (j.id && j.status !== 'running') jobs.set(j.id, j); } catch {} }
+  if (jobs.size) console.log(`loaded ${jobs.size} finished jobs from ${path.relative(ROOT, JOB_DIR)}`);
+}
 function startJob(op, params, total) {
   if (!slow.ready) throw Object.assign(new Error('jobs worker restarting, retry shortly'), { status: 503 });
   const job = { id: randomUUID(), op, status: 'running', progress: { done: 0, total, rows: [] }, createdAt: Date.now() };
   jobs.set(job.id, job);
   slow.call(op, params, { timeoutMs: 30 * 60 * 1000, onProgress: (p) => { job.progress.done = p.done; job.progress.total = p.total; job.progress.rows.push(p.row); } })
-    .then((r) => { if (job.status === 'running') Object.assign(job, { status: 'done', result: r, finishedAt: Date.now() }); })
-    .catch((e) => { if (job.status === 'running') Object.assign(job, { status: 'failed', error: e.message, finishedAt: Date.now() }); });
+    .then((r) => { if (job.status === 'running') { Object.assign(job, { status: 'done', result: r, finishedAt: Date.now() }); saveJob(job); } })
+    .catch((e) => { if (job.status === 'running') { Object.assign(job, { status: 'failed', error: e.message, finishedAt: Date.now() }); saveJob(job); } });
   return job;
 }
 // A running solve cannot be interrupted from outside, so cancelling restarts the jobs worker (~1.5 s); other running jobs fail with a message.
 function cancelJob(job) {
   if (job.status !== 'running') throw Object.assign(new Error(`job already ${job.status}`), { status: 409 });
-  Object.assign(job, { status: 'cancelled', finishedAt: Date.now() });
+  Object.assign(job, { status: 'cancelled', finishedAt: Date.now() }); saveJob(job);
   slow.restart(`jobs worker restarted to cancel job ${job.id.slice(0, 8)}`);
   return job;
 }
@@ -117,4 +124,5 @@ const server = http.createServer(async (req, res) => {
     send(res, 405, { error: 'method not allowed' });
   } catch (e) { send(res, e.status || 500, { error: e.message }); }
 });
+await loadJobs();
 server.listen(PORT, () => console.log(`API on http://localhost:${PORT}`));
