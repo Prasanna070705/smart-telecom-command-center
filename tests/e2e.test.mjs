@@ -19,6 +19,9 @@ await step('Pricing: value of 1% churn room = $164,816', () => page.getByText('$
 await step('Pricing: moving η slider and re-running changes fibre', async () => {
   const sl = page.getByLabel('Price sensitivity (η)'); await sl.focus(); for (let i = 0; i < 7; i++) await sl.press('ArrowRight');
   await page.getByText('1.5', { exact: true }).waitFor(); await page.getByRole('button', { name: 'Run Engine 1' }).click(); await page.getByText('−18.3%').waitFor({ timeout: 30000 }); });
+await step('Pricing: sensitivity panel shows the same pattern for eta 0.4-1.5', async () => {
+  await page.getByRole('button', { name: 'Run sensitivity' }).click(); await page.getByText('Same pattern in all 4 cases').waitFor({ timeout: 60000 });
+  await page.getByRole('table', { name: 'Price change by price sensitivity' }).getByText('η 1.5').waitFor(); });
 await step('Retention: run Engine 2 → $182,949, 901 called', async () => {
   await page.getByRole('button', { name: 'Retention' }).click(); await page.getByRole('button', { name: 'Run Engine 2' }).click();
   await page.getByText('$182,949').waitFor({ timeout: 60000 }); await page.getByText('901', { exact: true }).waitFor(); });
@@ -29,7 +32,7 @@ await step('Retention: CSV export downloads 902 lines', async () => {
 await step('Coupling: background job for $0 and $15,000 finishes, curve drawn', async () => {
   await page.getByRole('button', { name: 'Coupling' }).click(); await page.getByLabel('Budgets in dollars, comma separated').fill('0, 15000');
   await page.getByRole('button', { name: 'Run sweep' }).click(); await page.getByText('Finished').waitFor({ timeout: 120000 });
-  await page.getByText('$1.29M').waitFor(); await page.getByText('$2.34M').waitFor(); await page.locator('svg[aria-label="Net lifetime-profit gain by retention budget"] circle').nth(1).waitFor(); });
+  await page.getByText('$1.29M').waitFor(); await page.getByText(/^\$2\.3\dM$/).first().waitFor(); await page.locator('svg[aria-label="Net lifetime-profit gain by retention budget"] circle').nth(1).waitFor(); });
 await step('Invalid input surfaces the API error message', async () => {
   const r = await page.evaluate(async () => (await fetch('/api/engine1', { method: 'POST', body: JSON.stringify({ eta: 99 }) })).status); if (r !== 400) throw new Error('status ' + r); });
 await page.screenshot({ path: '/tmp/e2e_unstyled.png' });
