@@ -6,7 +6,7 @@ import { pick } from '../settings.js'
 import { money, pct } from '../format.js'
 
 function GainChart({ rows }) {           // net gain against retention budget, plain SVG
-  const W = 560, H = 220, L = 64, R = 16, T = 16, B = 36
+  const W = 560, H = 220, L = 64, R = 32, T = 16, B = 36   // R leaves room for the last x label
   const xs = rows.map((r) => r.budget), ys = rows.map((r) => r.netGain)
   const xMax = Math.max(...xs, 1), yMax = Math.max(...ys, 1) * 1.1
   const x = (v) => L + (v / xMax) * (W - L - R), y = (v) => H - B - (v / yMax) * (H - T - B)
