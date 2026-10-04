@@ -1,0 +1,77 @@
+# Every test on a real Windows machine (GitHub's windows-latest runner): prerequisites, model checks, build,
+# API test, browser test. test:api and verify print results and exit 0, so their key lines are checked explicitly.
+name: windows
+on:
+  push:
+    branches: [v2]
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: windows-latest
+    timeout-minutes: 45
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            ui/package-lock.json
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: engine/requirements.txt
+
+      - name: Install
+        run: |
+          pip install --only-binary=:all: -r engine/requirements.txt
+          npm ci
+          npm --prefix ui ci
+          npx playwright install chromium
+
+      - name: Prerequisites (npm run check)
+        run: npm run check
+
+      - name: Model checks, stages A-G, I, J (expect PASS 67 | FAIL 6)
+        run: |
+          npm run verify 2>&1 | Tee-Object verify.log
+          if (-not (Select-String -Path verify.log -SimpleMatch 'PASS 67 | FAIL 6' -Quiet)) { throw 'verify: expected PASS 67 | FAIL 6' }
+          foreach ($id in 'A5b','A7b','B2b','D6','D8','D9') { if (-not (Select-String -Path verify.log -Pattern "\[FAIL\] $id " -Quiet)) { throw "verify: expected FAIL $id" } }
+
+      - name: Model checks, stage H (expect PASS 3 | FAIL 0)
+        run: |
+          npm run verify:coupling 2>&1 | Tee-Object verify-h.log
+          if (-not (Select-String -Path verify-h.log -SimpleMatch 'PASS 3 | FAIL 0' -Quiet)) { throw 'verify:coupling: expected PASS 3 | FAIL 0' }
+
+      - name: Build the UI
+        run: npm run build:ui
+
+      - name: Start the API, then API test, browser test and timing
+        env:
+          WAIT_MS: '300000'
+        run: |
+          $api = Start-Process -FilePath node -ArgumentList 'server/server.mjs' -RedirectStandardOutput api.log -RedirectStandardError api.err -PassThru -NoNewWindow
+          npm run test:api 2>&1 | Tee-Object api-test.log
+          $want = 'fibre -17.89 churn ceiling', 'same pattern: true +U--UUUUUU', 'value 182949 called 901', 'matches G9/G10: true', 'finished jobs saved to disk: true', 'status 200 cancelled | again 409', 'invalid haircut status 400'
+          foreach ($w in $want) { if (-not (Select-String -Path api-test.log -SimpleMatch $w -Quiet)) { throw "test:api: missing '$w'" } }
+          npm run test:e2e
+          if ($LASTEXITCODE -ne 0) { throw 'test:e2e failed' }
+          npm run timing
+          if ($LASTEXITCODE -ne 0) { Write-Host '::warning::timing over the demo-laptop budgets on this runner (informational)' }
+          Stop-Process -Id $api.Id -Force
+
+      - name: Keep logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-logs
+          path: |
+            *.log
+            api.err
+          if-no-files-found: ignore
