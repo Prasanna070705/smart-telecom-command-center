@@ -51,6 +51,12 @@ await step('Coupling: a running sweep can be cancelled', async () => {
 await step('Data & checks: verification counts and assumptions shown', async () => {
   await page.getByRole('button', { name: 'Data & checks' }).click(); await page.getByText('76 total').waitFor();
   await page.getByText('One price sensitivity for every customer').waitFor(); });
+await step('Ambient background animates, and stands still under reduced motion', async () => {
+  const frame = () => page.evaluate(() => document.querySelector('canvas[data-ambient]').toDataURL());
+  const a = await frame(); await page.waitForTimeout(600); if ((await frame()) === a) throw new Error('background not moving');
+  await page.emulateMedia({ reducedMotion: 'reduce' }); await page.waitForTimeout(100);
+  const b = await frame(); await page.waitForTimeout(600); const c = await frame();
+  await page.emulateMedia({ reducedMotion: 'no-preference' }); if (b !== c) throw new Error('background moves under reduced motion'); });
 await step('Invalid input surfaces the API error message', async () => {
   const r = await page.evaluate(async () => (await fetch('/api/engine1', { method: 'POST', body: JSON.stringify({ eta: 99 }) })).status); if (r !== 400) throw new Error('status ' + r); });
 await step('Theme: dark mode applies, survives a reload, and light mode returns', async () => {
