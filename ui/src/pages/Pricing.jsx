@@ -13,6 +13,53 @@ function ChangeBar({ value }) {        // diverging bar, centre = no change, end
   )
 }
 
+const ETAS = [0.4, 0.8, 1.2, 1.5]
+
+// Re-solves Engine 1 at four price sensitivities with the page's other settings, and says whether the price pattern holds.
+function SensitivityPanel({ settings }) {
+  const [res, setRes] = useState(null); const [busy, setBusy] = useState(false); const [error, setError] = useState(null)
+  const run = async () => {
+    setBusy(true); setError(null)
+    try { setRes(await api.sensitivity({ ...settings, etas: ETAS })) } catch (e) { setError(e.message) } finally { setBusy(false) }
+  }
+  return (
+    <Card title="Does the answer depend on price sensitivity?" subtitle="Engine 1 re-solved at four values of η, every other setting unchanged"
+      action={<Button onClick={run} busy={busy}>Run sensitivity</Button>}>
+      <ErrorNote error={error} />
+      {!res ? <Empty>Run it to compare the four cases</Empty> : (
+        <>
+          <div className="mb-4">
+            {res.samePattern
+              ? <Badge tone="emerald">Same pattern in all {res.cases.length} cases</Badge>
+              : <Badge tone="rose">Pattern changes with η</Badge>}
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm" aria-label="Price change by price sensitivity">
+              <thead><tr className="text-left text-xs uppercase tracking-wide text-slate-500">
+                <th className="pb-2 font-medium">Service</th>
+                {res.cases.map((c) => <th key={c.eta} className="pb-2 text-right font-medium">η {c.eta}</th>)}
+              </tr></thead>
+              <tbody className="divide-y divide-slate-100">
+                {res.cases[0].prices.map((p, k) => (
+                  <tr key={p.key}>
+                    <td className="py-2 text-slate-800">{p.name}</td>
+                    {res.cases.map((c) => (
+                      <td key={c.eta} className={`py-2 text-right tabular-nums ${c.prices[k].changePct >= 0 ? 'text-indigo-600' : 'text-rose-600'}`}>{pct(c.prices[k].changePct)}</td>
+                    ))}
+                  </tr>
+                ))}
+                <tr><td className="py-2 font-medium text-slate-900">Revenue</td>{res.cases.map((c) => <td key={c.eta} className="py-2 text-right font-medium tabular-nums text-slate-900">{pct(c.revenueChangePct)}</td>)}</tr>
+                <tr><td className="py-2 font-medium text-slate-900">Lifetime profit</td>{res.cases.map((c) => <td key={c.eta} className="py-2 text-right font-medium tabular-nums text-slate-900">{pct(c.profitUpliftPct)}</td>)}</tr>
+              </tbody>
+            </table>
+          </div>
+          <p className="mt-3 text-xs text-slate-500">Solved in {(res.runtimeMs / 1000).toFixed(1)} s.</p>
+        </>
+      )}
+    </Card>
+  )
+}
+
 export default function Pricing() {
   const [s, setS] = useState({ eta: 0.8, margin: 0.7, priceBound: 0.25, billShock: 0.15, ceiling: true })
   const [res, setRes] = useState(null); const [busy, setBusy] = useState(false); const [error, setError] = useState(null)
@@ -60,6 +107,7 @@ export default function Pricing() {
             </div>
           )}
         </Card>
+        <SensitivityPanel settings={s} />
       </div>
     </div>
   )
