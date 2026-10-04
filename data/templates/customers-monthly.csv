@@ -1,0 +1,6 @@
+customer_id,month,churned_this_month,monthly_charge,contract,payment_method,internet_service,phone_service,multiple_lines,online_security,online_backup,device_protection,tech_support,streaming_tv,streaming_movies,paperless_billing,senior_citizen,partner,dependents
+EX-0001,2025-01,no,70.35,month-to-month,electronic check,fibre,yes,no,no,yes,no,no,no,no,yes,no,yes,no
+EX-0001,2025-02,no,70.35,month-to-month,electronic check,fibre,yes,no,no,yes,no,no,no,no,yes,no,yes,no
+EX-0001,2025-03,no,75.35,one-year,credit card (automatic),fibre,yes,no,yes,yes,no,no,no,no,yes,no,yes,no
+EX-0003,2025-01,no,84.95,month-to-month,mailed check,fibre,yes,no,no,no,yes,no,yes,no,yes,yes,no,no
+EX-0003,2025-02,yes,84.95,month-to-month,mailed check,fibre,yes,no,no,no,yes,no,yes,no,yes,yes,no,no
