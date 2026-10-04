@@ -32,4 +32,18 @@ const js = performance.now(); let st;
 for (;;) { st = (await j('GET', `/api/jobs/${job.body.jobId}`)).body; if (st.status !== 'running') break; await new Promise((r) => setTimeout(r, 500)); }
 console.log('coupling job finished'.padEnd(44), `${(performance.now() - js).toFixed(0)} ms`, st.status);
 for (const r of st.result.rows) console.log('  ', JSON.stringify(r));
+const rb = await t('POST /api/engine2/robustness (gap 0.01%)', () => j('POST', '/api/engine2/robustness', { mipGap: 0.0001 }));
+console.log('  status', rb.status, 'jobId', rb.body.jobId.slice(0, 8));
+const rs = performance.now(); let rj;
+for (;;) { rj = (await j('GET', `/api/jobs/${rb.body.jobId}`)).body; if (rj.status !== 'running') break; await new Promise((r) => setTimeout(r, 500)); }
+console.log('robustness job finished'.padEnd(44), `${(performance.now() - rs).toFixed(0)} ms`, rj.status);
+const REF = { 'haircut 0.5': [152666, 88, 45], 'haircut 0.25': [126886, 81, 47], 'acceptance 0.15': [104046, 80], 'acceptance 0.5': [248344, 95] };   // verify.py G9/G10
+let rok = rj.status === 'done';
+for (const c of rj.result?.cases || []) {
+  const [v, kept, same] = REF[`${c.kind} ${c.factor}`]; const ok = Math.abs(c.value / v - 1) < 0.001 && Math.abs(c.keptPct - kept) <= 2 && (same == null || Math.abs(c.sameOfferPct - same) <= 2);
+  rok &&= ok; console.log('  ', c.kind, c.factor, '| value', c.value, '| kept %', c.keptPct, '| same offer %', c.sameOfferPct, ok ? '' : `MISMATCH (ref ${v}, ${kept}, ${same ?? '-'})`);
+}
+console.log('  matches G9/G10:', rok, '| base', rj.result?.base.value);
+const rbBad = await j('POST', '/api/engine2/robustness', { haircuts: [2] });
+console.log('  invalid haircut status', rbBad.status, rbBad.body.error);
 console.log('unknown endpoint status', (await j('GET', '/api/nope')).status, '| missing job status', (await j('GET', '/api/jobs/xyz')).status);
