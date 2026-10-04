@@ -37,6 +37,7 @@ def op_meta(p):
                 prices=[dict(key=s, name=NAMES[s], price=round(float(v), 2)) for s, v in zip(SV, P0)],
                 hazard=dict(meanPct=round(100 * float(HM.h0.mean()), 2), medianPct=round(100 * float(np.median(HM.h0)), 2),
                             pool2=int((HM.h0 >= .02).sum()), pool3=int((HM.h0 >= .03).sum())),
+                currentCustomers=int((DF.y == 0).sum()), candidates=int(((HM.h0 >= .03) & (DF.y.values == 0)).sum()),
                 churnByContractPct={c: round(100 * float(v), 2) for c, v in DF.groupby('Contract').y.mean().items()},
                 verification=dict(checks=76, passed=70, refuted=5, updated=1), startupSeconds=round(STARTUP_S, 2), **offer_facts())
 
@@ -106,11 +107,11 @@ def e2params(p):
                 accept=num(p, 'acceptance', 0.3, 0.01, 1), thr=num(p, 'threshold', 0.03, 0, 1), haircut=num(p, 'haircut', 1.0, 0, 1),
                 m=num(p, 'margin', 0.7, 0.01, 0.99), d=num(p, 'discount', 0.01, 0.0001, 0.2), credit=num(p, 'credit', 25, 0, 1000),
                 premium=num(p, 'premium', 10, 0, 1000),
-                gap=num(p, 'mipGap', 1e-3, 1e-6, 0.1), tlimit=num(p, 'timeLimit', TIME_LIMIT, 1, 600))
+                gap=num(p, 'mipGap', 1e-3, 1e-6, 0.1), tlimit=num(p, 'timeLimit', TIME_LIMIT, 1, 600), former=bool(p.get('includeFormer', False)))
 
 def op_engine2(p):
     q = e2params(p); t = time.time()
-    R, npool = E2.build(H, m=q['m'], d=q['d'], thr=q['thr'], accept=q['accept'], haircut=q['haircut'], credit=q['credit'], premium=q['premium'])
+    R, npool = E2.build(H, m=q['m'], d=q['d'], thr=q['thr'], accept=q['accept'], haircut=q['haircut'], credit=q['credit'], premium=q['premium'], include_former=q['former'])
     o = E2.solve(R, q['budget'], q['hours'], q['cap'], gap=q['gap'], tlimit=q['tlimit'])
     s = o['sel'].sort_values('V', ascending=False)
     calls = [dict(customerID=DF.customerID.iat[i], offer=E2.OFFERS[j], offerName=OFFER_NAMES[E2.OFFERS[j]],
@@ -141,7 +142,7 @@ def op_robustness(p, rid):
     q, todo = robustness_params(p); t = time.time()
     def run(**over):
         r = {**q, **over}
-        R, _ = E2.build(H, m=r['m'], d=r['d'], thr=r['thr'], accept=r['accept'], haircut=r['haircut'], credit=r['credit'], premium=r['premium'])
+        R, _ = E2.build(H, m=r['m'], d=r['d'], thr=r['thr'], accept=r['accept'], haircut=r['haircut'], credit=r['credit'], premium=r['premium'], include_former=r['former'])
         return E2.solve(R, r['budget'], r['hours'], r['cap'], gap=r['gap'], tlimit=r['tlimit'])
     base = run(); b = base['sel'][['i', 'j']]
     def case(kind, factor, o):
@@ -161,7 +162,7 @@ def op_coupling(p, rid):
     eta = num(p, 'eta', 0.8, 0.05, 10); m = num(p, 'margin', 0.7, 0.01, 0.99); d = num(p, 'discount', 0.01, 0.0001, 0.2); hc = num(p, 'haircut', 1.0, 0, 1)
     C = (1 - m) * B0; h0 = HM.h0
     lp = lambda P, h: float(np.sum((Am @ P - C) / (d + h * ((Am @ P) / B0) ** eta)))
-    base = lp(P0, h0); R, _ = E2.build(H, m=m, d=d, haircut=hc); rows = []; t = time.time()
+    base = lp(P0, h0); R, _ = E2.build(H, m=m, d=d, haircut=hc, include_former=bool(p.get('includeFormer', False))); rows = []; t = time.time()
     for k, b in enumerate(budgets):
         h1 = h0.copy(); spend = 0.0; direct = 0.0; o2 = None
         if b > 0:

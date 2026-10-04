@@ -30,7 +30,7 @@ def clv_path(pi, d, path, hb):
     return v + g * pi / (1 + d) / (1 - (1 - hb) / (1 + d))
 
 def build(H, m=0.7, d=0.01, thr=0.03, style='corrected', accept=0.3, haircut=1.0, credit=25.0, premium=10.0,
-          rho1=0.10, rho2=0.15, free=6):
+          rho1=0.10, rho2=0.15, free=6, include_former=False):
     pi = m * B0; hb = H['base']
     hc = lambda k: hb * np.exp(np.log(H[k] / hb) * haircut)       # haircut on contract effects only
     if style == 'report':
@@ -45,7 +45,9 @@ def build(H, m=0.7, d=0.01, thr=0.03, style='corrected', accept=0.3, haircut=1.0
     cost = {'1yr': disc(rho1, 12), '2yr': disc(rho2, 24), 'tech': give(iT), 'sec': give(iS), 'auto': credit + 0 * B0,
             '2yr+tech': disc(rho2, 24) + give(iT) + premium}
     base = pi / (d + hb)
-    pool = hb >= thr
+    # Candidates: monthly risk >= thr AND still a customer (Churn = No): a campaign can only call current customers.
+    # The churn model is still fitted on everyone; include_former=True reproduces the earlier (pre-v1.3) call lists.
+    pool = (hb >= thr) & (include_former | (DF.y.values == 0))
     out = []
     for j, k in enumerate(OFFERS):
         V = acc * (clv_path(pi, d, paths[k], hb) - base); c = acc * cost[k]

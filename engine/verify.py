@@ -212,7 +212,8 @@ def stage_G(hm):
         [round(o['ip'], 0), round(o['lp'], 0), round(100 * (o['lp'] - o['ip']) / o['ip'], 4), o['ip_status'], o['mip_gap']])
     chk('G3', 'LP fractional customers <= 8 and variables <= 16 (theory)', [o['frac_customers'], o['frac_vars']], ok=o['frac_customers'] <= 8 and o['frac_vars'] <= 16)
     chk('G4', 'best of 3 greedy rankings falls short of the IP by %', round(100 * (o['ip'] - o['greedy']) / o['ip'], 2), ok=o['ip'] > o['greedy'])
-    chk('G5', 'IP solution feasible (one offer each, budget, hours, caps)', o['feasible'], ok=all(o['feasible'].values()))
+    current = bool((DF.y.values[o['sel'].i.values] == 0).all())   # v1.3: only current customers may be called
+    chk('G5', 'IP solution feasible (one offer each, budget, hours, caps) and every called customer is a current one', {**o['feasible'], 'current_only': current}, ok=all(o['feasible'].values()) and current)
     chk('G6', 'budget used %, hours used %, customers called, offer mix', [round(100 * o['budget_used'], 1), round(100 * o['hours_used'], 1), len(o['sel']), o['mix']])
     chk('G7', 'solve seconds: LP / IP', [round(o['tlp'], 2), round(o['tip'], 2)])
     base = o['sel']; b = set(base.i)
@@ -249,8 +250,10 @@ def stage_H(hm):
             r = E1.solve(h1, eta, m=m, d=d, ceiling=True, Hbar=h0.mean(), starts=3)
             rows.append([hc, B2, round(spend, 0), round(direct, 0), round((lp(r['P'], h1) - spend - base) / 1e6, 3), round(100 * r['dP'][E1.iF], 1), round(100 * r['dP'][0], 1), round(100 * r['dP'][SV.index('Sec')], 1)])
     chk('H1', 'baseline lifetime profit $M (m=0.7, d=1%)', round(base / 1e6, 2))
-    # acceptance (plan.md): net gain $M at haircut 1, each within 1%; the $15k row is a range because near-optimal lists differ
-    ref = {0: (1.29, 1.29), 15000: (2.32, 2.34), 30000: (3.15, 3.15), 60000: (3.28, 3.28), 90000: (3.30, 3.30)}
+    # acceptance (plan.md, v1.3 decision: Engine 2 calls current customers only): net gain $M at haircut 1, each within 1%.
+    # Before v1.3 (former customers callable): 1.29, 2.32-2.34, 3.15, 3.28, 3.30. $60k and $90k are equal now: the
+    # 740 current candidates use about $56k, so extra budget cannot be spent.
+    ref = {0: (1.29, 1.29), 15000: (2.27, 2.27), 30000: (2.94, 2.94), 60000: (2.99, 2.99), 90000: (2.99, 2.99)}
     ok = all(ref[r[1]][0] * 0.99 <= r[4] <= ref[r[1]][1] * 1.01 for r in rows if r[0] == 1.0) and sum(r[0] == 1.0 for r in rows) == len(ref)
     chk('H2', 'coupling sweep, gap 0.1% [haircut, retention budget $, spend $, retention value $, net gain $M, fibre %, phone %, add-ons %]', rows,
         expect={k: v[0] if v[0] == v[1] else list(v) for k, v in ref.items()}, ok=ok)
