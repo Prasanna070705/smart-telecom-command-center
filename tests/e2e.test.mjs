@@ -18,6 +18,8 @@ await step('No literal \\u escapes leaked into the page', async () => { const ht
 await step('Pricing: run Engine 1 → fibre −17.9%, churn ceiling', async () => {
   await page.getByRole('button', { name: 'Pricing' }).click(); await page.getByRole('button', { name: 'Run Engine 1' }).click();
   await page.getByText('−17.9%').waitFor({ timeout: 30000 }); await page.getByText('churn ceiling', { exact: true }).first().waitFor(); await page.getByText('+3.5%').waitFor(); });
+await step('No stray backslash-quotes in visible text (pages with the shared settings)', async () => {
+  const bad = await page.evaluate(() => document.body.innerText.includes("\\'")); if (bad) throw new Error("a literal \\' is visible"); });
 await step('Pricing: value of 1% churn room = $164,816', () => page.getByText('$164,816').waitFor());
 await step('Pricing: moving η slider and re-running changes fibre', async () => {
   const sl = page.getByLabel('Price sensitivity (η)', { exact: true }); await sl.focus(); for (let i = 0; i < 7; i++) await sl.press('ArrowRight');
