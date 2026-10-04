@@ -142,7 +142,7 @@
   8.25% worse, mix two-year 350 / autopay 350 / two-year+tech 40; x0.5 $123,961; coupling $1.29M / $2.27M / $2.94M /
   $2.99M / $2.99M ($60k and $90k equal: only ~$56k can be spent on 740 candidates). verify G5 now also checks that every
   called customer is current; H2 references updated. verify still 67 PASS + 6 expected FAIL; verify G 10/10, H 3/3.
-- Open question: Engine 1 still prices over all 7,043 customers.
+- Engine 1 stays on all 7,043 customers (the user's decision): prices apply to everyone; only Engine 2's call list is limited.
 
 ## Problems hit and fixes
 - `npm run check` FAIL on pinned libraries before install: expected.
