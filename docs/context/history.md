@@ -69,6 +69,18 @@
   step leaves eta at 1.5; the reset step returns it to 0.8 before the Coupling step, which checks the acceptance numbers.
 - Commit note: the shared-settings and loading-state changes share 43 hunks, so they went in as one feat(ui) commit.
 
+## Day 7 (report drafts)
+- `docs/report/methodology.md`: data, price recovery, hazard model, Engine 1 NLP, Engine 2 BIP, coupling, the 6
+  refuted/updated claims, assumptions table, never-claim list, known limits.
+- `docs/report/results.md`: every page's results with screenshots and a "reading the result" paragraph each.
+  Numbers from `docs/report/results-data.json` (`npm run report:data`); all match the acceptance table.
+- `npm run screenshots` (tools/screenshots.mjs): full-page 2x shots of all five pages with results, into
+  docs/screenshots/ (2.0 MB). Reused for the demo on Day 9.
+- Screenshots exposed three UI bugs, fixed: the sensitivity header read "H 0.4" (CSS uppercase turns η into H),
+  the last Coupling x label was clipped, "Run Engine 1/2" wrapped onto 3 lines. e2e 16/16 after.
+- Corrected in my own draft before committing: an unverified reason for the fibre cut, and "flat after $30k" (net gain
+  still +$0.13M for $30k -> $60k).
+
 ## Problems hit and fixes
 - `npm run check` FAIL on pinned libraries before install: expected.
 - `npm run test:api` "API not reachable": API not started (it also appears when workers fail to start).
