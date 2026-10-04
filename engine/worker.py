@@ -3,7 +3,7 @@ Request  {"id": str, "op": "meta"|"engine1"|"sensitivity"|"engine2"|"robustness"
 Reply    {"id": str, "ok": true, "result": {...}} | {"id": str, "ok": false, "error": str}
 Progress {"id": str, "progress": {"done": int, "total": int, "row": {...}}}   (coupling and robustness)
 C-level solver output is diverted to stderr so it can never corrupt the protocol stream."""
-import os, sys, json, time, traceback
+import os, sys, json, time, inspect, traceback
 PROTO = os.fdopen(os.dup(1), 'w', buffering=1)
 os.dup2(2, 1); sys.stdout = sys.stderr
 import warnings; warnings.filterwarnings('ignore')
@@ -15,6 +15,10 @@ import engine1 as E1, engine2 as E2
 # Engine 2's default solver time limit in seconds (env ENGINE2_TIME_LIMIT). 30 s suits a laptop; a 0.1-CPU host
 # needs longer to reach the 0.1% gap. A result that stopped at the limit is reported as timeLimitHit.
 TIME_LIMIT = float(os.environ.get('ENGINE2_TIME_LIMIT', 30))
+
+# Coupling turns a retention budget into agent hours and a cap per offer at the $30,000 campaign's ratios:
+# $30,000 / 500 h = $60 per hour; $30,000 / 350 per offer = $85.7 per offer slot.
+DOLLARS_PER_HOUR, DOLLARS_PER_CAP_SLOT = 60, 85.7
 
 T0 = time.time(); HM = HazardModel(); H = E2.counterfactuals(HM); STARTUP_S = time.time() - T0
 OFFER_NAMES = {'1yr': 'One-year contract', '2yr': 'Two-year contract', 'tech': 'Free tech support', 'sec': 'Free online security',
@@ -34,7 +38,22 @@ def op_meta(p):
                 hazard=dict(meanPct=round(100 * float(HM.h0.mean()), 2), medianPct=round(100 * float(np.median(HM.h0)), 2),
                             pool2=int((HM.h0 >= .02).sum()), pool3=int((HM.h0 >= .03).sum())),
                 churnByContractPct={c: round(100 * float(v), 2) for c, v in DF.groupby('Contract').y.mean().items()},
-                verification=dict(checks=76, passed=70, refuted=5, updated=1), startupSeconds=round(STARTUP_S, 2))
+                verification=dict(checks=76, passed=70, refuted=5, updated=1), startupSeconds=round(STARTUP_S, 2), **offer_facts())
+
+def offer_facts():
+    """What each retention offer costs and how much agent time it takes, from Engine 2's own defaults (so the Index
+    can never drift from the solver). Costs are per customer at the average model bill."""
+    d = {k: v.default for k, v in inspect.signature(E2.build).parameters.items() if v.default is not inspect.Parameter.empty}
+    bill, m, acc = float(B0.mean()), d['m'], d['accept']
+    give = lambda k: d['free'] * float(P0[SV.index(k)]) * (1 - m)        # a free service costs its unit cost for `free` months
+    disc = lambda rho, months: rho * bill * months                          # a discount costs the revenue given up
+    cost = {'1yr': disc(d['rho1'], 12), '2yr': disc(d['rho2'], 24), 'tech': give('Tech'), 'sec': give('Sec'),
+            'auto': d['credit'], '2yr+tech': disc(d['rho2'], 24) + give('Tech') + d['premium']}
+    return dict(meanBill=round(bill, 2),
+                offerDefaults=dict(acceptance=acc, margin=m, discount=d['d'], threshold=d['thr'], discount1yr=d['rho1'], discount2yr=d['rho2'],
+                                   freeMonths=d['free'], autopayCredit=d['credit'], comboPremium=d['premium']),
+                offers=[dict(key=k, name=OFFER_NAMES[k], hours=E2.HOURS[k], costIfAccepted=round(cost[k], 2), expectedCost=round(acc * cost[k], 2)) for k in E2.OFFERS],
+                coupling=dict(dollarsPerHour=DOLLARS_PER_HOUR, dollarsPerCapSlot=DOLLARS_PER_CAP_SLOT))
 
 def op_engine1(p):
     eta = num(p, 'eta', 0.8, 0.05, 10); m = num(p, 'margin', 0.7, 0.01, 0.99); d = num(p, 'discount', 0.01, 0.0001, 0.2)
@@ -102,7 +121,8 @@ def op_engine2(p):
     return dict(value=round(o['ip'], 0), lpBound=round(o['lp'], 0), gapPct=round(100 * (o['lp'] - o['ip']) / o['ip'], 4) if o['ip'] else 0,
                 greedyShortfallPct=round(100 * (o['ip'] - o['greedy']) / o['ip'], 2) if o['ip'] else 0,
                 budgetUsedPct=round(100 * o['budget_used'], 1) if q['budget'] else 0, hoursUsedPct=round(100 * o['hours_used'], 1) if q['hours'] else 0,
-                pool=npool, pairs=o['pairs'], called=len(calls), mix=o['mix'], valueByOffer={k: round(float(v), 0) for k, v in vbo.items()},
+                pool=npool, pairs=o['pairs'], called=len(calls), mix=o['mix'],
+                perCall=dict(expectedCost=round(float(o['sel'].cost.mean()), 2), hours=round(float(o['sel'].hrs.mean()), 3)) if len(calls) else None, valueByOffer={k: round(float(v), 0) for k, v in vbo.items()},
                 feasible={k: bool(v) for k, v in o['feasible'].items()}, solverStatus=int(o['ip_status']), timeLimitHit=int(o['ip_status']) == 1, timeLimitS=q['tlimit'], callList=calls, runtimeMs=round(1000 * (time.time() - t)))
 
 def robustness_params(p):
@@ -145,7 +165,7 @@ def op_coupling(p, rid):
     for k, b in enumerate(budgets):
         h1 = h0.copy(); spend = 0.0; direct = 0.0; o2 = None
         if b > 0:
-            o2 = E2.solve(R, b, b / 60, int(b / 85.7), gap=1e-3, tlimit=TIME_LIMIT); s = o2['sel']; spend = float(s.cost.sum()); direct = float(s.V.sum())
+            o2 = E2.solve(R, b, b / DOLLARS_PER_HOUR, int(b / DOLLARS_PER_CAP_SLOT), gap=1e-3, tlimit=TIME_LIMIT); s = o2['sel']; spend = float(s.cost.sum()); direct = float(s.V.sum())
             pi = m * B0[s.i.values]; h1[s.i.values] = pi / (pi / (d + h0[s.i.values]) + s.V.values) - d
         r = E1.solve(h1, eta, m=m, d=d, ceiling=True, Hbar=h0.mean(), starts=3)
         row = dict(budget=b, spend=round(spend, 0), offerValue=round(direct, 0), netGain=round(lp(r['P'], h1) - spend - base, 0),
