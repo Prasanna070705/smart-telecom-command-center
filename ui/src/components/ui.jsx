@@ -59,7 +59,7 @@ export function Slider({ label, value, min, max, step, onChange, format = (v) =>
       </span>
       <input type="range" min={min} max={max} step={step} value={value} aria-label={label}
         onChange={(e) => onChange(Number(e.target.value))} className="mt-2 w-full accent-indigo-600" />
-      {help && <span className="mt-1 block text-[11px] text-slate-400">{help}</span>}
+      {help && <span className="mt-1 block text-[11px] text-slate-500">{help}</span>}
     </label>
   )
 }

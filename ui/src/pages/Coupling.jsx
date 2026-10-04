@@ -15,7 +15,7 @@ function GainChart({ rows }) {           // net gain against retention budget, p
     <svg viewBox={`0 0 ${W} ${H}`} className="w-full" role="img" aria-label="Net lifetime-profit gain by retention budget">
       {[0, 0.5, 1].map((f) => (
         <g key={f}><line x1={L} x2={W - R} y1={y(f * yMax)} y2={y(f * yMax)} className="stroke-slate-100" />
-          <text x={L - 8} y={y(f * yMax) + 4} textAnchor="end" className="fill-slate-400 text-[10px]">{money(f * yMax)}</text></g>
+          <text x={L - 8} y={y(f * yMax) + 4} textAnchor="end" className="fill-slate-500 text-[10px]">{money(f * yMax)}</text></g>
       ))}
       <path d={line} fill="none" className="stroke-amber-500" strokeWidth="2.5" />
       {rows.map((r) => (
