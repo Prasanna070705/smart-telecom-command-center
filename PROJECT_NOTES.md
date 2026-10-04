@@ -22,7 +22,9 @@ retention spend frees room to raise prices. Read `docs/context/` before starting
 - `npm run check` prerequisites; `npm run verify` runs 73 of the 76 model checks, stages A-G, I, J (expect PASS 67 | FAIL 6; the six expected FAILs are
   A5b, A7b, B2b, D6, D8, D9); `npm run verify -- G` Engine 2 checks only; `npm run verify:coupling` runs the other 3 (stage H).
 - `npm run api` API on :8787 (long-running; keep in its own terminal). `npm run ui` Vite dev on :5173.
-- `npm run test:api` (API must be running). `npm run build:ui` then `npm run test:e2e` (tests the built app on :8787).
+- `npm run test:api` (API must be running). `npm run build:ui` then `npm run test:e2e` (tests the built app on :8787;
+  `BROWSER=chrome|webkit|firefox` for another browser).
+- `npm run timing` speed budgets; `npm run report:data`, `npm run screenshots` regenerate report numbers and images.
 
 ## Rules for working here
 - Run long-running servers (`npm run api`, `npm run ui`) in the background or a separate terminal; never block on them.
@@ -51,4 +53,6 @@ retention spend frees room to raise prices. Read `docs/context/` before starting
 - Day 5 done (gate G3): fresh clone passes check, test:api, test:e2e (15 steps); finished jobs saved to results/jobs.
 - Day 6 done: shared assumptions card (margin, discount, eta) across Pricing/Retention/Coupling; loading/error states.
 - Day 7 done: report drafts in docs/report/, `npm run report:data`, `npm run screenshots`.
-- Next: Day 8 (timings vs budgets, two browsers, slide-fixes checklist; gate G4). See `docs/context/plan.md`.
+- Day 8 done on my side: `npm run timing` all within budget, e2e 16/16 in Chrome, docs/slide-fixes.md. G4 waits on
+  the user's Safari check and deck edits.
+- Next: Day 9 (feature freeze: fresh clone, demo script + screenshots). See `docs/context/plan.md`.
