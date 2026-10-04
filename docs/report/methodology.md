@@ -41,7 +41,7 @@ piecewise-exponential model: a Poisson GLM on person-month exposure with tenure 
 2×10⁻¹⁵. [verify stages D-E]
 
 Selected hazard ratios: one-year contract 0.21, two-year contract 0.055, tech support 0.65, online security 0.52,
-card autopay 0.52. The mean monthly hazard is 2.18% (median 0.89%); 1,651 customers have a monthly hazard of at
+card autopay 0.52. The mean monthly hazard is 2.18% (median 0.89%); 1,651 customers (740 of them still customers) have a monthly hazard of at
 least 3% and form Engine 2's candidate pool.
 
 These ratios are **associations in observational data**, not effects of an intervention: no customer was ever
@@ -83,10 +83,11 @@ not the curvature of the objective, produces the pattern in the results chapter.
 
 ## 5. Engine 2: retention offer optimizer (binary integer program)
 
-**Decision.** For each of the 1,651 candidates, at most one of six offers: one-year contract, two-year contract,
+**Decision.** For each of the 740 candidates (customers still with the company whose monthly hazard is at least 3%; the
+hazard model is fitted on all customers, but a campaign can only call current ones), at most one of six offers: one-year contract, two-year contract,
 6 months' free tech support, 6 months' free online security, autopay switch with a $25 credit, two-year contract plus
 tech support. Eligibility follows the customer's current contract, services and payment method (e.g. no security
-offer to someone who already has it): 9,124 eligible customer-offer pairs with a positive value.
+offer to someone who already has it): 3,952 eligible customer-offer pairs with a positive value.
 
 **Value of an offer.** acceptance × (CLV with the offer's hazard path − CLV today), with CLV = π / (d + h) for
 end-of-month cash flows and π = m × bill. The offer's hazard comes from the hazard model's ratios for the matching
@@ -158,7 +159,7 @@ the earlier deck and report that the data contradicts:
 
 - A **measured** price sensitivity. η is a scenario input.
 - "Offer X reduces churn by Y%." The hazard ratios are model associations; no offer was ever made.
-- "The campaign will save $182,949." It is the expected value under the stated settings.
+- "The campaign will save $149,869." It is the expected value under the stated settings.
 - That Engine 1's answer is an interior optimum from the objective's curvature. The churn ceiling produces it.
 - That a greedy ranking matches the integer program. Greedy is 4-6% worse.
 
@@ -167,4 +168,4 @@ the earlier deck and report that the data contradicts:
 - The hazard model misses two-year lock-in (section 3); the interaction model changes no conclusion.
 - Offer terms are fixed in code, not inputs.
 - At the app's 0.1% gap, Engine 2 can return a different near-optimal call list than at 0.01%: values agree within
-  0.1% (e.g. contract effects ×0.5: $152,614 vs $152,666), coupling net gains within 1%.
+  0.1% (e.g. acceptance 50%: $201,495 vs $201,679), coupling net gains within 1%.

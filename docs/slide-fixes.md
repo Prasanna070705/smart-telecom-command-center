@@ -48,16 +48,18 @@ without "expected, at 30% acceptance"; an interior optimum from Engine 1's curva
   - Source: decisions.md (Engine 1); F1.
 
 - [ ] **Slide 17: what the retention value means**
-  - Say: "Expected value **$182,949** at **30% acceptance**, with each offer's effect lasting its term (12 or 24
+  - Say: "Expected value **$149,869** at **30% acceptance**, with each offer's effect lasting its term (12 or 24
     months for contracts, 6 months for free services)."
   - Replace any "will save" with "expected, under these settings".
   - If the slide shows discount cost: it is the revenue given up, rate × bill × months (two-year, $70 bill: **$252**,
     not $176 from the report formula).
-  - Source: G2 (IP value $182,949); E6; decisions.md (Engine 2 corrections).
+  - Source: G2 (IP value $149,869, v1.3: current customers only); E6; decisions.md (Engine 2 corrections).
 
 - [ ] **Slide 18: size of the problem and the IP vs greedy**
-  - Say: "**1,651** customers at ≥ 3% monthly churn risk, **9,124** eligible customer-offer pairs. The integer program
-    beats the best of three greedy rankings by **5.16%**."
+  - Say: "**740** current customers at ≥ 3% monthly churn risk (1,651 including those who already left), **3,952**
+    eligible customer-offer pairs. The integer program beats the best of three greedy rankings by **8.25%**."
+  - Say why only current customers: the churn model learns from everyone, but a campaign can only call people still
+    with the company (v1.3 decision; before it, 557 of the 901 calls went to customers who had already left).
   - If the slide shows the candidate pool from the report (2,345 / 1,629), change to **2,396 / 1,651** (D6, FAIL).
   - Source: G1, G4, D6.
 

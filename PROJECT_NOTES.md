@@ -61,5 +61,7 @@ retention spend frees room to raise prices. Read `docs/context/` before starting
 - v1.1 (branch v2, merged to main): Windows fixes + CI (.github/workflows/windows.yml), light/system/dark theme,
   ambient background + frosted cards + motion (off under reduced motion), animated logo, sticky sidebar, Docker
   (Dockerfile, docker-compose.yml, CI in .github/workflows/docker.yml), monthly data template (data/templates/).
-  e2e has 19 steps. Showcase site: https://prasanna070705.github.io/smart-telecom-showcase/ (repo smart-telecom-showcase).
+  e2e has 26 steps. Showcase site: https://prasanna070705.github.io/smart-telecom-showcase/ (repo smart-telecom-showcase).
 - Docker: `docker compose up --build` -> :8787. Tests run from the host against the container.
+- v1.3: Engine 2 calls current customers only (Churn = No): $149,869 from 740 calls (was $182,949 / 901, of whom 557 had
+  left). Acceptance numbers in plan.md updated with the old ones kept; see decisions.md and history.md.
