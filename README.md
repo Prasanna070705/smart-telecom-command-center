@@ -59,6 +59,14 @@ For UI work, `npm run ui` serves http://localhost:5173 with hot reload and proxi
 | GitHub windows-latest (CI) | 22.23.3 / 3.12.10 | 4.1 s | 0.81 s | 3.1 s | 10.3 s (5 budgets) | 41.8 s, 67 PASS + 6 expected FAIL | all match | 16/16 PASS |
 | MacBook Air, macOS 27.0.1 | 24.12.0 / 3.14.3 | 1.3 s | 0.27 s | 1.6 s | 4.0 s | 38.2 s, 67 PASS + 6 expected FAIL | all match | 16/16 PASS (Chrome, Chromium, WebKit) |
 
+## Your own data (planned)
+
+The engines run on the IBM file only; uploading other data is planned, not built. `data/templates/customers-monthly.csv`
+is the template for monthly customer history: one row per customer per month, the 19 fields the engines read, and a few
+made-up example rows. The full specification (required columns, optional `prices` / `offers` / `costs` sheets, and how
+new data changes each engine's output) is on the showcase site:
+https://prasanna070705.github.io/smart-telecom-showcase/data.html
+
 ## Tools
 
 - `node tools/create-issues.mjs` creates one GitHub issue per day (Days 2-10); needs `gh auth login`. Add `--dry-run` to preview.
