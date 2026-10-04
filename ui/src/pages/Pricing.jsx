@@ -75,18 +75,18 @@ export default function Pricing({ shared }) {
       <Card title="Price limits" subtitle="η, margin and discount are in the shared assumptions above"
         action={<Button onClick={run} busy={busy}>Run Engine 1</Button>}>
         <div className="space-y-5">
-          <Slider label="Price bound" value={s.priceBound} min={0.05} max={0.5} step={0.05} onChange={set('priceBound')} format={(v) => `±${Math.round(v * 100)}%`} />
-          <Slider label="Bill-shock cap" value={s.billShock} min={0.05} max={0.3} step={0.01} onChange={set('billShock')} format={(v) => `±${Math.round(v * 100)}%`} />
-          <Toggle label="Hold churn at today's level" checked={s.ceiling} onChange={set('ceiling')} />
+          <Slider label="Price bound" value={s.priceBound} min={0.05} max={0.5} step={0.05} onChange={set('priceBound')} format={(v) => `±${Math.round(v * 100)}%`} term="price-bound" help="How far any one price may move from today's" />
+          <Slider label="Bill-shock cap" value={s.billShock} min={0.05} max={0.3} step={0.01} onChange={set('billShock')} format={(v) => `±${Math.round(v * 100)}%`} term="bill-shock" help="How far any customer's whole bill may move" />
+          <Toggle label="Hold churn at today's level" checked={s.ceiling} onChange={set('ceiling')} term="churn-ceiling" help="The churn ceiling. Off: every price simply rises to the bill-shock cap" />
           <ErrorNote error={error} />
         </div>
       </Card>
       <div className="space-y-6">
         <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
           <Kpi label="Revenue" value={res ? pct(res.revenueChangePct) : '—'} tone="indigo" />
-          <Kpi label="Lifetime profit" value={res ? pct(res.profitUpliftPct) : '—'} hint={res ? money(res.lifetimeProfitNew) : null} tone="emerald" />
-          <Kpi label="Churn vs today" value={res ? `×${res.meanHazardRatio.toFixed(3)}` : '—'} hint={res?.binding.ceilingBinding ? 'ceiling binds' : null} />
-          <Kpi label="Value of 1% churn room" value={res?.shadowPricePerPctHeadroom ? money(res.shadowPricePerPctHeadroom) : '—'} tone="amber" />
+          <Kpi label="Lifetime profit" term="lifetime-profit" value={res ? pct(res.profitUpliftPct) : '—'} hint={res ? money(res.lifetimeProfitNew) : null} tone="emerald" />
+          <Kpi label="Churn vs today" term="churn-ceiling" value={res ? `×${res.meanHazardRatio.toFixed(3)}` : '—'} hint={res?.binding.ceilingBinding ? 'ceiling binds' : null} />
+          <Kpi label="Value of 1% churn room" term="shadow-price" value={res?.shadowPricePerPctHeadroom ? money(res.shadowPricePerPctHeadroom) : '—'} tone="amber" />
         </div>
         <Card title="Optimal price list" subtitle={res ? `${res.starts.succeeded} of ${res.starts.requested} starts agree · solved in ${res.runtimeMs} ms` : 'Run the scenario to see prices'}>
           {busy && !res ? <Loading>Solving Engine 1…</Loading> : !res ? <Empty>No result yet: press Run Engine 1</Empty> : (

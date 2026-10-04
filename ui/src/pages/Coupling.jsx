@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { api } from '../api.js'
 import { useJob, JOB_STATUS } from '../useJob.js'
-import { Card, Button, CancelButton, ErrorNote, Empty, Loading, StaleNote, TimeLimitNote } from '../components/ui.jsx'
+import { Card, Button, CancelButton, ErrorNote, Empty, Loading, StaleNote, TimeLimitNote, TermLink } from '../components/ui.jsx'
 import { pick } from '../settings.js'
 import { money, pct } from '../format.js'
 
@@ -52,7 +52,7 @@ export default function Coupling({ shared }) {
         <div className="mt-4"><ErrorNote error={inputError || error || job?.error} /></div>
       </Card>
       <div className="grid gap-6 lg:grid-cols-2">
-        <Card title="Net lifetime-profit gain" subtitle="After retention spend, against today's lifetime profit">
+        <Card title={<span className="flex items-center gap-1.5">Net lifetime-profit gain <TermLink id="net-gain" name="Net gain" /></span>} subtitle="After retention spend, against today's lifetime profit">
           <StaleNote show={rows.length > 0 && ran !== key} />
           {rows.length ? <GainChart rows={rows} /> : running ? <Loading>Solving the first budget…</Loading> : <Empty>Start the sweep to draw the curve</Empty>}
         </Card>
