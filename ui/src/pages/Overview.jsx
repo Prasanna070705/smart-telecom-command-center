@@ -32,7 +32,7 @@ function OverviewBody({ meta }) {
               {contracts.map(([name, v]) => (
                 <div key={name}>
                   <div className="mb-1 flex justify-between text-xs"><span className="text-slate-600 dark:text-slate-300">{name}</span><span className="font-semibold tabular-nums text-slate-900 dark:text-slate-100">{v.toFixed(1)}%</span></div>
-                  <div className="h-2 rounded-full bg-slate-100 dark:bg-slate-800"><div className="h-2 rounded-full bg-rose-500" style={{ width: `${v}%` }} /></div>
+                  <div className="h-2 rounded-full bg-slate-100 dark:bg-slate-800"><div className="bar-grow h-2 rounded-full bg-rose-500" style={{ width: `${v}%` }} /></div>
                 </div>
               ))}
             </div>

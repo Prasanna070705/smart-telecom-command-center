@@ -1,12 +1,12 @@
 // Shared building blocks. Class names are always complete strings so Tailwind can detect them.
 export function Card({ title, subtitle, action, children, className = '' }) {
   return (
-    <section className={`rounded-2xl bg-white dark:bg-slate-900 shadow-sm ring-1 ring-slate-200 dark:ring-slate-800 ${className}`}>
+    <section className={`rounded-2xl bg-white/70 backdrop-blur-sm dark:bg-slate-900/70 shadow-sm ring-1 ring-slate-200 dark:ring-slate-800 ${className}`}>
       {(title || action) && (
         <header className="flex items-start justify-between gap-4 border-b border-slate-100 dark:border-slate-800 px-5 py-4">
           <div>
             <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-100">{title}</h2>
-            {subtitle && <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">{subtitle}</p>}
+            {subtitle && <p className="mt-0.5 text-xs text-slate-600 dark:text-slate-400">{subtitle}</p>}
           </div>
           {action}
         </header>
@@ -19,10 +19,10 @@ export function Card({ title, subtitle, action, children, className = '' }) {
 const KPI_TONES = { slate: 'text-slate-900 dark:text-slate-100', indigo: 'text-indigo-600 dark:text-indigo-400', emerald: 'text-emerald-600 dark:text-emerald-400', amber: 'text-amber-600 dark:text-amber-400', rose: 'text-rose-600 dark:text-rose-400' }
 export function Kpi({ label, value, hint, tone = 'slate' }) {
   return (
-    <div className="rounded-2xl bg-white dark:bg-slate-900 p-5 shadow-sm ring-1 ring-slate-200 dark:ring-slate-800">
-      <p className="text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">{label}</p>
-      <p className={`mt-2 text-2xl font-semibold tabular-nums ${KPI_TONES[tone]}`}>{value}</p>
-      {hint && <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">{hint}</p>}
+    <div className="rounded-2xl bg-white/70 backdrop-blur-sm dark:bg-slate-900/70 p-5 shadow-sm ring-1 ring-slate-200 dark:ring-slate-800">
+      <p className="text-xs font-medium uppercase tracking-wide text-slate-600 dark:text-slate-400">{label}</p>
+      <p key={value} className={`fade-up mt-2 text-2xl font-semibold tabular-nums ${KPI_TONES[tone]}`}>{value}</p>
+      {hint && <p className="mt-1 text-xs text-slate-600 dark:text-slate-400">{hint}</p>}
     </div>
   )
 }
@@ -59,7 +59,7 @@ export function Slider({ label, value, min, max, step, onChange, format = (v) =>
       </span>
       <input type="range" min={min} max={max} step={step} value={value} aria-label={label}
         onChange={(e) => onChange(Number(e.target.value))} className="range mt-3 w-full" style={{ '--pct': `${(100 * (value - min)) / (max - min)}%` }} />
-      {help && <span className="mt-1 block text-[11px] text-slate-500 dark:text-slate-400">{help}</span>}
+      {help && <span className="mt-1 block text-[11px] text-slate-600 dark:text-slate-400">{help}</span>}
     </label>
   )
 }
@@ -79,12 +79,12 @@ export function ErrorNote({ error }) {
 }
 
 export function Empty({ children }) {
-  return <div className="grid h-40 place-items-center rounded-xl border border-dashed border-slate-200 dark:border-slate-700 text-sm text-slate-500 dark:text-slate-400">{children}</div>
+  return <div className="grid h-40 place-items-center rounded-xl border border-dashed border-slate-200 dark:border-slate-700 text-sm text-slate-600 dark:text-slate-400">{children}</div>
 }
 
 export function Loading({ children }) {
   return (
-    <div role="status" className="flex h-40 items-center justify-center gap-3 rounded-xl border border-dashed border-slate-200 dark:border-slate-700 text-sm text-slate-500 dark:text-slate-400">
+    <div role="status" className="flex h-40 items-center justify-center gap-3 rounded-xl border border-dashed border-slate-200 dark:border-slate-700 text-sm text-slate-600 dark:text-slate-400">
       <span className="h-4 w-4 animate-spin rounded-full border-2 border-slate-300 dark:border-slate-600 border-t-slate-600" aria-hidden="true" />{children}
     </div>
   )

@@ -8,6 +8,7 @@ import Checks from './pages/Checks.jsx'
 import { SharedSettings } from './components/SharedSettings.jsx'
 import { SHARED_DEFAULTS } from './settings.js'
 import { ThemeToggle } from './components/ThemeToggle.jsx'
+import { AmbientBackground } from './components/AmbientBackground.jsx'
 import { useTheme } from './theme.js'
 
 const PAGES = [
@@ -41,7 +42,8 @@ export default function App() {
   }, [])
   const current = PAGES.find((p) => p.id === page)
   return (
-    <div className="flex min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100">
+    <div className="isolate flex min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100">
+      <AmbientBackground page={page} />
       <aside className="hidden w-64 shrink-0 flex-col bg-slate-900 px-4 py-6 text-slate-300 md:flex dark:border-r dark:border-slate-800">
         <div className="px-2">
           <p className="text-xs font-semibold uppercase tracking-widest text-indigo-300">Smart Telecom</p>
@@ -60,7 +62,7 @@ export default function App() {
       <main className="flex-1">
         <header className="flex items-center justify-between border-b border-slate-200 dark:border-slate-700 bg-white/80 dark:bg-slate-900/80 px-8 py-5 backdrop-blur">
           <div>
-            <p className="text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">{current.label}</p>
+            <p className="text-xs font-medium uppercase tracking-wide text-slate-600 dark:text-slate-400">{current.label}</p>
             <h1 className="text-xl font-semibold text-slate-900 dark:text-slate-100">{current.title}</h1>
           </div>
           <div className="flex items-center gap-3">
@@ -73,11 +75,11 @@ export default function App() {
         <div className="px-8 py-8">
           {/* Pages stay mounted so results survive tab switches. */}
           {['pricing', 'retention', 'coupling'].includes(page) && <div className="mb-6"><SharedSettings value={shared} onChange={setShared} /></div>}
-          <div hidden={page !== 'overview'}><Overview meta={meta} status={status} /></div>
-          <div hidden={page !== 'pricing'}><Pricing shared={shared} /></div>
-          <div hidden={page !== 'retention'}><Retention shared={shared} /></div>
-          <div hidden={page !== 'coupling'}><Coupling shared={shared} /></div>
-          <div hidden={page !== 'checks'}><Checks meta={meta} status={status} /></div>
+          <div hidden={page !== 'overview'} className="page-enter"><Overview meta={meta} status={status} /></div>
+          <div hidden={page !== 'pricing'} className="page-enter"><Pricing shared={shared} /></div>
+          <div hidden={page !== 'retention'} className="page-enter"><Retention shared={shared} /></div>
+          <div hidden={page !== 'coupling'} className="page-enter"><Coupling shared={shared} /></div>
+          <div hidden={page !== 'checks'} className="page-enter"><Checks meta={meta} status={status} /></div>
         </div>
       </main>
     </div>

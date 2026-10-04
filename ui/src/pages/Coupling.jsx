@@ -17,9 +17,9 @@ function GainChart({ rows }) {           // net gain against retention budget, p
         <g key={f}><line x1={L} x2={W - R} y1={y(f * yMax)} y2={y(f * yMax)} className="stroke-slate-100 dark:stroke-slate-800" />
           <text x={L - 8} y={y(f * yMax) + 4} textAnchor="end" className="fill-slate-500 dark:fill-slate-400 text-[10px]">{money(f * yMax)}</text></g>
       ))}
-      <path d={line} fill="none" className="stroke-amber-500" strokeWidth="2.5" />
+      <path key={rows.length} d={line} pathLength="1" fill="none" className="line-draw stroke-amber-500" strokeWidth="2.5" />   {/* redraws as each budget arrives */}
       {rows.map((r) => (
-        <g key={r.budget}><circle cx={x(r.budget)} cy={y(r.netGain)} r="4" className="fill-amber-500" />
+        <g key={r.budget}><circle cx={x(r.budget)} cy={y(r.netGain)} r="4" className="dot-pop fill-amber-500" />
           <text x={x(r.budget)} y={H - B + 18} textAnchor="middle" className="fill-slate-500 dark:fill-slate-400 text-[10px]">{money(r.budget)}</text></g>
       ))}
     </svg>
@@ -45,7 +45,7 @@ export default function Coupling({ shared }) {
         </label>
         {job && (
           <div className="mt-4">
-            <div className="mb-1 flex justify-between text-xs text-slate-500 dark:text-slate-400"><span>{JOB_STATUS[job.status]}</span><span>{job.progress.done} of {job.progress.total}</span></div>
+            <div className="mb-1 flex justify-between text-xs text-slate-600 dark:text-slate-400"><span>{JOB_STATUS[job.status]}</span><span>{job.progress.done} of {job.progress.total}</span></div>
             <div className="h-2 rounded-full bg-slate-100 dark:bg-slate-800"><div className="h-2 rounded-full bg-amber-500 transition-all" style={{ width: `${(100 * job.progress.done) / job.progress.total}%` }} /></div>
           </div>
         )}
@@ -59,10 +59,10 @@ export default function Coupling({ shared }) {
         <Card title="Sweep results">
           {!rows.length ? (running ? <Loading>Waiting for the first row…</Loading> : <Empty>No rows yet</Empty>) : (
             <table className="w-full text-sm">
-              <thead><tr className="text-left text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400"><th className="pb-2 font-medium">Budget</th><th className="pb-2 text-right font-medium">Offer value</th><th className="pb-2 text-right font-medium">Net gain</th><th className="pb-2 text-right font-medium">Fibre</th></tr></thead>
+              <thead><tr className="text-left text-xs uppercase tracking-wide text-slate-600 dark:text-slate-400"><th className="pb-2 font-medium">Budget</th><th className="pb-2 text-right font-medium">Offer value</th><th className="pb-2 text-right font-medium">Net gain</th><th className="pb-2 text-right font-medium">Fibre</th></tr></thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                {rows.map((r) => (
-                  <tr key={r.budget}><td className="py-2 tabular-nums text-slate-700 dark:text-slate-300">{money(r.budget)}</td><td className="py-2 text-right tabular-nums text-slate-600 dark:text-slate-300">{money(r.offerValue)}</td>
+                {rows.map((r, i) => (
+                  <tr key={r.budget} className="fade-up" style={{ '--i': i }}><td className="py-2 tabular-nums text-slate-700 dark:text-slate-300">{money(r.budget)}</td><td className="py-2 text-right tabular-nums text-slate-600 dark:text-slate-300">{money(r.offerValue)}</td>
                     <td className="py-2 text-right font-medium tabular-nums text-slate-900 dark:text-slate-100">{money(r.netGain)}</td><td className="py-2 text-right tabular-nums text-slate-600 dark:text-slate-300">{pct(r.fibrePct)}</td></tr>
                 ))}
               </tbody>
