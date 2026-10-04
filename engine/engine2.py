@@ -67,11 +67,12 @@ def solve(R, budget, hours, cap, gap=1e-4, tlimit=120):
     feas = dict(one_per_customer=int(sel.i.duplicated().sum()) == 0, budget=sel.cost.sum() <= budget + 1e-6,
                 hours=sel.hrs.sum() <= hours + 1e-6, caps=bool((sel.j.value_counts() <= cap).all()))
     best = 0.0
+    I, J, V, Cst, Hr = (R[c].to_numpy().tolist() for c in ('i', 'j', 'V', 'cost', 'hrs'))   # plain lists: fast to index in a loop
     for key in ['V/cost', 'V/resources', 'V']:
         s = {'V/cost': R.V / R.cost.clip(lower=1e-9), 'V/resources': R.V / (R.cost / budget + R.hrs / hours), 'V': R.V}[key]
-        used = set(); b = h = 0.0; cu = np.zeros(len(OFFERS)); val = 0.0
-        for k in np.argsort(-s.values):
-            i, j, v, c, hh = R.i.values[k], R.j.values[k], R.V.values[k], R.cost.values[k], R.hrs.values[k]
+        used = set(); b = h = 0.0; cu = [0] * len(OFFERS); val = 0.0
+        for k in np.argsort(-s.values).tolist():
+            i, j, v, c, hh = I[k], J[k], V[k], Cst[k], Hr[k]
             if i in used or b + c > budget or h + hh > hours or cu[j] >= cap: continue
             used.add(i); b += c; h += hh; cu[j] += 1; val += v
         best = max(best, val)
