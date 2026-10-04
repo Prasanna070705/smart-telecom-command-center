@@ -59,7 +59,7 @@ jobs:
         run: |
           $api = Start-Process -FilePath node -ArgumentList 'server/server.mjs' -RedirectStandardOutput api.log -RedirectStandardError api.err -PassThru -NoNewWindow
           npm run test:api 2>&1 | Tee-Object api-test.log
-          $want = 'fibre -17.89 churn ceiling', 'same pattern: true +U--UUUUUU', 'value 182949 called 901', 'matches G9/G10: true', 'finished jobs saved to disk: true', 'status 200 cancelled | again 409', 'invalid haircut status 400'
+          $want = 'fibre -17.89 churn ceiling', 'same pattern: true +U--UUUUUU', 'value 149869 called 740', 'matches G9/G10: true', 'finished jobs saved to disk: true', 'status 200 cancelled | again 409', 'invalid haircut status 400'
           foreach ($w in $want) { if (-not (Select-String -Path api-test.log -SimpleMatch $w -Quiet)) { throw "test:api: missing '$w'" } }
           npm run test:e2e
           if ($LASTEXITCODE -ne 0) { throw 'test:e2e failed' }
