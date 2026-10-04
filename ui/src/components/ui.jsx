@@ -31,7 +31,7 @@ const BUTTON_TONES = { indigo: 'bg-indigo-600 hover:bg-indigo-500 focus-visible:
 export function Button({ children, onClick, busy, tone = 'indigo' }) {
   return (
     <button type="button" onClick={onClick} disabled={busy}
-      className={`inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold text-white shadow-sm focus-visible:outline-2 focus-visible:outline-offset-2 disabled:cursor-wait disabled:opacity-60 ${BUTTON_TONES[tone]}`}>
+      className={`inline-flex shrink-0 items-center gap-2 whitespace-nowrap rounded-lg px-4 py-2 text-sm font-semibold text-white shadow-sm focus-visible:outline-2 focus-visible:outline-offset-2 disabled:cursor-wait disabled:opacity-60 ${BUTTON_TONES[tone]}`}>
       {busy && <Spinner />}{children}
     </button>
   )

@@ -41,7 +41,7 @@ function SensitivityPanel({ settings }) {
             <table className="w-full text-sm" aria-label="Price change by price sensitivity">
               <thead><tr className="text-left text-xs uppercase tracking-wide text-slate-500">
                 <th className="pb-2 font-medium">Service</th>
-                {res.cases.map((c) => <th key={c.eta} className="pb-2 text-right font-medium">η {c.eta}</th>)}
+                {res.cases.map((c) => <th key={c.eta} className="pb-2 text-right font-medium"><span className="normal-case">η</span> {c.eta}</th>)}
               </tr></thead>
               <tbody className="divide-y divide-slate-100">
                 {res.cases[0].prices.map((p, k) => (
