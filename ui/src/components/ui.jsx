@@ -79,5 +79,26 @@ export function ErrorNote({ error }) {
 }
 
 export function Empty({ children }) {
-  return <div className="grid h-40 place-items-center rounded-xl border border-dashed border-slate-200 text-sm text-slate-400">{children}</div>
+  return <div className="grid h-40 place-items-center rounded-xl border border-dashed border-slate-200 text-sm text-slate-500">{children}</div>
+}
+
+export function Loading({ children }) {
+  return (
+    <div role="status" className="flex h-40 items-center justify-center gap-3 rounded-xl border border-dashed border-slate-200 text-sm text-slate-500">
+      <span className="h-4 w-4 animate-spin rounded-full border-2 border-slate-300 border-t-slate-600" aria-hidden="true" />{children}
+    </div>
+  )
+}
+
+// Shown over a result whose settings no longer match the page, so a stale number is never read as current.
+export function StaleNote({ show }) {
+  if (!show) return null
+  return <p className="mb-3 rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-800 ring-1 ring-amber-200">Settings changed since this run. Run again to update.</p>
+}
+
+// Loading and error state for pages that need the data summary.
+export function MetaGate({ meta, status, children }) {
+  if (meta) return children
+  if (status === 'unreachable') return <ErrorNote error="Cannot reach the API on this address. Start it with: npm run api (retrying every 1.5 s)." />
+  return <Loading>{status === 'starting' ? 'Engines starting, loading the data summary…' : 'Loading the data summary…'}</Loading>
 }
