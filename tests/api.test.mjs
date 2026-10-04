@@ -38,7 +38,9 @@ const js = performance.now(); let st;
 for (;;) { st = (await j('GET', `/api/jobs/${job.body.jobId}`)).body; if (st.status !== 'running') break; await new Promise((r) => setTimeout(r, 500)); }
 console.log('coupling job finished'.padEnd(44), `${(performance.now() - js).toFixed(0)} ms`, st.status);
 for (const r of st.result.rows) console.log('  ', JSON.stringify(r));
-const cj = await j('POST', '/api/jobs/coupling', {});
+const again = await j('POST', '/api/jobs/coupling', { budgets: [0, 15000, 30000] });
+console.log('  same sweep again: reused', again.body.reused === true && again.body.jobId === job.body.jobId, '| health lists running jobs:', Array.isArray((await j('GET', '/api/health')).body.jobsRunning));
+const cj = await j('POST', '/api/jobs/coupling', { nonce: Math.random() });   // unique, so it is never a reused finished run
 const cx = await t('DELETE /api/jobs/:id (running sweep)', () => j('DELETE', `/api/jobs/${cj.body.jobId}`));
 const cx2 = await j('DELETE', `/api/jobs/${cj.body.jobId}`);
 console.log('  status', cx.status, cx.body.status, '| again', cx2.status, cx2.body.error, '| GET', (await j('GET', `/api/jobs/${cj.body.jobId}`)).body.status);
