@@ -11,7 +11,7 @@ services:
     branch: main
     dockerfilePath: ./Dockerfile
     healthCheckPath: /api/health
-    autoDeploy: true
+    autoDeployTrigger: commit     # deploy every push to main (CI runs on v2, so "checksPass" would never fire here)
     envVars:
       - key: PORT
         value: "8787"
