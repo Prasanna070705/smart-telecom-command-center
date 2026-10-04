@@ -24,8 +24,10 @@ class Worker {                      // one long-lived Python process, JSON lines
       while ((i = this.buf.indexOf('\n')) >= 0) { const line = this.buf.slice(0, i); this.buf = this.buf.slice(i + 1); if (line.trim()) this.onLine(line); }
     });
     this.proc.stderr.on('data', () => {});            // solver chatter; attach a logger here if needed
+    this.proc.stdin.on('error', () => {});             // a write racing a restart must not crash the API
     this.proc.on('exit', (code) => {
-      for (const p of this.pending.values()) p.reject(new Error(`${this.name} worker exited (${code})`));
+      const why = this.killReason || `${this.name} worker exited (${code})`; this.killReason = null; this.ready = false;
+      for (const p of this.pending.values()) { clearTimeout(p.timer); p.reject(new Error(why)); }
       this.pending.clear(); setTimeout(() => this.start(), 1000);   // auto-restart
     });
   }
@@ -37,6 +39,7 @@ class Worker {                      // one long-lived Python process, JSON lines
     this.pending.delete(msg.id); clearTimeout(p.timer);
     msg.ok ? p.resolve(msg.result) : p.reject(Object.assign(new Error(msg.error), { status: 400 }));
   }
+  restart(reason) { this.killReason = reason; this.ready = false; this.proc.kill(); }   // the exit handler restarts it
   call(op, params = {}, { timeoutMs = 120000, onProgress } = {}) {
     return new Promise((resolve, reject) => {
       const id = randomUUID();
@@ -60,11 +63,19 @@ async function cached(op, params) {
 
 const jobs = new Map();               // coupling sweeps and robustness runs: several solves each, run on the jobs worker
 function startJob(op, params, total) {
+  if (!slow.ready) throw Object.assign(new Error('jobs worker restarting, retry shortly'), { status: 503 });
   const job = { id: randomUUID(), op, status: 'running', progress: { done: 0, total, rows: [] }, createdAt: Date.now() };
   jobs.set(job.id, job);
   slow.call(op, params, { timeoutMs: 30 * 60 * 1000, onProgress: (p) => { job.progress.done = p.done; job.progress.total = p.total; job.progress.rows.push(p.row); } })
-    .then((r) => { job.status = 'done'; job.result = r; job.finishedAt = Date.now(); })
-    .catch((e) => { job.status = 'failed'; job.error = e.message; });
+    .then((r) => { if (job.status === 'running') Object.assign(job, { status: 'done', result: r, finishedAt: Date.now() }); })
+    .catch((e) => { if (job.status === 'running') Object.assign(job, { status: 'failed', error: e.message, finishedAt: Date.now() }); });
+  return job;
+}
+// A running solve cannot be interrupted from outside, so cancelling restarts the jobs worker (~1.5 s); other running jobs fail with a message.
+function cancelJob(job) {
+  if (job.status !== 'running') throw Object.assign(new Error(`job already ${job.status}`), { status: 409 });
+  Object.assign(job, { status: 'cancelled', finishedAt: Date.now() });
+  slow.restart(`jobs worker restarted to cancel job ${job.id.slice(0, 8)}`);
   return job;
 }
 
@@ -97,7 +108,10 @@ const server = http.createServer(async (req, res) => {
       return send(res, 202, { jobId: startJob('robustness', p, cases).id });
     }
     if (req.method === 'POST' && url.pathname === '/api/jobs/coupling') { const p = await readJson(req); return send(res, 202, { jobId: startJob('coupling', p, (p.budgets || [0, 15000, 30000, 60000, 90000]).length).id }); }
-    if (req.method === 'GET' && url.pathname.startsWith('/api/jobs/')) { const j = jobs.get(url.pathname.split('/').pop()); return j ? send(res, 200, j) : send(res, 404, { error: 'no such job' }); }
+    if ((req.method === 'GET' || req.method === 'DELETE') && url.pathname.startsWith('/api/jobs/')) {
+      const j = jobs.get(url.pathname.split('/').pop()); if (!j) return send(res, 404, { error: 'no such job' });
+      return send(res, 200, req.method === 'DELETE' ? cancelJob(j) : j);
+    }
     if (url.pathname.startsWith('/api/')) return send(res, 404, { error: 'unknown endpoint' });
     if (req.method === 'GET') return serveStatic(res, url.pathname);
     send(res, 405, { error: 'method not allowed' });
