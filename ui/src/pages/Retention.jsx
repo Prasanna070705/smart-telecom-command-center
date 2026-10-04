@@ -1,6 +1,7 @@
-import { useEffect, useRef, useState } from 'react'
+import { useState } from 'react'
 import { api } from '../api.js'
-import { Card, Kpi, Button, Slider, ErrorNote, Empty, Badge } from '../components/ui.jsx'
+import { useJob, JOB_STATUS } from '../useJob.js'
+import { Card, Kpi, Button, CancelButton, Slider, ErrorNote, Empty, Badge } from '../components/ui.jsx'
 import { money, int, pct } from '../format.js'
 
 const OFFER_LABEL = { '1yr': 'One-year contract', '2yr': 'Two-year contract', tech: 'Free tech support', sec: 'Free online security', auto: 'Autopay switch', '2yr+tech': 'Two-year + tech support' }
@@ -17,26 +18,15 @@ const caseLabel = (c) => (c.kind === 'haircut' ? `Contract effects ×${c.factor}
 
 // Re-solves Engine 2 with weaker contract effects and other acceptance rates (a background job), the page's other settings unchanged.
 function RobustnessPanel({ settings }) {
-  const [job, setJob] = useState(null); const [error, setError] = useState(null); const timer = useRef(null)
-  useEffect(() => () => clearInterval(timer.current), [])
-  const start = async () => {
-    setError(null); clearInterval(timer.current)
-    try {
-      const { jobId } = await api.startRobustness(settings)
-      setJob({ status: 'running', progress: { done: 0, total: 4, rows: [] } })
-      timer.current = setInterval(async () => {
-        try { const j = await api.job(jobId); setJob(j); if (j.status !== 'running') clearInterval(timer.current) } catch (e) { setError(e.message); clearInterval(timer.current) }
-      }, 1000)
-    } catch (e) { setError(e.message) }
-  }
+  const { job, error, start, cancel, running } = useJob()
   const rows = job?.progress.rows || []
   const base = job?.result?.base
   return (
     <Card title="Does the call list survive weaker assumptions?" subtitle="Engine 2 re-solved with contract effects cut and other acceptance rates; both are scenario inputs, not measured"
-      action={<Button onClick={start} busy={job?.status === 'running'} tone="emerald">Run robustness</Button>}>
+      action={<div className="flex gap-2">{running && <CancelButton onClick={cancel} />}<Button onClick={() => start(() => api.startRobustness(settings), 4)} busy={running} tone="emerald">Run robustness</Button></div>}>
       <ErrorNote error={error || job?.error} />
-      {job?.status === 'running' && <p className="mb-3 text-xs text-slate-500">Running · {job.progress.done} of {job.progress.total} cases solved</p>}
-      {!rows.length ? <Empty>{job?.status === 'running' ? 'Solving the base case…' : 'Run it to compare four cases with this list'}</Empty> : (
+      {job && <p className="mb-3 text-xs text-slate-500">{JOB_STATUS[job.status]} · {job.progress.done} of {job.progress.total} cases solved</p>}
+      {!rows.length ? <Empty>{running ? 'Solving the base case…' : 'Run it to compare four cases with this list'}</Empty> : (
         <>
           <div className="overflow-x-auto">
             <table className="w-full text-sm" aria-label="Robustness of the call list">
