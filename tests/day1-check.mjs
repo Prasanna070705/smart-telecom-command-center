@@ -15,7 +15,7 @@ check('npm', () => [true, `found ${run('npm', ['-v'])}`]);
 check('git', () => [true, run('git', ['--version'])]);
 check(`Python 3.11+ (command: ${py})`, () => {
   const v = run(py, ['-c', 'import sys; print("%d.%d.%d" % sys.version_info[:3])']);
-  const [maj, min] = v.split('.').map(Number); return [maj === 3 && min >= 11, `found ${v}; tested on 3.12.3`];
+  const [maj, min] = v.split('.').map(Number); return [maj === 3 && min >= 11, `found ${v}; tested on 3.12.3 and 3.14.3`];
 });
 check('pinned Python libraries', () => {
   const want = readFileSync('engine/requirements.txt', 'utf8').split('\n').filter((l) => l.includes('==')).map((l) => l.trim().split('=='));
