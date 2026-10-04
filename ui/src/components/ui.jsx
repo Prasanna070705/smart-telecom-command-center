@@ -1,4 +1,5 @@
 import { useId } from 'react'
+import { JOB_STATUS, fmtElapsed } from '../useJob.js'
 // Shared building blocks. Class names are always complete strings so Tailwind can detect them.
 export function Card({ title, subtitle, action, children, className = '' }) {
   return (
@@ -147,4 +148,19 @@ export function MetaGate({ meta, status, children }) {
   if (meta) return children
   if (status === 'unreachable') return <ErrorNote error="Cannot reach the API on this address. Start it with: npm run api (retrying every 1.5 s)." />
   return <Loading>{status === 'starting' ? 'Engines starting, loading the data summary…' : 'Loading the data summary…'}</Loading>
+}
+
+// One line of job state for the background panels: status, progress, what is being solved now and for how long; after
+// 20 s a note that small servers are slow; and a note when the server handed back a run with the same settings.
+export function JobStatus({ job, running, reused, elapsed, step }) {
+  if (!job) return null
+  const p = job.progress
+  return (
+    <div className="mb-3 space-y-1 text-xs text-slate-600 dark:text-slate-400" aria-live="polite">
+      <p><span className="font-medium text-slate-800 dark:text-slate-200">{JOB_STATUS[job.status]}</span> · {p.done} of {p.total} solved
+        {running && step && <> · now: {step}</>}{running && <> · {fmtElapsed(elapsed)}</>}</p>
+      {reused && <p>{running ? 'Joined a run with the same settings that was already going.' : 'Reused a finished run with the same settings.'}</p>}
+      {running && elapsed >= 20 && <p>Still working. On a small server each step can take a minute or more, and other runs share it; you can use other pages meanwhile.</p>}
+    </div>
+  )
 }

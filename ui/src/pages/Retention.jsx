@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { api } from '../api.js'
-import { useJob, JOB_STATUS } from '../useJob.js'
-import { Card, Kpi, Button, CancelButton, Slider, NumberField, ErrorNote, Empty, Badge, Loading, StaleNote, TimeLimitNote } from '../components/ui.jsx'
+import { useJob, useElapsed, fmtElapsed } from '../useJob.js'
+import { Card, Kpi, Button, CancelButton, Slider, NumberField, ErrorNote, Empty, Badge, Loading, StaleNote, TimeLimitNote, JobStatus } from '../components/ui.jsx'
 import { pick, RETENTION_DEFAULTS } from '../settings.js'
 import { money, int, pct, cents } from '../format.js'
 
@@ -16,18 +16,21 @@ function downloadCsv(rows) {
   const a = Object.assign(document.createElement('a'), { href: url, download: 'call-list.csv' }); a.click(); URL.revokeObjectURL(url)
 }
 
+const ROBUST_CASES = ['Contract effects ×0.5', 'Contract effects ×0.25', 'Acceptance 15%', 'Acceptance 50%']   // the worker's order
 const caseLabel = (c) => (c.kind === 'haircut' ? `Contract effects ×${c.factor}` : `Acceptance ${Math.round(c.factor * 100)}%`)
 
 // Re-solves Engine 2 with weaker contract effects and other acceptance rates (a background job), the page's other settings unchanged.
 function RobustnessPanel({ settings }) {
-  const { job, error, start, cancel, running } = useJob(); const [ran, setRan] = useState(null); const key = JSON.stringify(settings)
+  const { job, error, start, cancel, running, reused, startedAt } = useJob(); const [ran, setRan] = useState(null); const key = JSON.stringify(settings)
+  const elapsed = useElapsed(startedAt, running)
   const rows = job?.progress.rows || []
   const base = job?.result?.base
   return (
     <Card title="Does the call list survive weaker assumptions?" subtitle="Engine 2 re-solved with contract effects cut and other acceptance rates; both are scenario inputs, not measured"
       action={<div className="flex gap-2">{running && <CancelButton onClick={cancel} />}<Button onClick={() => { setRan(key); start(() => api.startRobustness(settings), 4) }} busy={running} tone="emerald">Run robustness</Button></div>}>
       <ErrorNote error={error || job?.error} />
-      {job && <p className="mb-3 text-xs text-slate-600 dark:text-slate-400">{JOB_STATUS[job.status]} · {job.progress.done} of {job.progress.total} cases solved</p>}
+      <JobStatus job={job} running={running} reused={reused} elapsed={elapsed}
+        step={job && (job.progress.done === 0 ? 'the base list, then contract effects ×0.5' : ROBUST_CASES[job.progress.done])} />
       {!rows.length ? (running ? <Loading>Solving the base case…</Loading> : <Empty>Run it to compare four cases with this list</Empty>) : (
         <>
           <StaleNote show={ran !== key} />
@@ -73,7 +76,13 @@ export default function Retention({ shared, meta }) {
   const set = (k) => (v) => setS((o) => ({ ...o, [k]: v }))
   const req = { ...pick(shared, ['margin', 'discount']), ...s }; const key = JSON.stringify(req)
   const budgetError = !Number.isInteger(s.budget) ? 'Enter a whole number of dollars' : s.budget < 0 || s.budget > MAX_BUDGET ? `Between $0 and ${money(MAX_BUDGET)}` : null
-  const run = async () => { setBusy(true); setError(null); try { setRes(await api.engine2(req)); setRan(key); setPage(0) } catch (e) { setError(e.message) } finally { setBusy(false) } }
+  const [busySince, setBusySince] = useState(null); const [sharing, setSharing] = useState([]); const solving = useElapsed(busySince, busy)
+  const run = async () => {
+    setBusy(true); setBusySince(Date.now()); setError(null)
+    // Background runs share the server's CPU; say so up front, since they can make this several times slower.
+    api.health().then((h) => setSharing(h.jobsRunning || [])).catch(() => setSharing([]))
+    try { setRes(await api.engine2(req)); setRan(key); setPage(0) } catch (e) { setError(e.message) } finally { setBusy(false); setSharing([]) }
+  }
   const rows = res ? res.callList.slice(page * PAGE, page * PAGE + PAGE) : []
   const pages = res ? Math.ceil(res.callList.length / PAGE) : 0
   return (
@@ -88,6 +97,13 @@ export default function Retention({ shared, meta }) {
           <Slider label="Acceptance rate" value={s.acceptance} min={0.05} max={0.6} step={0.05} onChange={set('acceptance')} format={(v) => `${Math.round(v * 100)}%`} term="acceptance" help={prior != null ? `Share of called customers who say yes; published studies average ${Math.round(prior * 100)}%` : 'Share of called customers who say yes'} />
           <Slider label="Risk threshold" value={s.threshold} min={0.01} max={0.06} step={0.005} onChange={set('threshold')} format={(v) => `${(v * 100).toFixed(1)}% / month`} term="candidate" help="Customers this likely to leave in a month are candidates" />
           <Slider label="Contract-effect haircut" value={s.haircut} min={0.25} max={1} step={0.25} onChange={set('haircut')} format={(v) => `×${v}`} term="haircut" help="How much of the contract effect to believe: ×1 all of it, ×0.5 half" />
+          {busy && (
+            <div role="status" className="space-y-1 text-xs text-slate-600 dark:text-slate-400">
+              <p><span className="font-medium text-slate-800 dark:text-slate-200">Solving Engine 2</span> · {fmtElapsed(solving)}</p>
+              {sharing.length > 0 && <p>A background run ({[...new Set(sharing)].map((o) => (o === 'coupling' ? 'coupling sweep' : 'robustness check')).join(', ')}) is using the server at the same time, so this takes longer than usual.</p>}
+              {solving >= 20 && <p>Still solving. On a small server this can take a minute or two.</p>}
+            </div>
+          )}
           <ErrorNote error={error} />
         </div>
       </Card>
