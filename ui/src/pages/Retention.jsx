@@ -65,7 +65,9 @@ function RobustnessPanel({ settings }) {
   )
 }
 
-export default function Retention({ shared }) {
+export default function Retention({ shared, meta }) {
+  // Help text quotes the engine's own figures (agent time per call, acceptance prior) once /api/meta has loaded.
+  const mins = meta?.offers.map((o) => Math.round(o.hours * 60)), prior = meta?.offerDefaults.acceptance
   const [s, setS] = useState(RETENTION_DEFAULTS)
   const [res, setRes] = useState(null); const [busy, setBusy] = useState(false); const [error, setError] = useState(null); const [page, setPage] = useState(0); const [ran, setRan] = useState(null)
   const set = (k) => (v) => setS((o) => ({ ...o, [k]: v }))
@@ -81,9 +83,9 @@ export default function Retention({ shared }) {
         <div className="space-y-5">
           <NumberField label="Retention budget" value={s.budget} onChange={set('budget')} min={0} max={MAX_BUDGET} prefix="$" term="budget" error={budgetError}
             help={`Expected spend on offers (what accepted offers cost on average). Suggested: ${money(RETENTION_DEFAULTS.budget)}`} />
-          <Slider label="Agent hours" value={s.hours} min={100} max={1500} step={50} onChange={set('hours')} format={(v) => `${int(v)} h`} term="agent-hours" help="Total call-centre time; each call takes 30-60 minutes" />
+          <Slider label="Agent hours" value={s.hours} min={100} max={1500} step={50} onChange={set('hours')} format={(v) => `${int(v)} h`} term="agent-hours" help={mins ? `Total call-centre time; each call takes ${Math.min(...mins)}-${Math.max(...mins)} minutes` : 'Total call-centre time for the campaign'} />
           <Slider label="Cap per offer" value={s.cap} min={50} max={1000} step={25} onChange={set('cap')} format={int} term="cap" help="Most customers who can get the same offer" />
-          <Slider label="Acceptance rate" value={s.acceptance} min={0.05} max={0.6} step={0.05} onChange={set('acceptance')} format={(v) => `${Math.round(v * 100)}%`} term="acceptance" help="Share of called customers who say yes; published studies average 30%" />
+          <Slider label="Acceptance rate" value={s.acceptance} min={0.05} max={0.6} step={0.05} onChange={set('acceptance')} format={(v) => `${Math.round(v * 100)}%`} term="acceptance" help={prior != null ? `Share of called customers who say yes; published studies average ${Math.round(prior * 100)}%` : 'Share of called customers who say yes'} />
           <Slider label="Risk threshold" value={s.threshold} min={0.01} max={0.06} step={0.005} onChange={set('threshold')} format={(v) => `${(v * 100).toFixed(1)}% / month`} term="candidate" help="Customers this likely to leave in a month are candidates" />
           <Slider label="Contract-effect haircut" value={s.haircut} min={0.25} max={1} step={0.25} onChange={set('haircut')} format={(v) => `×${v}`} term="haircut" help="How much of the contract effect to believe: ×1 all of it, ×0.5 half" />
           <ErrorNote error={error} />
