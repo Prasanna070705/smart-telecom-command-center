@@ -68,6 +68,8 @@ on /api/health). Finished jobs are kept in `./results`. The tests run from the h
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | Sandbox, Linux, 1 CPU, 3 GB | 22.22.2 / 3.12.3 | 4.2-4.6 s | 0.6 s | 7.4 s | 16 s | 81 s, 67 PASS + 6 expected FAIL | all match | 11 steps PASS |
 | GitHub windows-latest (CI) | 22.23.3 / 3.12.10 | 4.1 s | 0.81 s | 3.1 s | 10.3 s (5 budgets) | 41.8 s, 67 PASS + 6 expected FAIL | all match | 16/16 PASS |
+| Docker on the MacBook Air (arm64) | 22 / 3.12 in the image | 1.5 s | 0.63 s | 1.8 s | 6.7 s (5 budgets) | — | all match | 19/19 PASS |
+| Docker on GitHub ubuntu-latest (amd64, CI) | 22 / 3.12 in the image | (healthy in CI) | 0.81 s | 3.0 s | 10.5 s (5 budgets) | — | all match | 19/19 PASS |
 | MacBook Air, macOS 27.0.1 | 24.12.0 / 3.14.3 | 1.3 s | 0.27 s | 1.6 s | 4.0 s | 38.2 s, 67 PASS + 6 expected FAIL | all match | 16/16 PASS (Chrome, Chromium, WebKit) |
 
 ## Your own data (planned)
