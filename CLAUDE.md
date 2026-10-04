@@ -14,7 +14,7 @@ retention spend frees room to raise prices. Read `docs/context/` before starting
   `verify.py` 76 model checks (73 in stages A-G, I, J via `npm run verify`; 3 in stage H via `npm run verify:coupling`).
 - `server/server.mjs` Node.js API, no npm dependencies. Spawns two Python workers (interactive + background jobs: coupling, robustness).
 - `ui/` React + Tailwind 4, built with Vite 8 (scaffolded from the official react template; our files are in `ui/src`).
-- `tests/` `day1-check.mjs` (prerequisites), `api.test.mjs`, `e2e.test.mjs` (Playwright, 16 steps), `run-verify.mjs`.
+- `tests/` `day1-check.mjs` (prerequisites), `api.test.mjs`, `e2e.test.mjs` (Playwright, 19 steps), `run-verify.mjs`.
 - `tools/create-issues.mjs` GitHub issues per plan day. `docs/day1-baseline.md` timings per machine.
 
 ## Commands (macOS, zsh, Python env in .venv)
@@ -58,3 +58,8 @@ retention spend frees room to raise prices. Read `docs/context/` before starting
 - Day 9 done: fresh GitHub clone passes every test; docs/demo-script.md; WebKit e2e 16/16.
 - Day 10 done on my side: final verify 67/6 + 3/0, tests pass, tag v1.0 local (push on approval).
 - Open, the user's: Safari check, deck edits (docs/slide-fixes.md), two timed rehearsals, submission.
+- v1.1 (branch v2, merged to main): Windows fixes + CI (.github/workflows/windows.yml), light/system/dark theme,
+  ambient background + frosted cards + motion (off under reduced motion), animated logo, sticky sidebar, Docker
+  (Dockerfile, docker-compose.yml, CI in .github/workflows/docker.yml), monthly data template (data/templates/).
+  e2e has 19 steps. Showcase site: https://prasanna070705.github.io/smart-telecom-showcase/ (repo smart-telecom-showcase).
+- Docker: `docker compose up --build` -> :8787. Tests run from the host against the container.
