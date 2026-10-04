@@ -70,14 +70,20 @@ async function loadJobs() {
   for (const f of files) { try { const j = JSON.parse(await readFile(path.join(JOB_DIR, f), 'utf8')); if (j.id && j.status !== 'running') jobs.set(j.id, j); } catch {} }
   if (jobs.size) console.log(`loaded ${jobs.size} finished jobs from ${path.relative(ROOT, JOB_DIR)}`);
 }
+// Same op and settings as a job that is running or finished -> that job, not a new one. On a small shared server this keeps
+// two visitors (or two clicks) from doubling the load, and makes a repeated default sweep instant. Failed or cancelled
+// jobs are not reused. Returns [job, reused].
+const jobKey = (op, params) => op + JSON.stringify(Object.keys(params).sort().map((k) => [k, params[k]]));
 function startJob(op, params, total) {
+  const key = jobKey(op, params);
+  for (const j of jobs.values()) if (j.key === key && (j.status === 'running' || j.status === 'done')) return [j, true];
   if (!slow.ready) throw Object.assign(new Error('jobs worker restarting, retry shortly'), { status: 503 });
-  const job = { id: randomUUID(), op, status: 'running', progress: { done: 0, total, rows: [] }, createdAt: Date.now() };
+  const job = { id: randomUUID(), op, key, status: 'running', progress: { done: 0, total, rows: [] }, createdAt: Date.now() };
   jobs.set(job.id, job);
   slow.call(op, params, { timeoutMs: 30 * 60 * 1000, onProgress: (p) => { job.progress.done = p.done; job.progress.total = p.total; job.progress.rows.push(p.row); } })
     .then((r) => { if (job.status === 'running') { Object.assign(job, { status: 'done', result: r, finishedAt: Date.now() }); saveJob(job); } })
     .catch((e) => { if (job.status === 'running') { Object.assign(job, { status: 'failed', error: e.message, finishedAt: Date.now() }); saveJob(job); } });
-  return job;
+  return [job, false];
 }
 // A running solve cannot be interrupted from outside, so cancelling restarts the jobs worker (~1.5 s); other running jobs fail with a message.
 function cancelJob(job) {
@@ -105,7 +111,7 @@ async function serveStatic(res, urlPath) {
 const server = http.createServer(async (req, res) => {
   const url = new URL(req.url, 'http://localhost');
   try {
-    if (req.method === 'GET' && url.pathname === '/api/health') return send(res, 200, { ok: fast.ready && slow.ready, workers: { fast: fast.ready, jobs: slow.ready } });
+    if (req.method === 'GET' && url.pathname === '/api/health') return send(res, 200, { ok: fast.ready && slow.ready, workers: { fast: fast.ready, jobs: slow.ready }, jobsRunning: [...jobs.values()].filter((j) => j.status === 'running').map((j) => j.op) });
     if (url.pathname.startsWith('/api/') && !fast.ready) return send(res, 503, { error: 'engine starting, retry shortly' });
     if (req.method === 'GET' && url.pathname === '/api/meta') return send(res, 200, await cached('meta', {}));
     if (req.method === 'POST' && url.pathname === '/api/engine1') return send(res, 200, await cached('engine1', await readJson(req)));
@@ -113,9 +119,9 @@ const server = http.createServer(async (req, res) => {
     if (req.method === 'POST' && url.pathname === '/api/engine2') return send(res, 200, await cached('engine2', await readJson(req)));
     if (req.method === 'POST' && url.pathname === '/api/engine2/robustness') {
       const p = await readJson(req); const { cases } = await fast.call('robustness_check', p);   // bad input -> 400 before any job starts
-      return send(res, 202, { jobId: startJob('robustness', p, cases).id });
+      const [j, reused] = startJob('robustness', p, cases); return send(res, 202, { jobId: j.id, reused });
     }
-    if (req.method === 'POST' && url.pathname === '/api/jobs/coupling') { const p = await readJson(req); return send(res, 202, { jobId: startJob('coupling', p, (p.budgets || [0, 15000, 30000, 60000, 90000]).length).id }); }
+    if (req.method === 'POST' && url.pathname === '/api/jobs/coupling') { const p = await readJson(req); const [j, reused] = startJob('coupling', p, (p.budgets || [0, 15000, 30000, 60000, 90000]).length); return send(res, 202, { jobId: j.id, reused }); }
     if ((req.method === 'GET' || req.method === 'DELETE') && url.pathname.startsWith('/api/jobs/')) {
       const j = jobs.get(url.pathname.split('/').pop()); if (!j) return send(res, 404, { error: 'no such job' });
       return send(res, 200, req.method === 'DELETE' ? cancelJob(j) : j);
