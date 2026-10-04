@@ -4,7 +4,7 @@ import Overview from './pages/Overview.jsx'
 import Pricing from './pages/Pricing.jsx'
 import Retention from './pages/Retention.jsx'
 import Coupling from './pages/Coupling.jsx'
-import Checks from './pages/Checks.jsx'
+import Index from './pages/Index.jsx'
 import { SharedSettings } from './components/SharedSettings.jsx'
 import { SHARED_DEFAULTS } from './settings.js'
 import { ThemeToggle } from './components/ThemeToggle.jsx'
@@ -17,7 +17,7 @@ const PAGES = [
   { id: 'pricing', label: 'Pricing', title: 'Engine 1 · Price optimizer', dot: 'bg-indigo-500' },
   { id: 'retention', label: 'Retention', title: 'Engine 2 · Offer optimizer', dot: 'bg-emerald-500' },
   { id: 'coupling', label: 'Coupling', title: 'Retention spend vs pricing room', dot: 'bg-amber-500' },
-  { id: 'checks', label: 'Data & checks', title: 'Verification and assumptions', dot: 'bg-rose-400' },
+  { id: 'index', label: 'Index', title: 'Terms, formulas and methods', dot: 'bg-rose-400' },
 ]
 
 const STATUS = {
@@ -33,6 +33,11 @@ export default function App() {
   const [status, setStatus] = useState('connecting')     // connecting -> starting -> ready, or unreachable after ~12 s
   const [shared, setShared] = useState(SHARED_DEFAULTS)
   const [theme, setTheme] = useTheme()
+  // A "?" next to any label opens the Index at that term (the hash also highlights the entry via :target).
+  useEffect(() => {
+    const open = (e) => { setPage('index'); setTimeout(() => { location.hash = `term-${e.detail}` }, 0) }
+    window.addEventListener('open-term', open); return () => window.removeEventListener('open-term', open)
+  }, [])
   useEffect(() => {
     let alive = true; let tries = 0
     const load = async () => {
@@ -77,7 +82,7 @@ export default function App() {
           <div hidden={page !== 'pricing'} className="page-enter"><Pricing shared={shared} /></div>
           <div hidden={page !== 'retention'} className="page-enter"><Retention shared={shared} /></div>
           <div hidden={page !== 'coupling'} className="page-enter"><Coupling shared={shared} /></div>
-          <div hidden={page !== 'checks'} className="page-enter"><Checks meta={meta} status={status} /></div>
+          <div hidden={page !== 'index'} className="page-enter"><Index meta={meta} status={status} /></div>
         </div>
       </main>
     </div>
