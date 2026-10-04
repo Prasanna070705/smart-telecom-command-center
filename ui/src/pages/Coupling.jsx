@@ -1,6 +1,7 @@
-import { useEffect, useRef, useState } from 'react'
+import { useState } from 'react'
 import { api } from '../api.js'
-import { Card, Button, ErrorNote, Empty } from '../components/ui.jsx'
+import { useJob, JOB_STATUS } from '../useJob.js'
+import { Card, Button, CancelButton, ErrorNote, Empty } from '../components/ui.jsx'
 import { money, pct } from '../format.js'
 
 function GainChart({ rows }) {           // net gain against retention budget, plain SVG
@@ -26,36 +27,27 @@ function GainChart({ rows }) {           // net gain against retention budget, p
 
 export default function Coupling() {
   const [budgets, setBudgets] = useState('0, 15000, 30000, 60000, 90000')
-  const [job, setJob] = useState(null); const [error, setError] = useState(null); const timer = useRef(null)
-  useEffect(() => () => clearInterval(timer.current), [])
-  const start = async () => {
-    setError(null); clearInterval(timer.current)
+  const { job, error, start: startJob, cancel, running } = useJob(); const [inputError, setInputError] = useState(null)
+  const start = () => {
     const list = budgets.split(',').map((v) => Number(v.trim())).filter((v) => Number.isFinite(v) && v >= 0)
-    if (!list.length) return setError('Enter at least one budget')
-    try {
-      const { jobId } = await api.startCoupling({ budgets: list })
-      setJob({ status: 'running', progress: { done: 0, total: list.length, rows: [] } })
-      timer.current = setInterval(async () => {
-        try { const j = await api.job(jobId); setJob(j); if (j.status !== 'running') clearInterval(timer.current) } catch (e) { setError(e.message); clearInterval(timer.current) }
-      }, 1000)
-    } catch (e) { setError(e.message) }
+    setInputError(list.length ? null : 'Enter at least one budget')
+    if (list.length) startJob(() => api.startCoupling({ budgets: list }), list.length)
   }
   const rows = job?.progress.rows || []
-  const running = job?.status === 'running'
   return (
     <div className="space-y-6">
       <Card title="Retention budget sweep" subtitle="Runs Engine 2 at each budget, then Engine 1 on the lower churn"
-        action={<Button onClick={start} busy={running} tone="amber">Run sweep</Button>}>
+        action={<div className="flex gap-2">{running && <CancelButton onClick={cancel} />}<Button onClick={start} busy={running} tone="amber">Run sweep</Button></div>}>
         <label className="block text-xs font-medium text-slate-600">Budgets in dollars, comma separated
           <input value={budgets} onChange={(e) => setBudgets(e.target.value)} className="mt-2 w-full rounded-lg border-0 px-3 py-2 text-sm text-slate-900 ring-1 ring-slate-200 focus:ring-2 focus:ring-amber-500" />
         </label>
         {job && (
           <div className="mt-4">
-            <div className="mb-1 flex justify-between text-xs text-slate-500"><span>{job.status === 'done' ? 'Finished' : job.status === 'failed' ? 'Failed' : 'Running'}</span><span>{job.progress.done} of {job.progress.total}</span></div>
+            <div className="mb-1 flex justify-between text-xs text-slate-500"><span>{JOB_STATUS[job.status]}</span><span>{job.progress.done} of {job.progress.total}</span></div>
             <div className="h-2 rounded-full bg-slate-100"><div className="h-2 rounded-full bg-amber-500 transition-all" style={{ width: `${(100 * job.progress.done) / job.progress.total}%` }} /></div>
           </div>
         )}
-        <div className="mt-4"><ErrorNote error={error || job?.error} /></div>
+        <div className="mt-4"><ErrorNote error={inputError || error || job?.error} /></div>
       </Card>
       <div className="grid gap-6 lg:grid-cols-2">
         <Card title="Net lifetime-profit gain" subtitle="After retention spend, against today's lifetime profit">

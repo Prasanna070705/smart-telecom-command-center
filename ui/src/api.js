@@ -15,4 +15,5 @@ export const api = {
   startRobustness: (params) => post('/api/engine2/robustness', params),
   startCoupling: (params) => post('/api/jobs/coupling', params),
   job: (id) => call(`/api/jobs/${id}`),
+  cancelJob: (id) => call(`/api/jobs/${id}`, { method: 'DELETE' }),
 }
