@@ -1,12 +1,13 @@
 import { useState } from 'react'
 import { api } from '../api.js'
 import { useJob, JOB_STATUS } from '../useJob.js'
-import { Card, Kpi, Button, CancelButton, Slider, ErrorNote, Empty, Badge, Loading, StaleNote, TimeLimitNote } from '../components/ui.jsx'
-import { pick } from '../settings.js'
-import { money, int, pct } from '../format.js'
+import { Card, Kpi, Button, CancelButton, Slider, NumberField, ErrorNote, Empty, Badge, Loading, StaleNote, TimeLimitNote } from '../components/ui.jsx'
+import { pick, RETENTION_DEFAULTS } from '../settings.js'
+import { money, int, pct, cents } from '../format.js'
 
 const OFFER_LABEL = { '1yr': 'One-year contract', '2yr': 'Two-year contract', tech: 'Free tech support', sec: 'Free online security', auto: 'Autopay switch', '2yr+tech': 'Two-year + tech support' }
 const PAGE = 15
+const MAX_BUDGET = 1000000   // beyond this the agent hours and caps bind long before money does
 
 function downloadCsv(rows) {
   const cols = ['customerID', 'offerName', 'contract', 'monthlyBill', 'monthlyHazardPct', 'expectedCost', 'expectedValue', 'hours']
@@ -65,33 +66,36 @@ function RobustnessPanel({ settings }) {
 }
 
 export default function Retention({ shared }) {
-  const [s, setS] = useState({ budget: 30000, hours: 500, cap: 350, acceptance: 0.3, threshold: 0.03, haircut: 1 })
+  const [s, setS] = useState(RETENTION_DEFAULTS)
   const [res, setRes] = useState(null); const [busy, setBusy] = useState(false); const [error, setError] = useState(null); const [page, setPage] = useState(0); const [ran, setRan] = useState(null)
   const set = (k) => (v) => setS((o) => ({ ...o, [k]: v }))
   const req = { ...pick(shared, ['margin', 'discount']), ...s }; const key = JSON.stringify(req)
+  const budgetError = !Number.isInteger(s.budget) ? 'Enter a whole number of dollars' : s.budget < 0 || s.budget > MAX_BUDGET ? `Between $0 and ${money(MAX_BUDGET)}` : null
   const run = async () => { setBusy(true); setError(null); try { setRes(await api.engine2(req)); setRan(key); setPage(0) } catch (e) { setError(e.message) } finally { setBusy(false) } }
   const rows = res ? res.callList.slice(page * PAGE, page * PAGE + PAGE) : []
   const pages = res ? Math.ceil(res.callList.length / PAGE) : 0
   return (
     <div className="grid gap-6 xl:grid-cols-[320px_1fr]">
-      <Card title="Campaign settings" subtitle="Budget, time and offer limits for the call centre"
-        action={<Button onClick={run} busy={busy} tone="emerald">Run Engine 2</Button>}>
+      <Card title="Campaign settings" subtitle="Who to call is chosen within these limits; press Run to build the call list"
+        action={<Button onClick={run} busy={busy} disabled={!!budgetError} tone="emerald">Run Engine 2</Button>}>
         <div className="space-y-5">
-          <Slider label="Retention budget" value={s.budget} min={5000} max={90000} step={5000} onChange={set('budget')} format={money} />
-          <Slider label="Agent hours" value={s.hours} min={100} max={1500} step={50} onChange={set('hours')} format={int} />
-          <Slider label="Cap per offer" value={s.cap} min={50} max={1000} step={25} onChange={set('cap')} format={int} />
-          <Slider label="Acceptance rate" value={s.acceptance} min={0.05} max={0.6} step={0.05} onChange={set('acceptance')} format={(v) => `${Math.round(v * 100)}%`} help="EMPC prior: mean 30%" />
-          <Slider label="Risk threshold" value={s.threshold} min={0.01} max={0.06} step={0.005} onChange={set('threshold')} format={(v) => `${(v * 100).toFixed(1)}% / month`} />
-          <Slider label="Contract-effect haircut" value={s.haircut} min={0.25} max={1} step={0.25} onChange={set('haircut')} format={(v) => `×${v}`} help="discounts the most selection-prone effects" />
+          <NumberField label="Retention budget" value={s.budget} onChange={set('budget')} min={0} max={MAX_BUDGET} prefix="$" term="budget" error={budgetError}
+            help={`Expected spend on offers (what accepted offers cost on average). Suggested: ${money(RETENTION_DEFAULTS.budget)}`} />
+          <Slider label="Agent hours" value={s.hours} min={100} max={1500} step={50} onChange={set('hours')} format={(v) => `${int(v)} h`} term="agent-hours" help="Total call-centre time; each call takes 30-60 minutes" />
+          <Slider label="Cap per offer" value={s.cap} min={50} max={1000} step={25} onChange={set('cap')} format={int} term="cap" help="Most customers who can get the same offer" />
+          <Slider label="Acceptance rate" value={s.acceptance} min={0.05} max={0.6} step={0.05} onChange={set('acceptance')} format={(v) => `${Math.round(v * 100)}%`} term="acceptance" help="Share of called customers who say yes; published studies average 30%" />
+          <Slider label="Risk threshold" value={s.threshold} min={0.01} max={0.06} step={0.005} onChange={set('threshold')} format={(v) => `${(v * 100).toFixed(1)}% / month`} term="candidate" help="Customers this likely to leave in a month are candidates" />
+          <Slider label="Contract-effect haircut" value={s.haircut} min={0.25} max={1} step={0.25} onChange={set('haircut')} format={(v) => `×${v}`} term="haircut" help="How much of the contract effect to believe: ×1 all of it, ×0.5 half" />
           <ErrorNote error={error} />
         </div>
       </Card>
       <div className="space-y-6">
         <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-          <Kpi label="Value preserved" value={res ? money(res.value) : '—'} hint={res ? `LP bound ${money(res.lpBound)}` : null} tone="emerald" />
-          <Kpi label="Customers called" value={res ? int(res.called) : '—'} hint={res ? `of ${int(res.pool)} candidates` : null} />
-          <Kpi label="Optimality gap" value={res ? `${res.gapPct.toFixed(3)}%` : '—'} hint={res ? `greedy is ${res.greedyShortfallPct.toFixed(1)}% worse` : null} tone="indigo" />
-          <Kpi label="Budget · hours used" value={res ? `${Math.round(res.budgetUsedPct)}% · ${Math.round(res.hoursUsedPct)}%` : '—'} tone="amber" />
+          <Kpi label="Value preserved" term="value-preserved" value={res ? money(res.value) : '—'} hint={res ? `expected · LP bound ${money(res.lpBound)}` : null} tone="emerald" />
+          <Kpi label="Customers called" term="candidate" value={res ? int(res.called) : '—'} hint={res ? `of ${int(res.pool)} at-risk customers` : null} />
+          <Kpi label="Optimality gap" term="gap" value={res ? `${res.gapPct.toFixed(3)}%` : '—'} hint={res ? `greedy is ${res.greedyShortfallPct.toFixed(1)}% worse` : null} tone="indigo" />
+          <Kpi label="Budget · hours used" term="agent-hours" value={res ? `${Math.round(res.budgetUsedPct)}% · ${Math.round(res.hoursUsedPct)}%` : '—'}
+            hint={res?.perCall ? `per customer called: ${cents(res.perCall.expectedCost)} · ${Math.round(res.perCall.hours * 60)} min` : null} tone="amber" />
         </div>
         {res && (
           <Card title="Offer mix" subtitle="Customers per offer and the value each offer preserves">
