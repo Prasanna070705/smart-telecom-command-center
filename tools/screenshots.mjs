@@ -11,7 +11,8 @@ await mkdir(DIR, { recursive: true });
 const browser = await chromium.launch(); const page = await browser.newPage({ viewport: { width: 1440, height: 900 }, deviceScaleFactor: 2 });
 await page.addInitScript((t) => localStorage.setItem('theme', t), THEME);   // before the page's own theme script runs
 const nav = (name) => page.getByRole('button', { name, exact: true }).click();
-const shot = async (file) => { await page.waitForTimeout(300); await page.screenshot({ path: fileURLToPath(new URL(file, DIR)), fullPage: true }); console.log(`saved ${fileURLToPath(new URL(file, DIR))}`); };
+// waits 900 ms first so entry animations have finished
+const shot = async (file) => { await page.waitForTimeout(900); await page.screenshot({ path: fileURLToPath(new URL(file, DIR)), fullPage: true }); console.log(`saved ${fileURLToPath(new URL(file, DIR))}`); };
 
 await page.goto(B); await page.getByText('Engines ready').waitFor({ timeout: 60000 }); await page.getByText('7,043', { exact: true }).waitFor();
 await shot('01-overview.png');
