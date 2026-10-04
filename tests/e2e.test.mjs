@@ -35,8 +35,11 @@ await step('Retention: robustness panel solves four cases (background job)', asy
   await tb.getByText(/^\$152,\d{3}$/).waitFor(); await tb.getByText('Acceptance 50%').waitFor(); await tb.getByText(/^\$248,\d{3}$/).waitFor(); });
 await step('Coupling: background job for $0 and $15,000 finishes, curve drawn', async () => {
   await page.getByRole('button', { name: 'Coupling' }).click(); await page.getByLabel('Budgets in dollars, comma separated').fill('0, 15000');
-  await page.getByRole('button', { name: 'Run sweep' }).click(); await page.getByText('Finished').waitFor({ timeout: 120000 });
+  await page.getByRole('button', { name: 'Run sweep' }).click(); await page.getByText('Finished', { exact: true }).waitFor({ timeout: 120000 });
   await page.getByText('$1.29M').waitFor(); await page.getByText(/^\$2\.3\dM$/).first().waitFor(); await page.locator('svg[aria-label="Net lifetime-profit gain by retention budget"] circle').nth(1).waitFor(); });
+await step('Coupling: a running sweep can be cancelled', async () => {
+  await page.getByRole('button', { name: 'Run sweep' }).click(); await page.getByRole('button', { name: 'Cancel' }).click();
+  await page.getByText('Cancelled', { exact: true }).waitFor({ timeout: 10000 }); });
 await step('Invalid input surfaces the API error message', async () => {
   const r = await page.evaluate(async () => (await fetch('/api/engine1', { method: 'POST', body: JSON.stringify({ eta: 99 }) })).status); if (r !== 400) throw new Error('status ' + r); });
 await page.screenshot({ path: '/tmp/e2e_unstyled.png' });
