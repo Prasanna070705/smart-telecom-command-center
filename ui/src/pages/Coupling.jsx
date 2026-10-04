@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import { api } from '../api.js'
 import { useJob, JOB_STATUS } from '../useJob.js'
-import { Card, Button, CancelButton, ErrorNote, Empty } from '../components/ui.jsx'
+import { Card, Button, CancelButton, ErrorNote, Empty, Loading, StaleNote } from '../components/ui.jsx'
+import { pick } from '../settings.js'
 import { money, pct } from '../format.js'
 
 function GainChart({ rows }) {           // net gain against retention budget, plain SVG
@@ -25,13 +26,14 @@ function GainChart({ rows }) {           // net gain against retention budget, p
   )
 }
 
-export default function Coupling() {
+export default function Coupling({ shared }) {
   const [budgets, setBudgets] = useState('0, 15000, 30000, 60000, 90000')
-  const { job, error, start: startJob, cancel, running } = useJob(); const [inputError, setInputError] = useState(null)
+  const { job, error, start: startJob, cancel, running } = useJob(); const [inputError, setInputError] = useState(null); const [ran, setRan] = useState(null)
+  const req = pick(shared, ['eta', 'margin', 'discount']); const key = JSON.stringify(req)
   const start = () => {
     const list = budgets.split(',').map((v) => Number(v.trim())).filter((v) => Number.isFinite(v) && v >= 0)
     setInputError(list.length ? null : 'Enter at least one budget')
-    if (list.length) startJob(() => api.startCoupling({ budgets: list }), list.length)
+    if (list.length) { setRan(key); startJob(() => api.startCoupling({ ...req, budgets: list }), list.length) }
   }
   const rows = job?.progress.rows || []
   return (
@@ -51,10 +53,11 @@ export default function Coupling() {
       </Card>
       <div className="grid gap-6 lg:grid-cols-2">
         <Card title="Net lifetime-profit gain" subtitle="After retention spend, against today's lifetime profit">
-          {rows.length ? <GainChart rows={rows} /> : <Empty>Start the sweep to draw the curve</Empty>}
+          <StaleNote show={rows.length > 0 && ran !== key} />
+          {rows.length ? <GainChart rows={rows} /> : running ? <Loading>Solving the first budget…</Loading> : <Empty>Start the sweep to draw the curve</Empty>}
         </Card>
         <Card title="Sweep results">
-          {!rows.length ? <Empty>No rows yet</Empty> : (
+          {!rows.length ? (running ? <Loading>Waiting for the first row…</Loading> : <Empty>No rows yet</Empty>) : (
             <table className="w-full text-sm">
               <thead><tr className="text-left text-xs uppercase tracking-wide text-slate-500"><th className="pb-2 font-medium">Budget</th><th className="pb-2 text-right font-medium">Offer value</th><th className="pb-2 text-right font-medium">Net gain</th><th className="pb-2 text-right font-medium">Fibre</th></tr></thead>
               <tbody className="divide-y divide-slate-100">

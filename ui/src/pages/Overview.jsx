@@ -1,8 +1,11 @@
-import { Card, Kpi, Badge } from '../components/ui.jsx'
+import { Card, Kpi, Badge, MetaGate } from '../components/ui.jsx'
 import { int } from '../format.js'
 
-export default function Overview({ meta }) {
-  if (!meta) return <p className="text-sm text-slate-500">Loading data summary…</p>
+export default function Overview({ meta, status }) {
+  return <MetaGate meta={meta} status={status}><OverviewBody meta={meta} /></MetaGate>
+}
+
+function OverviewBody({ meta }) {
   const contracts = Object.entries(meta.churnByContractPct)
   return (
     <div className="space-y-6">

@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { api } from '../api.js'
-import { Card, Kpi, Button, Slider, Toggle, Badge, ErrorNote, Empty } from '../components/ui.jsx'
+import { Card, Kpi, Button, Slider, Toggle, Badge, ErrorNote, Empty, Loading, StaleNote } from '../components/ui.jsx'
+import { pick } from '../settings.js'
 import { money, pct } from '../format.js'
 
 function ChangeBar({ value }) {        // diverging bar, centre = no change, ends = ±25%
@@ -17,17 +18,20 @@ const ETAS = [0.4, 0.8, 1.2, 1.5]
 
 // Re-solves Engine 1 at four price sensitivities with the page's other settings, and says whether the price pattern holds.
 function SensitivityPanel({ settings }) {
-  const [res, setRes] = useState(null); const [busy, setBusy] = useState(false); const [error, setError] = useState(null)
+  const [res, setRes] = useState(null); const [busy, setBusy] = useState(false); const [error, setError] = useState(null); const [ran, setRan] = useState(null)
+  const { eta: _eta, ...rest } = settings              // η is what this panel varies, so changing it does not make the result stale
+  const key = JSON.stringify(rest)
   const run = async () => {
     setBusy(true); setError(null)
-    try { setRes(await api.sensitivity({ ...settings, etas: ETAS })) } catch (e) { setError(e.message) } finally { setBusy(false) }
+    try { setRes(await api.sensitivity({ ...rest, etas: ETAS })); setRan(key) } catch (e) { setError(e.message) } finally { setBusy(false) }
   }
   return (
     <Card title="Does the answer depend on price sensitivity?" subtitle="Engine 1 re-solved at four values of η, every other setting unchanged"
       action={<Button onClick={run} busy={busy}>Run sensitivity</Button>}>
       <ErrorNote error={error} />
-      {!res ? <Empty>Run it to compare the four cases</Empty> : (
+      {busy && !res ? <Loading>Solving four cases…</Loading> : !res ? <Empty>Run it to compare the four cases</Empty> : (
         <>
+          <StaleNote show={ran !== key} />
           <div className="mb-4">
             {res.samePattern
               ? <Badge tone="emerald">Same pattern in all {res.cases.length} cases</Badge>
@@ -60,18 +64,17 @@ function SensitivityPanel({ settings }) {
   )
 }
 
-export default function Pricing() {
-  const [s, setS] = useState({ eta: 0.8, margin: 0.7, priceBound: 0.25, billShock: 0.15, ceiling: true })
-  const [res, setRes] = useState(null); const [busy, setBusy] = useState(false); const [error, setError] = useState(null)
+export default function Pricing({ shared }) {
+  const [s, setS] = useState({ priceBound: 0.25, billShock: 0.15, ceiling: true })
+  const [res, setRes] = useState(null); const [busy, setBusy] = useState(false); const [error, setError] = useState(null); const [ran, setRan] = useState(null)
   const set = (k) => (v) => setS((o) => ({ ...o, [k]: v }))
-  const run = async () => { setBusy(true); setError(null); try { setRes(await api.engine1(s)) } catch (e) { setError(e.message) } finally { setBusy(false) } }
+  const req = { ...pick(shared, ['eta', 'margin', 'discount']), ...s }; const key = JSON.stringify(req)
+  const run = async () => { setBusy(true); setError(null); try { setRes(await api.engine1(req)); setRan(key) } catch (e) { setError(e.message) } finally { setBusy(false) } }
   return (
     <div className="grid gap-6 xl:grid-cols-[320px_1fr]">
-      <Card title="Scenario" subtitle="Price sensitivity cannot be measured from this data, so it is a setting"
+      <Card title="Price limits" subtitle="η, margin and discount are in the shared assumptions above"
         action={<Button onClick={run} busy={busy}>Run Engine 1</Button>}>
         <div className="space-y-5">
-          <Slider label="Price sensitivity (η)" value={s.eta} min={0.4} max={1.5} step={0.1} onChange={set('eta')} format={(v) => v.toFixed(1)} help="tested range 0.4 to 1.5" />
-          <Slider label="Profit margin" value={s.margin} min={0.3} max={0.9} step={0.05} onChange={set('margin')} format={(v) => `${Math.round(v * 100)}%`} />
           <Slider label="Price bound" value={s.priceBound} min={0.05} max={0.5} step={0.05} onChange={set('priceBound')} format={(v) => `±${Math.round(v * 100)}%`} />
           <Slider label="Bill-shock cap" value={s.billShock} min={0.05} max={0.3} step={0.01} onChange={set('billShock')} format={(v) => `±${Math.round(v * 100)}%`} />
           <Toggle label="Hold churn at today's level" checked={s.ceiling} onChange={set('ceiling')} />
@@ -86,8 +89,9 @@ export default function Pricing() {
           <Kpi label="Value of 1% churn room" value={res?.shadowPricePerPctHeadroom ? money(res.shadowPricePerPctHeadroom) : '—'} tone="amber" />
         </div>
         <Card title="Optimal price list" subtitle={res ? `${res.starts.succeeded} of ${res.starts.requested} starts agree · solved in ${res.runtimeMs} ms` : 'Run the scenario to see prices'}>
-          {!res ? <Empty>No result yet</Empty> : (
+          {busy && !res ? <Loading>Solving Engine 1…</Loading> : !res ? <Empty>No result yet: press Run Engine 1</Empty> : (
             <div className="overflow-x-auto">
+              <StaleNote show={ran !== key} />
               <table className="w-full text-sm">
                 <thead><tr className="text-left text-xs uppercase tracking-wide text-slate-500">
                   <th className="pb-2 font-medium">Service</th><th className="pb-2 text-right font-medium">Now</th><th className="pb-2 text-right font-medium">New</th>
@@ -107,7 +111,7 @@ export default function Pricing() {
             </div>
           )}
         </Card>
-        <SensitivityPanel settings={s} />
+        <SensitivityPanel settings={req} />
       </div>
     </div>
   )

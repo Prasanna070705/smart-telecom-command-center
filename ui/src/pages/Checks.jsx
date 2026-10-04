@@ -1,4 +1,4 @@
-import { Card, Badge } from '../components/ui.jsx'
+import { Card, Badge, MetaGate } from '../components/ui.jsx'
 
 const ASSUMPTIONS = [
   ['Churn means "left during the recorded tenure"', 'the dataset card says "last month", which contradicts the file'],
@@ -8,18 +8,22 @@ const ASSUMPTIONS = [
   ['Margin, discount rate, budget, hours, caps', 'manager inputs, not data'],
 ]
 
-export default function Checks({ meta }) {
+function VerificationBadges({ v }) {
+  return (
+    <div className="flex flex-wrap gap-2">
+      <Badge tone="emerald">{v.passed} passed</Badge>
+      <Badge tone="rose">{v.refuted} refuted</Badge>
+      <Badge tone="amber">{v.updated} updated</Badge>
+      <Badge>{v.checks} total</Badge>
+    </div>
+  )
+}
+
+export default function Checks({ meta, status }) {
   return (
     <div className="grid gap-6 lg:grid-cols-2">
-      <Card title="Verification status" subtitle="Rerun with: python verify.py">
-        {meta && (
-          <div className="flex flex-wrap gap-2">
-            <Badge tone="emerald">{meta.verification.passed} passed</Badge>
-            <Badge tone="rose">{meta.verification.refuted} refuted</Badge>
-            <Badge tone="amber">{meta.verification.updated} updated</Badge>
-            <Badge>{meta.verification.checks} total</Badge>
-          </div>
-        )}
+      <Card title="Verification status" subtitle="Rerun with: npm run verify (73 checks) and npm run verify:coupling (3 more)">
+        <MetaGate meta={meta} status={status}><VerificationBadges v={meta?.verification} /></MetaGate>
       </Card>
       <Card title="Assumptions behind every number" subtitle="State these on the slides">
         <ul className="space-y-3">

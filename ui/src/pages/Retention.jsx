@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import { api } from '../api.js'
 import { useJob, JOB_STATUS } from '../useJob.js'
-import { Card, Kpi, Button, CancelButton, Slider, ErrorNote, Empty, Badge } from '../components/ui.jsx'
+import { Card, Kpi, Button, CancelButton, Slider, ErrorNote, Empty, Badge, Loading, StaleNote } from '../components/ui.jsx'
+import { pick } from '../settings.js'
 import { money, int, pct } from '../format.js'
 
 const OFFER_LABEL = { '1yr': 'One-year contract', '2yr': 'Two-year contract', tech: 'Free tech support', sec: 'Free online security', auto: 'Autopay switch', '2yr+tech': 'Two-year + tech support' }
@@ -18,16 +19,17 @@ const caseLabel = (c) => (c.kind === 'haircut' ? `Contract effects ×${c.factor}
 
 // Re-solves Engine 2 with weaker contract effects and other acceptance rates (a background job), the page's other settings unchanged.
 function RobustnessPanel({ settings }) {
-  const { job, error, start, cancel, running } = useJob()
+  const { job, error, start, cancel, running } = useJob(); const [ran, setRan] = useState(null); const key = JSON.stringify(settings)
   const rows = job?.progress.rows || []
   const base = job?.result?.base
   return (
     <Card title="Does the call list survive weaker assumptions?" subtitle="Engine 2 re-solved with contract effects cut and other acceptance rates; both are scenario inputs, not measured"
-      action={<div className="flex gap-2">{running && <CancelButton onClick={cancel} />}<Button onClick={() => start(() => api.startRobustness(settings), 4)} busy={running} tone="emerald">Run robustness</Button></div>}>
+      action={<div className="flex gap-2">{running && <CancelButton onClick={cancel} />}<Button onClick={() => { setRan(key); start(() => api.startRobustness(settings), 4) }} busy={running} tone="emerald">Run robustness</Button></div>}>
       <ErrorNote error={error || job?.error} />
       {job && <p className="mb-3 text-xs text-slate-500">{JOB_STATUS[job.status]} · {job.progress.done} of {job.progress.total} cases solved</p>}
-      {!rows.length ? <Empty>{running ? 'Solving the base case…' : 'Run it to compare four cases with this list'}</Empty> : (
+      {!rows.length ? (running ? <Loading>Solving the base case…</Loading> : <Empty>Run it to compare four cases with this list</Empty>) : (
         <>
+          <StaleNote show={ran !== key} />
           <div className="overflow-x-auto">
             <table className="w-full text-sm" aria-label="Robustness of the call list">
               <thead><tr className="text-left text-xs uppercase tracking-wide text-slate-500">
@@ -60,11 +62,12 @@ function RobustnessPanel({ settings }) {
   )
 }
 
-export default function Retention() {
+export default function Retention({ shared }) {
   const [s, setS] = useState({ budget: 30000, hours: 500, cap: 350, acceptance: 0.3, threshold: 0.03, haircut: 1 })
-  const [res, setRes] = useState(null); const [busy, setBusy] = useState(false); const [error, setError] = useState(null); const [page, setPage] = useState(0)
+  const [res, setRes] = useState(null); const [busy, setBusy] = useState(false); const [error, setError] = useState(null); const [page, setPage] = useState(0); const [ran, setRan] = useState(null)
   const set = (k) => (v) => setS((o) => ({ ...o, [k]: v }))
-  const run = async () => { setBusy(true); setError(null); try { setRes(await api.engine2(s)); setPage(0) } catch (e) { setError(e.message) } finally { setBusy(false) } }
+  const req = { ...pick(shared, ['margin', 'discount']), ...s }; const key = JSON.stringify(req)
+  const run = async () => { setBusy(true); setError(null); try { setRes(await api.engine2(req)); setRan(key); setPage(0) } catch (e) { setError(e.message) } finally { setBusy(false) } }
   const rows = res ? res.callList.slice(page * PAGE, page * PAGE + PAGE) : []
   const pages = res ? Math.ceil(res.callList.length / PAGE) : 0
   return (
@@ -101,11 +104,12 @@ export default function Retention() {
             </div>
           </Card>
         )}
-        <RobustnessPanel settings={s} />
+        <RobustnessPanel settings={req} />
         <Card title="Call list" subtitle={res ? `${int(res.callList.length)} customers, highest value first · solved in ${(res.runtimeMs / 1000).toFixed(1)} s` : 'Run the campaign to build the list'}
           action={res && <button type="button" onClick={() => downloadCsv(res.callList)} className="rounded-lg px-3 py-1.5 text-xs font-semibold text-emerald-700 ring-1 ring-emerald-200 hover:bg-emerald-50">Export CSV</button>}>
-          {!res ? <Empty>No call list yet</Empty> : (
+          {busy && !res ? <Loading>Solving Engine 2…</Loading> : !res ? <Empty>No call list yet: press Run Engine 2</Empty> : (
             <>
+              <StaleNote show={ran !== key} />
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead><tr className="text-left text-xs uppercase tracking-wide text-slate-500">
