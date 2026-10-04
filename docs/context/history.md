@@ -36,6 +36,21 @@
 - Tests: test:api (cancel 200, again 409, worker back 2.2 s, robustness still matches G9/G10), test:e2e 14/14.
 - Problem: e2e `getByText('Finished')` matched the hidden Retention panel too (pages stay mounted) -> exact match.
 
+## Day 5 (production build and browser test, gate G3)
+- Production build served on :8787; all five pages work. New e2e step for Data & checks (76 total, assumptions list):
+  the browser test now visits every page and covers the sensitivity, robustness and cancel panels. 15 steps.
+- Fresh clone (git clone of the local repo into a scratch folder, new .venv, `npm ci` root + ui, pip --only-binary):
+  `npm run check` all met, build, test:api (all reference numbers, G9/G10 true), test:e2e 15/15. Done twice: at
+  e6c11f6 and again at 804c6bc after the server change below. Install 14 s.
+- First API start in a fresh .venv: 42.5 s and 30.6 s to both workers ready (Python compiling the new libraries on
+  first import); ~1.3-1.5 s afterwards. README now says so.
+- README "Run it" rewritten from the fresh-clone steps (ui is committed, so `npm --prefix ui ci`, no Vite scaffold),
+  plus the zsh `setopt interactivecomments` note.
+- Could item done: finished / failed / cancelled jobs saved to `results/jobs/<id>.json` (gitignored), reloaded at
+  start. Checked by restarting the API: "loaded 3 finished jobs", GET returns the saved result. test:api checks the files.
+- Noticed, not changed (Day 6): `op_meta` hard-codes the verification counts (76 / 70 / 5 / 1); they agree with
+  verify (67 + 3 PASS, 6 expected FAIL) but are not computed. The Checks card says "python verify.py", not `npm run verify`.
+
 ## Problems hit and fixes
 - `npm run check` FAIL on pinned libraries before install: expected.
 - `npm run test:api` "API not reachable": API not started (it also appears when workers fail to start).
