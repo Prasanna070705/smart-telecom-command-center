@@ -92,6 +92,16 @@
   report numbers to look out for (B2b, D8, D9). The deck is not on this machine (the four .pptx in ~/Downloads are
   other projects), so current slide text is quoted only where verify.py records it (slide 8).
 
+## Day 9 (feature freeze)
+- Playwright WebKit 26.6 installed (78 MB, user approved); `BROWSER=webkit npm run test:e2e` 16/16.
+- Fresh clone **from GitHub** at 62d6d49 into a scratch folder, new .venv, `npm ci` root + ui, pip --only-binary:
+  check all met; verify PASS 67 | FAIL 6 (the expected six), 55.8 s wall (first run, libraries compiling);
+  verify:coupling PASS 3; build; API ready 1.18 s; test:api all matching (G9/G10 true, cancel, 400/404, jobs saved);
+  test:e2e 16/16; timing all within budget (Engine 1 0.29 s, Engine 2 1.65 s, sweep 5.59 s max).
+- `docs/demo-script.md`: ~10 min click path with what to say and the numbers on screen, warm-up checklist, fallbacks,
+  likely questions, rehearsal log. Screenshots in docs/screenshots/ are current (no UI change since 92dcd23).
+- Timed rehearsals: the user's (log table in the script).
+
 ## Problems hit and fixes
 - `npm run check` FAIL on pinned libraries before install: expected.
 - `npm run test:api` "API not reachable": API not started (it also appears when workers fail to start).
