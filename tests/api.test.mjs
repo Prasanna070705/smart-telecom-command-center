@@ -26,6 +26,8 @@ console.log('  per customer called: $', e2.body.perCall.expectedCost, '|', e2.bo
 console.log('  time limit hit:', e2.body.timeLimitHit, '| limit', e2.body.timeLimitS, 's');
 const e2t = await t('POST /api/engine2 (1 s limit, gap 0.0001%)', () => j('POST', '/api/engine2', { mipGap: 0.000001, timeLimit: 1 }));
 console.log('  forced time limit hit:', e2t.body.timeLimitHit === true && e2t.body.solverStatus === 1, '| called', e2t.body.called, '| gap %', e2t.body.gapPct);
+// Reference (plan.md v1.3): 740 called, value within the solver's 0.1% gap of $149,869 (Windows finds $149,866).
+console.log('  engine2 matches reference:', e2.body.called === 740 && Math.abs(e2.body.value / 149869 - 1) <= 0.001);
 console.log('  value', e2.body.value, 'called', e2.body.called, 'gap %', e2.body.gapPct, 'greedy %', e2.body.greedyShortfallPct, 'mix', JSON.stringify(e2.body.mix), 'bytes', e2.bytes);
 const bad = await t('POST /api/engine1 (eta 99, invalid)', () => j('POST', '/api/engine1', { eta: 99 }));
 console.log('  status', bad.status, bad.body.error);

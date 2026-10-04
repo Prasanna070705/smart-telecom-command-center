@@ -27,16 +27,16 @@ await step('Pricing: moving η slider and re-running changes fibre', async () =>
 await step('Pricing: sensitivity panel shows the same pattern for eta 0.4-1.5', async () => {
   await page.getByRole('button', { name: 'Run sensitivity' }).click(); await page.getByText('Same pattern in all 4 cases').waitFor({ timeout: 60000 });
   await page.getByRole('table', { name: 'Price change by price sensitivity' }).getByText('η 1.5').waitFor(); });
-await step('Retention: run Engine 2 → $149,869, 740 current customers called', async () => {
+await step('Retention: run Engine 2 → about $149,869, 740 current customers called', async () => {
   await page.getByRole('button', { name: 'Retention' }).click(); await page.getByRole('button', { name: 'Run Engine 2' }).click();
-  await page.getByText('$149,869').waitFor({ timeout: 60000 }); await page.getByText('740', { exact: true }).filter({ visible: true }).first().waitFor(); });
+  await page.getByText(/^\$149,8\d\d$/).first().waitFor({ timeout: 60000 }); await page.getByText('740', { exact: true }).filter({ visible: true }).first().waitFor(); });   // within the 0.1% gap
 await step('Retention: the budget is typed; an invalid amount disables Run', async () => {
   await page.getByText('each call takes 30-60 minutes').waitFor(); await page.getByText('published studies average 30%').waitFor();   // help text from /api/meta
   const b = page.getByLabel('Retention budget', { exact: true }); await b.fill(''); await page.getByText('Enter a whole number of dollars').waitFor();
   if (await page.getByRole('button', { name: 'Run Engine 2' }).isEnabled()) throw new Error('Run enabled with no budget');
   await b.fill('45000'); await page.getByRole('button', { name: 'Run Engine 2' }).click(); await page.getByText('expected · LP bound').waitFor();
-  await page.getByText('$149,869').waitFor({ state: 'detached', timeout: 60000 });
-  await b.fill('30000'); await page.getByRole('button', { name: 'Run Engine 2' }).click(); await page.getByText('$149,869').first().waitFor({ timeout: 60000 }); });
+  await page.getByText(/^\$149,8\d\d$/).first().waitFor({ state: 'detached', timeout: 60000 });
+  await b.fill('30000'); await page.getByRole('button', { name: 'Run Engine 2' }).click(); await page.getByText(/^\$149,8\d\d$/).first().waitFor({ timeout: 60000 }); });
 await step('Retention: call list paginates (page 1 of 50)', async () => { await page.getByText('Page 1 of 50').waitFor(); await page.getByRole('button', { name: 'Next' }).click(); await page.getByText('Page 2 of 50').waitFor(); });
 await step('Retention: CSV export downloads 741 lines (740 customers + header)', async () => {
   const [dl] = await Promise.all([page.waitForEvent('download'), page.getByRole('button', { name: 'Export CSV' }).click()]);
