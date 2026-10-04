@@ -13,7 +13,7 @@ function OverviewBody({ meta }) {
         <Kpi label="Customers" value={int(meta.customers)} hint={`${int(meta.churners)} left`} />
         <Kpi label="Churn rate" term="churn" value={`${meta.churnRatePct.toFixed(1)}%`} hint="share who left" tone="rose" />
         <Kpi label="Price fit (R²)" term="price-recovery" value={meta.decompositionR2.toFixed(4)} hint={`${meta.baskets} service baskets`} tone="indigo" />
-        <Kpi label="Retention candidates" term="candidate" value={int(meta.hazard.pool3)} hint="monthly risk ≥ 3%" tone="emerald" />
+        <Kpi label="Retention candidates" term="candidate" value={int(meta.candidates)} hint="current customers, monthly risk ≥ 3%" tone="emerald" />
       </div>
       <div className="grid gap-6 lg:grid-cols-2">
         <Card title="Recovered price list" subtitle="What each service costs today, backed out of 7,043 bills">
