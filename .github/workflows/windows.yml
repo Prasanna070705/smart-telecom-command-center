@@ -4,6 +4,7 @@ name: windows
 on:
   push:
     branches: [v2]
+    paths-ignore: ['**.md', 'docs/**']   # doc-only commits do not spend Windows minutes
   workflow_dispatch:
 
 jobs:
