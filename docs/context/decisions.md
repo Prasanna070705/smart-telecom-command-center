@@ -29,7 +29,8 @@ add-ons ~5.0, streaming ~9.97. Residual SD $1.02, uncorrelated with tenure and c
   Interactive solver gap 0.1%, time limit 30 s; verify.py uses 0.01%.
 - Engine 2 candidates (v1.3, 2026-10-05, the user's decision): only current customers (Churn = No) with h >= 3%, i.e. 740 of
   5,174 current customers. The churn model is still fitted on all 7,043. Before, 557 of the 901 customers called had already
-  left (62.5% of the value). Engine 1 still prices over all 7,043 customers (open question: should it use current ones only?).
+  left (62.5% of the value). Engine 1 keeps pricing over all 7,043 customers (the user's decision, 2026-10-05: a price list
+  applies to the whole customer base, so no change).
   `includeFormer: true` / include_former=True reproduces the earlier lists.
 - Coupling: Engine 2 at a budget -> equivalent constant hazard h_eq = pi/(CLV + V) - d for called customers ->
   Engine 1 with the ceiling at today's level. Hours = budget/60, caps = budget/85.7.

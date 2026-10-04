@@ -45,7 +45,7 @@ when a day overruns). Tick a task only when its closing test passes. Days 1-2 ar
 ## Day 6: polish
 - Must: loading, empty and error states on every page.
 - Could: type scale, spacing, number formats, keyboard focus, contrast.
-- Open question (not decided): one shared settings panel so margin/discount/eta carry across pages, and offer
+- Decided Day 6 (option 1): one shared settings panel so margin/discount/eta carry across pages; offer terms as inputs (option 2) not chosen. Original note: one shared panel, and offer
   terms become inputs. See decisions.md, known gaps.
 
 ## Day 7: report
