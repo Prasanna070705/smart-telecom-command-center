@@ -62,6 +62,7 @@ def solve(R, budget, hours, cap, gap=1e-4, tlimit=120):
     t = time.time(); lp = linprog(-R.V.values, A_ub=M, b_ub=ub, bounds=(0, 1), method='highs'); tlp = time.time() - t
     t = time.time(); ip = milp(-R.V.values, constraints=LinearConstraint(M, -np.inf, ub), integrality=np.ones(n),
                                 bounds=Bounds(0, 1), options={'mip_rel_gap': gap, 'time_limit': tlimit}); tip = time.time() - t
+    if ip.x is None: raise ValueError(f'no call list found within the {tlimit:g} s time limit; allow more time (timeLimit)')
     x = np.round(ip.x); fr = (lp.x > 1e-7) & (lp.x < 1 - 1e-7)
     sel = R[x == 1]
     feas = dict(one_per_customer=int(sel.i.duplicated().sum()) == 0, budget=sel.cost.sum() <= budget + 1e-6,
