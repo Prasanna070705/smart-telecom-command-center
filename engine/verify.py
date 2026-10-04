@@ -244,12 +244,16 @@ def stage_H(hm):
         for B2 in ([0, 15000, 30000, 60000, 90000] if hc == 1.0 else [15000, 30000]):
             h1 = h0.copy(); spend = 0.0; direct = 0.0
             if B2:
-                s = E2.solve(R, B2, B2 / 60, int(B2 / 85.7))['sel']; spend = s.cost.sum(); direct = s.V.sum()
+                s = E2.solve(R, B2, B2 / 60, int(B2 / 85.7), gap=1e-3, tlimit=30)['sel']; spend = s.cost.sum(); direct = s.V.sum()   # the API's settings
                 pi = m * B0[s.i.values]; h1[s.i.values] = pi / (pi / (d + h0[s.i.values]) + s.V.values) - d
             r = E1.solve(h1, eta, m=m, d=d, ceiling=True, Hbar=h0.mean(), starts=3)
             rows.append([hc, B2, round(spend, 0), round(direct, 0), round((lp(r['P'], h1) - spend - base) / 1e6, 3), round(100 * r['dP'][E1.iF], 1), round(100 * r['dP'][0], 1), round(100 * r['dP'][SV.index('Sec')], 1)])
     chk('H1', 'baseline lifetime profit $M (m=0.7, d=1%)', round(base / 1e6, 2))
-    chk('H2', 'coupling sweep [haircut, retention budget $, spend $, retention value $, net gain $M, fibre %, phone %, add-ons %]', rows)
+    # acceptance (plan.md): net gain $M at haircut 1, each within 1%; the $15k row is a range because near-optimal lists differ
+    ref = {0: (1.29, 1.29), 15000: (2.32, 2.34), 30000: (3.15, 3.15), 60000: (3.28, 3.28), 90000: (3.30, 3.30)}
+    ok = all(ref[r[1]][0] * 0.99 <= r[4] <= ref[r[1]][1] * 1.01 for r in rows if r[0] == 1.0) and sum(r[0] == 1.0 for r in rows) == len(ref)
+    chk('H2', 'coupling sweep, gap 0.1% [haircut, retention budget $, spend $, retention value $, net gain $M, fibre %, phone %, add-ons %]', rows,
+        expect={k: v[0] if v[0] == v[1] else list(v) for k, v in ref.items()}, ok=ok)
     nF = int(A.Fiber.sum()); chk('H3', 'fibre customers and monthly revenue of an 18.1% fibre cut $', [nF, round(nF * P0[SV.index('Fiber')] * 0.181, 0)])
 
 def stage_I(hm):
