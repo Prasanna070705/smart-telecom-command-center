@@ -14,6 +14,16 @@
 - Mac results: sensitivity 1,031 ms, `True ['+U--UUUUUU']`; engine2 1,691 ms; coupling 4,012 ms.
 - Commits: fd9db59 feat(engine1), 147c0f6 feat(ui), b90e1e0 perf(engine2), f63898a test.
 
+## Day 3 (robustness call + Retention panel, gate G2)
+- Worker op `robustness` (+ `robustness_check`, validation only), `POST /api/engine2/robustness` -> 202 {jobId}, polled at
+  `/api/jobs/:id`. It is a background job on the jobs worker: 5 solves take 5.6 s at the 0.1% gap and 28 s at 0.01% on
+  the Mac, too long to block interactive calls. The route validates first on the fast worker, so bad input is still 400.
+- Cases default to haircut 0.5 / 0.25 and acceptance 0.15 / 0.5 (`haircuts`, `acceptances` lists, max 4 each); every
+  other setting is the request's. kept / same offer defined as in verify.py G9/G10.
+- Through the API at mipGap 0.0001: $152,666 / 88.5% / 44.5%; $126,880 / 81.4% / 47.2%; $104,046 / 79.6%; $248,344 / 95.3%.
+  Identical to G9/G10 on this Mac ($126,886 in the plan is the sandbox value, 0.005% away). At 0.1%: $152,614, $248,230.
+- RobustnessPanel on Retention uses the page's settings. Tests: api (matches G9/G10: true, 400 on haircut 2), e2e 13/13.
+
 ## Problems hit and fixes
 - `npm run check` FAIL on pinned libraries before install: expected.
 - `npm run test:api` "API not reachable": API not started (it also appears when workers fail to start).
