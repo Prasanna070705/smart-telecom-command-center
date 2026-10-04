@@ -69,7 +69,7 @@ when a day overruns). Tick a task only when its closing test passes. Days 1-2 ar
 | Pricing | eta 1.5 | fibre -18.3% |
 | Pricing | ceiling off | every price +15% |
 | Pricing sensitivity | eta 0.4/0.8/1.2/1.5 | same pattern +U--UUUUUU; fibre -17.65/-17.89/-18.15/-18.34 |
-| Retention | $30,000, 500 h, cap 350, acceptance 30% | $149,869; 740 called; gap < 0.01%; greedy 8.25% worse; CSV 740 rows |
+| Retention | $30,000, 500 h, cap 350, acceptance 30% | $149,869 within 0.1% (Windows finds $149,866); 740 called; gap < 0.01%; greedy 8.25% worse; CSV 740 rows |
 | Retention | contract effects x0.5 | $123,961 within 0.1% |
 | Coupling | $0, $15k, $30k, $60k, $90k | net gain $1.29M, $2.27M, $2.94M, $2.99M, $2.99M, each within 1% |
 
