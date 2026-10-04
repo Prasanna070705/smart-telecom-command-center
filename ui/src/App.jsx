@@ -80,7 +80,7 @@ export default function App() {
           {['pricing', 'retention', 'coupling'].includes(page) && <div className="mb-6"><SharedSettings value={shared} onChange={setShared} /></div>}
           <div hidden={page !== 'overview'} className="page-enter"><Overview meta={meta} status={status} /></div>
           <div hidden={page !== 'pricing'} className="page-enter"><Pricing shared={shared} /></div>
-          <div hidden={page !== 'retention'} className="page-enter"><Retention shared={shared} /></div>
+          <div hidden={page !== 'retention'} className="page-enter"><Retention shared={shared} meta={meta} /></div>
           <div hidden={page !== 'coupling'} className="page-enter"><Coupling shared={shared} /></div>
           <div hidden={page !== 'index'} className="page-enter"><Index meta={meta} status={status} /></div>
         </div>
