@@ -1,6 +1,6 @@
 // Times every engine call against the plan's speed budgets (gate G4), uncached: each request carries a unique
 // `nonce` the worker ignores, so the API cache never answers. Run: npm run timing (API running).
-const B = 'http://localhost:8787';
+const B = process.env.API_URL || 'http://localhost:8787';
 const RUNS = Number(process.env.RUNS || 3);
 const post = async (p, body) => { const r = await fetch(B + p, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...body, nonce: Math.random() }) }); const j = await r.json(); if (!r.ok && r.status !== 202) throw new Error(`${p}: ${j.error}`); return j; };
 const job = async (p, body) => { const { jobId } = await post(p, body); for (;;) { const s = await (await fetch(`${B}/api/jobs/${jobId}`)).json(); if (s.status !== 'running') { if (s.status !== 'done') throw new Error(`${p}: ${s.status} ${s.error || ''}`); return s; } await new Promise((r) => setTimeout(r, 100)); } };

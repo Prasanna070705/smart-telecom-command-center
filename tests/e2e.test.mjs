@@ -4,10 +4,10 @@ const pw = createRequire(import.meta.url)(process.env.PLAYWRIGHT_MODULE || 'play
 // BROWSER=chromium (default) | chrome (installed Google Chrome) | webkit | firefox
 const BROWSER = process.env.BROWSER || 'chromium';
 const launch = () => (BROWSER === 'chrome' ? pw.chromium.launch({ channel: 'chrome' }) : pw[BROWSER].launch());
-const B = 'http://localhost:8787';
+const B = process.env.API_URL || 'http://localhost:8787';   // API_URL=... to test another server
 const waitUntil = Date.now() + Number(process.env.WAIT_MS || 60000);
 for (;;) { try { const h = await (await fetch(B + '/api/health')).json(); if (h.ok) break; } catch {}
-  if (Date.now() > waitUntil) { console.error('API not reachable on http://localhost:8787. Start it first with: npm run api'); process.exit(1); }
+  if (Date.now() > waitUntil) { console.error(`API not reachable on ${B}. Start it first with: npm run api`); process.exit(1); }
   await new Promise((r) => setTimeout(r, 300)); }
 const browser = await launch(); console.log('browser:', BROWSER, browser.version()); const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
 const errors = []; page.on('pageerror', (e) => errors.push(e.message)); page.on('console', (m) => m.type() === 'error' && errors.push(m.text()));
@@ -32,6 +32,11 @@ await step('Retention: call list paginates (page 1 of 61)', async () => { await 
 await step('Retention: CSV export downloads 902 lines', async () => {
   const [dl] = await Promise.all([page.waitForEvent('download'), page.getByRole('button', { name: 'Export CSV' }).click()]);
   const txt = await (await import('node:fs/promises')).readFile(await dl.path(), 'utf8'); if (txt.trim().split('\n').length !== 902) throw new Error('rows ' + txt.split('\n').length); });
+await step('Retention: a solve that stopped at the time limit says so', async () => {
+  await page.route('**/api/engine2', async (route) => { const r = await route.fetch(); const body = await r.json(); route.fulfill({ response: r, json: { ...body, timeLimitHit: true, timeLimitS: 30 } }); });
+  await page.getByRole('button', { name: 'Run Engine 2' }).click(); await page.getByText(/Stopped at the 30 s solver time limit/).waitFor();
+  await page.unroute('**/api/engine2'); await page.getByRole('button', { name: 'Run Engine 2' }).click();
+  await page.getByText(/Stopped at the 30 s solver time limit/).waitFor({ state: 'detached' }); });
 await step('Retention: robustness panel solves four cases (background job)', async () => {
   await page.getByRole('button', { name: 'Run robustness' }).click(); const tb = page.getByRole('table', { name: 'Robustness of the call list' });
   await tb.getByText('Base (these settings)').waitFor({ timeout: 120000 }); await tb.getByText('Contract effects ×0.5').waitFor();

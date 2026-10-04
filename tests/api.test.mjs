@@ -1,11 +1,11 @@
 // End-to-end API test: Node -> Python -> Node. Uses Node 22's built-in fetch.
-const B = 'http://localhost:8787';
+const B = process.env.API_URL || 'http://localhost:8787';   // API_URL=... to test another server
 const t = async (label, fn) => { const s = performance.now(); const r = await fn(); console.log(label.padEnd(44), `${(performance.now() - s).toFixed(0)} ms`); return r; };
 const j = async (method, p, body) => { const r = await fetch(B + p, { method, headers: { 'Content-Type': 'application/json' }, body: body ? JSON.stringify(body) : undefined }); const txt = await r.text(); return { status: r.status, bytes: txt.length, body: JSON.parse(txt) }; };
 const boot = performance.now();
 const waitUntil = Date.now() + Number(process.env.WAIT_MS || 60000);
 for (;;) { try { const h = await (await fetch(B + '/api/health')).json(); if (h.ok) break; } catch {}
-  if (Date.now() > waitUntil) { console.error('API not reachable on http://localhost:8787. Start it first with: npm run api'); process.exit(1); }
+  if (Date.now() > waitUntil) { console.error(`API not reachable on ${B}. Start it first with: npm run api`); process.exit(1); }
   await new Promise((r) => setTimeout(r, 300)); }
 console.log('server + 2 Python workers ready after'.padEnd(44), `${(performance.now() - boot).toFixed(0)} ms`);
 const meta = await t('GET /api/meta', () => j('GET', '/api/meta'));
@@ -20,6 +20,9 @@ console.log('  same pattern:', sens.body.samePattern, sens.body.patterns.join(',
 const sensBad = await j('POST', '/api/engine1/sensitivity', { etas: [99] });
 console.log('  invalid etas status', sensBad.status, sensBad.body.error);
 const e2 = await t('POST /api/engine2 (defaults)', () => j('POST', '/api/engine2', {}));
+console.log('  time limit hit:', e2.body.timeLimitHit, '| limit', e2.body.timeLimitS, 's');
+const e2t = await t('POST /api/engine2 (1 s limit, gap 0.0001%)', () => j('POST', '/api/engine2', { mipGap: 0.000001, timeLimit: 1 }));
+console.log('  forced time limit hit:', e2t.body.timeLimitHit === true && e2t.body.solverStatus === 1, '| called', e2t.body.called, '| gap %', e2t.body.gapPct);
 console.log('  value', e2.body.value, 'called', e2.body.called, 'gap %', e2.body.gapPct, 'greedy %', e2.body.greedyShortfallPct, 'mix', JSON.stringify(e2.body.mix), 'bytes', e2.bytes);
 const bad = await t('POST /api/engine1 (eta 99, invalid)', () => j('POST', '/api/engine1', { eta: 99 }));
 console.log('  status', bad.status, bad.body.error);
