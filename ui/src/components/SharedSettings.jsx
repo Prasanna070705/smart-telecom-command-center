@@ -7,7 +7,7 @@ export function SharedSettings({ value, onChange }) {
   const changed = Object.keys(SHARED_DEFAULTS).some((k) => value[k] !== SHARED_DEFAULTS[k])
   return (
     <Card title="Shared assumptions" subtitle="Used by Pricing, Retention and Coupling; η affects Pricing and Coupling only"
-      action={changed && <button type="button" onClick={() => onChange(SHARED_DEFAULTS)} className="rounded-lg px-3 py-1.5 text-xs font-semibold text-slate-700 ring-1 ring-slate-300 hover:bg-slate-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">Reset to defaults</button>}>
+      action={changed && <button type="button" onClick={() => onChange(SHARED_DEFAULTS)} className="rounded-lg px-3 py-1.5 text-xs font-semibold text-slate-700 dark:text-slate-300 ring-1 ring-slate-300 dark:ring-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">Reset to defaults</button>}>
       <div className="grid gap-5 sm:grid-cols-3">
         <Slider label="Price sensitivity (η)" value={value.eta} min={0.4} max={1.5} step={0.1} onChange={set('eta')} format={(v) => v.toFixed(1)} help="a scenario input: not measurable from this data" />
         <Slider label="Profit margin" value={value.margin} min={0.3} max={0.9} step={0.05} onChange={set('margin')} format={(v) => `${Math.round(v * 100)}%`} />

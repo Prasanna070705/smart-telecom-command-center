@@ -28,7 +28,7 @@ export default function Checks({ meta, status }) {
       <Card title="Assumptions behind every number" subtitle="State these on the slides">
         <ul className="space-y-3">
           {ASSUMPTIONS.map(([a, why]) => (
-            <li key={a} className="text-sm"><p className="font-medium text-slate-800">{a}</p><p className="text-xs text-slate-500">{why}</p></li>
+            <li key={a} className="text-sm"><p className="font-medium text-slate-800 dark:text-slate-200">{a}</p><p className="text-xs text-slate-500 dark:text-slate-400">{why}</p></li>
           ))}
         </ul>
       </Card>

@@ -17,11 +17,11 @@ function OverviewBody({ meta }) {
       </div>
       <div className="grid gap-6 lg:grid-cols-2">
         <Card title="Recovered price list" subtitle="What each service costs today, backed out of 7,043 bills">
-          <ul className="divide-y divide-slate-100">
+          <ul className="divide-y divide-slate-100 dark:divide-slate-800">
             {meta.prices.map((p) => (
               <li key={p.key} className="flex items-center justify-between py-2 text-sm">
-                <span className="text-slate-700">{p.name}</span>
-                <span className="font-medium tabular-nums text-slate-900">${p.price.toFixed(2)}</span>
+                <span className="text-slate-700 dark:text-slate-300">{p.name}</span>
+                <span className="font-medium tabular-nums text-slate-900 dark:text-slate-100">${p.price.toFixed(2)}</span>
               </li>
             ))}
           </ul>
@@ -31,8 +31,8 @@ function OverviewBody({ meta }) {
             <div className="space-y-3">
               {contracts.map(([name, v]) => (
                 <div key={name}>
-                  <div className="mb-1 flex justify-between text-xs"><span className="text-slate-600">{name}</span><span className="font-semibold tabular-nums text-slate-900">{v.toFixed(1)}%</span></div>
-                  <div className="h-2 rounded-full bg-slate-100"><div className="h-2 rounded-full bg-rose-500" style={{ width: `${v}%` }} /></div>
+                  <div className="mb-1 flex justify-between text-xs"><span className="text-slate-600 dark:text-slate-300">{name}</span><span className="font-semibold tabular-nums text-slate-900 dark:text-slate-100">{v.toFixed(1)}%</span></div>
+                  <div className="h-2 rounded-full bg-slate-100 dark:bg-slate-800"><div className="h-2 rounded-full bg-rose-500" style={{ width: `${v}%` }} /></div>
                 </div>
               ))}
             </div>

@@ -4,8 +4,13 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Smart Telecom Command Center</title>
+    <script>
+      // Apply the saved theme before the first paint (see src/theme.js), so a dark page never flashes white.
+      try { var t = localStorage.getItem('theme'); var d = t === 'dark' || (t !== 'light' && matchMedia('(prefers-color-scheme: dark)').matches);
+        document.documentElement.classList.toggle('dark', d); document.documentElement.style.colorScheme = d ? 'dark' : 'light' } catch (e) {}
+    </script>
   </head>
-  <body class="bg-slate-50">
+  <body class="bg-slate-50 dark:bg-slate-950">
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>

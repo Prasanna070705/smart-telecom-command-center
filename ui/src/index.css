@@ -1,1 +1,15 @@
 @import "tailwindcss";
+
+/* dark: utilities follow the .dark class on <html> (set by the theme toggle), not only the OS setting */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Range sliders: drawn here because native tracks stay light in dark mode. --pct (set by <Slider>) fills the track. */
+.range {
+  --fill: var(--color-indigo-600); --track: var(--color-slate-200); --ring: var(--color-white);
+  appearance: none; height: 6px; border-radius: 9999px; cursor: pointer;
+  background: linear-gradient(to right, var(--fill) var(--pct, 50%), var(--track) var(--pct, 50%));
+}
+.dark .range { --fill: var(--color-indigo-400); --track: var(--color-slate-700); --ring: var(--color-slate-900); }
+.range::-webkit-slider-thumb { appearance: none; width: 16px; height: 16px; border-radius: 9999px; background: var(--fill); border: 2px solid var(--ring); box-shadow: 0 1px 3px rgb(0 0 0 / 0.3); }
+.range::-moz-range-thumb { width: 16px; height: 16px; border-radius: 9999px; background: var(--fill); border: 2px solid var(--ring); box-shadow: 0 1px 3px rgb(0 0 0 / 0.3); }
+.range:focus-visible { outline: 2px solid var(--fill); outline-offset: 4px; }
