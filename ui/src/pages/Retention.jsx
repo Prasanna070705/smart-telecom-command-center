@@ -1,7 +1,7 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { api } from '../api.js'
 import { Card, Kpi, Button, Slider, ErrorNote, Empty, Badge } from '../components/ui.jsx'
-import { money, int } from '../format.js'
+import { money, int, pct } from '../format.js'
 
 const OFFER_LABEL = { '1yr': 'One-year contract', '2yr': 'Two-year contract', tech: 'Free tech support', sec: 'Free online security', auto: 'Autopay switch', '2yr+tech': 'Two-year + tech support' }
 const PAGE = 15
@@ -11,6 +11,63 @@ function downloadCsv(rows) {
   const csv = [cols.join(','), ...rows.map((r) => cols.map((c) => r[c]).join(','))].join('\n')
   const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }))
   const a = Object.assign(document.createElement('a'), { href: url, download: 'call-list.csv' }); a.click(); URL.revokeObjectURL(url)
+}
+
+const caseLabel = (c) => (c.kind === 'haircut' ? `Contract effects ×${c.factor}` : `Acceptance ${Math.round(c.factor * 100)}%`)
+
+// Re-solves Engine 2 with weaker contract effects and other acceptance rates (a background job), the page's other settings unchanged.
+function RobustnessPanel({ settings }) {
+  const [job, setJob] = useState(null); const [error, setError] = useState(null); const timer = useRef(null)
+  useEffect(() => () => clearInterval(timer.current), [])
+  const start = async () => {
+    setError(null); clearInterval(timer.current)
+    try {
+      const { jobId } = await api.startRobustness(settings)
+      setJob({ status: 'running', progress: { done: 0, total: 4, rows: [] } })
+      timer.current = setInterval(async () => {
+        try { const j = await api.job(jobId); setJob(j); if (j.status !== 'running') clearInterval(timer.current) } catch (e) { setError(e.message); clearInterval(timer.current) }
+      }, 1000)
+    } catch (e) { setError(e.message) }
+  }
+  const rows = job?.progress.rows || []
+  const base = job?.result?.base
+  return (
+    <Card title="Does the call list survive weaker assumptions?" subtitle="Engine 2 re-solved with contract effects cut and other acceptance rates; both are scenario inputs, not measured"
+      action={<Button onClick={start} busy={job?.status === 'running'} tone="emerald">Run robustness</Button>}>
+      <ErrorNote error={error || job?.error} />
+      {job?.status === 'running' && <p className="mb-3 text-xs text-slate-500">Running · {job.progress.done} of {job.progress.total} cases solved</p>}
+      {!rows.length ? <Empty>{job?.status === 'running' ? 'Solving the base case…' : 'Run it to compare four cases with this list'}</Empty> : (
+        <>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm" aria-label="Robustness of the call list">
+              <thead><tr className="text-left text-xs uppercase tracking-wide text-slate-500">
+                <th className="pb-2 font-medium">Case</th><th className="pb-2 text-right font-medium">Value</th><th className="pb-2 text-right font-medium">vs base</th>
+                <th className="pb-2 text-right font-medium">Called</th><th className="pb-2 text-right font-medium">Still called</th><th className="pb-2 text-right font-medium">Same offer</th></tr></thead>
+              <tbody className="divide-y divide-slate-100">
+                {base && (
+                  <tr><td className="py-2 font-medium text-slate-900">Base (these settings)</td><td className="py-2 text-right font-medium tabular-nums text-slate-900">{money(base.value)}</td>
+                    <td className="py-2 text-right text-slate-400">—</td><td className="py-2 text-right tabular-nums text-slate-600">{int(base.called)}</td>
+                    <td className="py-2 text-right text-slate-400">—</td><td className="py-2 text-right text-slate-400">—</td></tr>
+                )}
+                {rows.map((c) => (
+                  <tr key={c.kind + c.factor}>
+                    <td className="py-2 text-slate-800">{caseLabel(c)}</td>
+                    <td className="py-2 text-right font-medium tabular-nums text-slate-900">{money(c.value)}</td>
+                    <td className={`py-2 text-right tabular-nums ${c.valueChangePct >= 0 ? 'text-emerald-600' : 'text-rose-600'}`}>{pct(c.valueChangePct)}</td>
+                    <td className="py-2 text-right tabular-nums text-slate-600">{int(c.called)}</td>
+                    <td className="py-2 text-right tabular-nums text-slate-600">{c.keptPct.toFixed(1)}%</td>
+                    <td className="py-2 text-right tabular-nums text-slate-600">{c.sameOfferPct.toFixed(1)}%</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <p className="mt-3 text-xs text-slate-500">Still called: share of the base list's customers called again. Same offer: share of those given the same offer.
+            {job.result && ` Solved in ${(job.result.runtimeMs / 1000).toFixed(1)} s at a ${job.result.mipGapPct}% gap.`}</p>
+        </>
+      )}
+    </Card>
+  )
 }
 
 export default function Retention() {
@@ -54,6 +111,7 @@ export default function Retention() {
             </div>
           </Card>
         )}
+        <RobustnessPanel settings={s} />
         <Card title="Call list" subtitle={res ? `${int(res.callList.length)} customers, highest value first · solved in ${(res.runtimeMs / 1000).toFixed(1)} s` : 'Run the campaign to build the list'}
           action={res && <button type="button" onClick={() => downloadCsv(res.callList)} className="rounded-lg px-3 py-1.5 text-xs font-semibold text-emerald-700 ring-1 ring-emerald-200 hover:bg-emerald-50">Export CSV</button>}>
           {!res ? <Empty>No call list yet</Empty> : (
