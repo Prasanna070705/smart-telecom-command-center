@@ -12,6 +12,10 @@ from common import DF, A, SV, NAMES, P0, R2, Am, B0
 from hazard import HazardModel
 import engine1 as E1, engine2 as E2
 
+# Engine 2's default solver time limit in seconds (env ENGINE2_TIME_LIMIT). 30 s suits a laptop; a 0.1-CPU host
+# needs longer to reach the 0.1% gap. A result that stopped at the limit is reported as timeLimitHit.
+TIME_LIMIT = float(os.environ.get('ENGINE2_TIME_LIMIT', 30))
+
 T0 = time.time(); HM = HazardModel(); H = E2.counterfactuals(HM); STARTUP_S = time.time() - T0
 OFFER_NAMES = {'1yr': 'One-year contract', '2yr': 'Two-year contract', 'tech': 'Free tech support', 'sec': 'Free online security',
                'auto': 'Autopay switch', '2yr+tech': 'Two-year + tech support'}
@@ -83,7 +87,7 @@ def e2params(p):
                 accept=num(p, 'acceptance', 0.3, 0.01, 1), thr=num(p, 'threshold', 0.03, 0, 1), haircut=num(p, 'haircut', 1.0, 0, 1),
                 m=num(p, 'margin', 0.7, 0.01, 0.99), d=num(p, 'discount', 0.01, 0.0001, 0.2), credit=num(p, 'credit', 25, 0, 1000),
                 premium=num(p, 'premium', 10, 0, 1000),
-                gap=num(p, 'mipGap', 1e-3, 1e-6, 0.1), tlimit=num(p, 'timeLimit', 30, 1, 600))
+                gap=num(p, 'mipGap', 1e-3, 1e-6, 0.1), tlimit=num(p, 'timeLimit', TIME_LIMIT, 1, 600))
 
 def op_engine2(p):
     q = e2params(p); t = time.time()
@@ -99,7 +103,7 @@ def op_engine2(p):
                 greedyShortfallPct=round(100 * (o['ip'] - o['greedy']) / o['ip'], 2) if o['ip'] else 0,
                 budgetUsedPct=round(100 * o['budget_used'], 1) if q['budget'] else 0, hoursUsedPct=round(100 * o['hours_used'], 1) if q['hours'] else 0,
                 pool=npool, pairs=o['pairs'], called=len(calls), mix=o['mix'], valueByOffer={k: round(float(v), 0) for k, v in vbo.items()},
-                feasible={k: bool(v) for k, v in o['feasible'].items()}, solverStatus=int(o['ip_status']), callList=calls, runtimeMs=round(1000 * (time.time() - t)))
+                feasible={k: bool(v) for k, v in o['feasible'].items()}, solverStatus=int(o['ip_status']), timeLimitHit=int(o['ip_status']) == 1, timeLimitS=q['tlimit'], callList=calls, runtimeMs=round(1000 * (time.time() - t)))
 
 def robustness_params(p):
     """Validated settings and the cases to solve; also called alone so the API can return 400 before starting a job."""
@@ -123,14 +127,14 @@ def op_robustness(p, rid):
     def case(kind, factor, o):
         s = o['sel'][['i', 'j']]; both = pd.merge(s, b, on='i')
         return dict(kind=kind, factor=factor, value=round(o['ip'], 0), valueChangePct=round(100 * (o['ip'] - base['ip']) / base['ip'], 1) if base['ip'] else 0,
-                    called=len(s), keptPct=round(100 * len(both) / len(b), 1) if len(b) else 0,
+                    timeLimitHit=int(o['ip_status']) == 1, called=len(s), keptPct=round(100 * len(both) / len(b), 1) if len(b) else 0,
                     sameOfferPct=round(100 * float((both.j_x == both.j_y).mean()), 1) if len(both) else 0, mix=o['mix'])
     cases = []
     for kind, f in todo:
         cases.append(case(kind, f, run(**({'haircut': f} if kind == 'haircut' else {'accept': f}))))
         send(dict(id=rid, progress=dict(done=len(cases), total=len(todo), row=cases[-1])))
-    return dict(base=dict(value=round(base['ip'], 0), called=len(b), mix=base['mix'], haircut=q['haircut'], acceptance=q['accept']),
-                cases=cases, mipGapPct=round(100 * q['gap'], 4), runtimeMs=round(1000 * (time.time() - t)))
+    return dict(base=dict(value=round(base['ip'], 0), timeLimitHit=int(base['ip_status']) == 1, called=len(b), mix=base['mix'], haircut=q['haircut'], acceptance=q['accept']),
+                cases=cases, mipGapPct=round(100 * q['gap'], 4), timeLimitS=q['tlimit'], runtimeMs=round(1000 * (time.time() - t)))
 
 def op_coupling(p, rid):
     budgets = [float(b) for b in p.get('budgets', [0, 15000, 30000, 60000, 90000])]
@@ -141,14 +145,15 @@ def op_coupling(p, rid):
     for k, b in enumerate(budgets):
         h1 = h0.copy(); spend = 0.0; direct = 0.0; o2 = None
         if b > 0:
-            o2 = E2.solve(R, b, b / 60, int(b / 85.7), gap=1e-3, tlimit=30); s = o2['sel']; spend = float(s.cost.sum()); direct = float(s.V.sum())
+            o2 = E2.solve(R, b, b / 60, int(b / 85.7), gap=1e-3, tlimit=TIME_LIMIT); s = o2['sel']; spend = float(s.cost.sum()); direct = float(s.V.sum())
             pi = m * B0[s.i.values]; h1[s.i.values] = pi / (pi / (d + h0[s.i.values]) + s.V.values) - d
         r = E1.solve(h1, eta, m=m, d=d, ceiling=True, Hbar=h0.mean(), starts=3)
         row = dict(budget=b, spend=round(spend, 0), offerValue=round(direct, 0), netGain=round(lp(r['P'], h1) - spend - base, 0),
                    fibrePct=round(100 * float(r['dP'][E1.iF]), 1), phonePct=round(100 * float(r['dP'][0]), 1), addonPct=round(100 * float(r['dP'][SV.index('Sec')]), 1),
-                   mipGapPct=None if o2 is None else round(100 * (o2['lp'] - o2['ip']) / o2['ip'], 4))
+                   mipGapPct=None if o2 is None else round(100 * (o2['lp'] - o2['ip']) / o2['ip'], 4),
+                   timeLimitHit=o2 is not None and int(o2['ip_status']) == 1)
         rows.append(row); send(dict(id=rid, progress=dict(done=k + 1, total=len(budgets), row=row)))
-    return dict(baselineLifetimeProfit=round(base, 0), rows=rows, runtimeMs=round(1000 * (time.time() - t)))
+    return dict(baselineLifetimeProfit=round(base, 0), rows=rows, timeLimitS=TIME_LIMIT, runtimeMs=round(1000 * (time.time() - t)))
 
 send(dict(id='ready', ok=True, result=dict(startupSeconds=round(STARTUP_S, 2))))
 for line in sys.stdin:

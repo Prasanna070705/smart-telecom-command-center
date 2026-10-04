@@ -12,6 +12,7 @@ const ENGINE_DIR = path.join(ROOT, 'engine');
 const DIST = path.join(ROOT, 'ui', 'dist');
 const JOB_DIR = path.join(ROOT, 'results', 'jobs');   // finished jobs, reloaded at start (gitignored)
 const PORT = Number(process.env.PORT || 8787);
+const CALL_TIMEOUT_MS = Number(process.env.API_TIMEOUT_MS || 120000);   // interactive calls; raise with ENGINE2_TIME_LIMIT on slow hosts
 const PYTHON = process.env.PYTHON || (process.platform === 'win32' ? 'python' : 'python3');
 
 class Worker {                      // one long-lived Python process, JSON lines both ways
@@ -41,7 +42,7 @@ class Worker {                      // one long-lived Python process, JSON lines
     msg.ok ? p.resolve(msg.result) : p.reject(Object.assign(new Error(msg.error), { status: 400 }));
   }
   restart(reason) { this.killReason = reason; this.ready = false; this.proc.kill(); }   // the exit handler restarts it
-  call(op, params = {}, { timeoutMs = 120000, onProgress } = {}) {
+  call(op, params = {}, { timeoutMs = CALL_TIMEOUT_MS, onProgress } = {}) {
     return new Promise((resolve, reject) => {
       const id = randomUUID();
       const timer = setTimeout(() => { this.pending.delete(id); reject(Object.assign(new Error(`${op} timed out`), { status: 504 })); }, timeoutMs);
