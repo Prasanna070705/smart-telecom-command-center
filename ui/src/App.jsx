@@ -9,6 +9,7 @@ import { SharedSettings } from './components/SharedSettings.jsx'
 import { SHARED_DEFAULTS } from './settings.js'
 import { ThemeToggle } from './components/ThemeToggle.jsx'
 import { AmbientBackground } from './components/AmbientBackground.jsx'
+import { Logo } from './components/Logo.jsx'
 import { useTheme } from './theme.js'
 
 const PAGES = [
@@ -45,10 +46,7 @@ export default function App() {
     <div className="isolate flex min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100">
       <AmbientBackground page={page} />
       <aside className="hidden w-64 shrink-0 flex-col bg-slate-900 px-4 py-6 text-slate-300 md:flex dark:border-r dark:border-slate-800">
-        <div className="px-2">
-          <p className="text-xs font-semibold uppercase tracking-widest text-indigo-300">Smart Telecom</p>
-          <p className="mt-1 text-lg font-semibold text-white">Command Center</p>
-        </div>
+        <div className="px-2"><Logo /></div>
         <nav className="mt-8 space-y-1" aria-label="Main">
           {PAGES.map((p) => (
             <button key={p.id} type="button" onClick={() => setPage(p.id)} aria-current={page === p.id ? 'page' : undefined}
