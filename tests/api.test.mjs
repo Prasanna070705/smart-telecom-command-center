@@ -51,7 +51,8 @@ console.log('  status', rb.status, 'jobId', rb.body.jobId.slice(0, 8));
 const rs = performance.now(); let rj;
 for (;;) { rj = (await j('GET', `/api/jobs/${rb.body.jobId}`)).body; if (rj.status !== 'running') break; await new Promise((r) => setTimeout(r, 500)); }
 console.log('robustness job finished'.padEnd(44), `${(performance.now() - rs).toFixed(0)} ms`, rj.status);
-const REF = { 'haircut 0.5': [152666, 88, 45], 'haircut 0.25': [126886, 81, 47], 'acceptance 0.15': [104046, 80], 'acceptance 0.5': [248344, 95] };   // verify.py G9/G10
+// verify.py G9/G10 at the 0.01% gap (v1.3: current customers only; before: 152666/88/45, 126886/81/47, 104046/80, 248344/95)
+const REF = { 'haircut 0.5': [123961, 100, 85], 'haircut 0.25': [97650, 100, 75], 'acceptance 0.15': [78597, 94.5], 'acceptance 0.5': [201679, 100] };
 let rok = rj.status === 'done';
 for (const c of rj.result?.cases || []) {
   const [v, kept, same] = REF[`${c.kind} ${c.factor}`]; const ok = Math.abs(c.value / v - 1) < 0.001 && Math.abs(c.keptPct - kept) <= 2 && (same == null || Math.abs(c.sameOfferPct - same) <= 2);
