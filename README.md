@@ -37,6 +37,17 @@ Port 8787 busy on Windows: `Get-NetTCPConnection -LocalPort 8787 -State Listen |
 
 For UI work, `npm run ui` serves http://localhost:5173 with hot reload and proxies /api to 8787.
 
+## Run it with Docker
+
+With Docker Desktop (or any Docker engine) running, from the repo root:
+
+    docker compose up --build       # first build downloads ~300 MB; then http://localhost:8787
+    docker compose down             # stop
+
+The image holds the API, both Python engine workers and the built UI (Python 3.12, Node 22, non-root user, health check
+on /api/health). Finished jobs are kept in `./results`. The tests run from the host against the container as usual:
+`npm run test:api`, `npm run test:e2e`. `.github/workflows/docker.yml` does exactly that on Linux for every push to v2.
+
 ## Test it
 
     npm run test:api                # with the API running
