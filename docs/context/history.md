@@ -81,6 +81,17 @@
 - Corrected in my own draft before committing: an unverified reason for the fibre cut, and "flat after $30k" (net gain
   still +$0.13M for $30k -> $60k).
 
+## Day 8 (gate G4)
+- `npm run timing` (tools/timing.mjs): 3 uncached runs per call (unique `nonce` defeats the API cache). On the Mac:
+  Engine 1 0.25 s (eta 0.8) / 0.26 s (eta 1.5), budget 2 s; sensitivity 1.03 s; Engine 2 1.59 s, budget 10 s;
+  robustness 5.43 s; coupling sweep 5 budgets 5.23 s, budget 60 s. All PASS. (Sandbox, 1 CPU, was ~4.6x slower on
+  Engine 2: 7.4 s, still inside 10 s.)
+- Browsers: e2e takes BROWSER=chromium|chrome|webkit|firefox. Google Chrome 154: 16/16; Playwright Chromium 153: 16/16.
+  Second browser = Safari, checked by the user (not by me). Playwright WebKit is not installed here.
+- `docs/slide-fixes.md`: the nine fixes with replacement wording and the verify check behind each number, plus the
+  report numbers to look out for (B2b, D8, D9). The deck is not on this machine (the four .pptx in ~/Downloads are
+  other projects), so current slide text is quoted only where verify.py records it (slide 8).
+
 ## Problems hit and fixes
 - `npm run check` FAIL on pinned libraries before install: expected.
 - `npm run test:api` "API not reachable": API not started (it also appears when workers fail to start).
