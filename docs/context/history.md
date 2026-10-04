@@ -51,6 +51,24 @@
 - Noticed, not changed (Day 6): `op_meta` hard-codes the verification counts (76 / 70 / 5 / 1); they agree with
   verify (67 + 3 PASS, 6 expected FAIL) but are not computed. The Checks card says "python verify.py", not `npm run verify`.
 
+## Day 6 (polish + shared settings, option 1 chosen by the user)
+- Shared assumptions card (margin, discount, eta) on Pricing, Retention, Coupling; one state in App. Each page sends
+  only what its engine uses (Engine 2: margin, discount). Coupling now follows the shared eta (closes that known gap).
+  Defaults 0.8 / 70% / 1% unchanged, so every acceptance number is unchanged. Offer terms still hard-coded (option 2 not chosen).
+- A result run with other settings shows "Settings changed since this run" (StaleNote). The sensitivity panel ignores
+  eta for this, since it varies eta itself.
+- Loading / empty / error states on every page: spinner in each result area while solving; Overview and Data & checks
+  show loading, then "API not reachable" after ~12 s (dev mode only; in production the API serves the page). Header
+  status: Connecting / Engines starting / API not reachable / Engines ready. Checked by hand on :5173 with the API
+  stopped, then started: recovers by itself.
+- Could: contrast (empty text, slider help, chart labels slate-400 -> slate-500), nav focus ring. Type scale and
+  spacing left as they are.
+- Data & checks subtitle now names `npm run verify` / `verify:coupling`. Verification counts are still hard-coded in
+  op_meta (they agree with verify).
+- Tests: test:e2e 16/16 (new step: margin change marks the call list stale, Reset to defaults clears it). The Pricing
+  step leaves eta at 1.5; the reset step returns it to 0.8 before the Coupling step, which checks the acceptance numbers.
+- Commit note: the shared-settings and loading-state changes share 43 hunks, so they went in as one feat(ui) commit.
+
 ## Problems hit and fixes
 - `npm run check` FAIL on pinned libraries before install: expected.
 - `npm run test:api` "API not reachable": API not started (it also appears when workers fail to start).
