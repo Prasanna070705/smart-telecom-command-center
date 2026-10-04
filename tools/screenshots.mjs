@@ -4,7 +4,7 @@ import { createRequire } from 'node:module';
 import { mkdir } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 const { chromium } = createRequire(import.meta.url)(process.env.PLAYWRIGHT_MODULE || 'playwright');
-const B = 'http://localhost:8787';
+const B = process.env.API_URL || 'http://localhost:8787';
 const THEME = process.env.THEME === 'dark' ? 'dark' : 'light';
 const DIR = new URL(THEME === 'dark' ? '../docs/screenshots/dark/' : '../docs/screenshots/', import.meta.url);
 await mkdir(DIR, { recursive: true });
@@ -25,6 +25,6 @@ await page.getByText('Finished · 4 of 4 cases solved').waitFor({ timeout: 60000
 await shot('03-retention.png');
 await nav('Coupling'); await page.getByRole('button', { name: 'Run sweep' }).click(); await page.getByText('Finished', { exact: true }).waitFor({ timeout: 180000 });
 await shot('04-coupling.png');
-await nav('Data & checks'); await page.getByText('76 total').waitFor();
-await shot('05-checks.png');
+await nav('Index'); await page.getByText('76 total').waitFor();
+await shot('05-index.png');
 await browser.close();
