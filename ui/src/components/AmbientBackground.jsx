@@ -10,7 +10,7 @@ const PAGE_RGB = {   // [light theme, dark theme], matching each page's dot in t
   pricing: [[79, 70, 229], [129, 140, 248]],      // indigo-600 / indigo-400
   retention: [[5, 150, 105], [52, 211, 153]],     // emerald-600 / emerald-400
   coupling: [[217, 119, 6], [251, 191, 36]],      // amber-600 / amber-400
-  checks: [[225, 29, 72], [251, 113, 133]],       // rose-600 / rose-400
+  index: [[225, 29, 72], [251, 113, 133]],       // rose-600 / rose-400
 }
 const LINK = 150            // px: dots closer than this are linked
 const SPEED = 9             // px per second: a node crosses a 1440 px screen in about 2.5 minutes
