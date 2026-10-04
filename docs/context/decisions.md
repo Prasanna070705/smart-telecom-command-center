@@ -27,12 +27,16 @@ add-ons ~5.0, streaming ~9.97. Residual SD $1.02, uncorrelated with tenure and c
   Corrections vs the earlier report: discount cost = forgone revenue rho x B x L (not x m); effects last the offer
   term; acceptance 30% (EMPC literature, Beta(6,14)); money cost x acceptance, agent hours per contact.
   Interactive solver gap 0.1%, time limit 30 s; verify.py uses 0.01%.
+- Engine 2 candidates (v1.3, 2026-10-05, the user's decision): only current customers (Churn = No) with h >= 3%, i.e. 740 of
+  5,174 current customers. The churn model is still fitted on all 7,043. Before, 557 of the 901 customers called had already
+  left (62.5% of the value). Engine 1 still prices over all 7,043 customers (open question: should it use current ones only?).
+  `includeFormer: true` / include_former=True reproduces the earlier lists.
 - Coupling: Engine 2 at a budget -> equivalent constant hazard h_eq = pi/(CLV + V) - d for called customers ->
   Engine 1 with the ceiling at today's level. Hours = budget/60, caps = budget/85.7.
 
 ## Never claim
 Measured price sensitivity; "offer X reduces churn by Y%" (it is a model association); "the campaign will save
-$182,949" (expected value under stated settings); an interior optimum from Engine 1's curvature (the ceiling does it);
+$149,869" (expected value under stated settings); an interior optimum from Engine 1's curvature (the ceiling does it);
 greedy ranking matching the integer program (4-6% worse).
 
 ## Known gaps (open, not decided)

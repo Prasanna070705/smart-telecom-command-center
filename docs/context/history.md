@@ -132,6 +132,18 @@
 - Data & checks replaced by an Index tab (terms, formulas, methods, agent time and cost per offer from /api/meta).
   Retention budget is a typed number ($0-1,000,000). e2e has 22 steps.
 
+## v1.3: Engine 2 calls current customers only (2026-10-05)
+- Found by a hand calculation of the top call-list customer (8276-MQBYC: bill $100.02 from the recovered prices, risk
+  11.40%/month, CLV $564.80 -> $1,772.87 with a two-year contract, value $362.42, cost $108.03: all equal to the app):
+  the customer had already left (Churn = Yes). 557 of the 901 customers called (62.5% of the $182,949) had left.
+- Decision (the user's, option 2): candidates = current customers (Churn = No) with h >= 3%: 740 of 5,174. The churn model
+  is still fitted on all 7,043. engine2.build(include_former=False); API `includeFormer: true` gives the old lists back.
+- New acceptance numbers (plan.md, with the old ones kept): $149,869, 740 called (all candidates), gap 0.0021%, greedy
+  8.25% worse, mix two-year 350 / autopay 350 / two-year+tech 40; x0.5 $123,961; coupling $1.29M / $2.27M / $2.94M /
+  $2.99M / $2.99M ($60k and $90k equal: only ~$56k can be spent on 740 candidates). verify G5 now also checks that every
+  called customer is current; H2 references updated. verify still 67 PASS + 6 expected FAIL; verify G 10/10, H 3/3.
+- Open question: Engine 1 still prices over all 7,043 customers.
+
 ## Problems hit and fixes
 - `npm run check` FAIL on pinned libraries before install: expected.
 - `npm run test:api` "API not reachable": API not started (it also appears when workers fail to start).

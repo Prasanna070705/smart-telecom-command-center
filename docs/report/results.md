@@ -12,7 +12,7 @@
 
 7,043 customers, 26.5% of whom left during their recorded tenure. Month-to-month customers left at 42.7%, one-year
 at 11.3%, two-year at 2.8%. The recovered price list explains the bills with R² 0.9988. 1,651 customers have a
-monthly churn hazard of at least 3%; they are the retention candidates.
+monthly churn hazard of at least 3%; the 740 of them who are still customers are the retention candidates.
 
 ## 2. Engine 1: the price list
 
@@ -59,21 +59,25 @@ uplift move. The recommendation does not depend on picking the right η within 0
 
 ![Retention page](../screenshots/03-retention.png)
 
-With $30,000, 500 agent hours and at most 350 customers per offer, the integer program calls **901 of the 1,651
-candidates** for an expected **$182,949** of preserved lifetime value at 30% acceptance. Budget and hours are both
-fully used.
+**Only current customers are callable.** The data records whether each customer has already left; a campaign can only
+phone those who have not. The churn model still learns from all 7,043 customers (those who left are what teaches it who
+leaves), but Engine 2 chooses only among the **740 current customers** whose monthly churn risk is 3% or more (of 1,651
+at that risk overall; 5,174 customers are current). Before this rule (v1.2 and earlier) the list was $182,949 from 901
+calls, but 557 of those 901 had already left.
+
+With $30,000, 500 agent hours and at most 350 customers per offer, the integer program calls **all 740 candidates** for
+an expected **$149,869** of preserved lifetime value at 30% acceptance. The budget is fully used, the agent hours 95.5%.
 
 | Offer | Customers | Expected value |
 | --- | --- | --- |
-| Autopay switch + $25 credit | 350 | $82,667 |
-| One-year contract | 349 | $42,965 |
-| Two-year contract | 198 | $57,145 |
-| Free online security (6 months) | 4 | $172 |
+| Two-year contract | 350 | $76,503 |
+| Autopay switch + $25 credit | 350 | $61,726 |
+| Two-year contract + tech support | 40 | $11,640 |
 
-The solution is within 0.0054% of the LP upper bound ($182,959). The best of three greedy rankings is **5.16% worse**,
+The solution is within 0.0021% of the LP upper bound ($149,872). The best of three greedy rankings is **8.25% worse**,
 which is the case for solving the integer program rather than sorting customers by score.
 
-**$182,949 is an expected value**: it assumes 30% of customers accept and that the offer changes a customer's
+**$149,869 is an expected value**: it assumes 30% of customers accept and that the offer changes a customer's
 monthly hazard by the ratio the hazard model associates with that attribute, for the offer's term. Neither was
 measured.
 
@@ -84,19 +88,19 @@ was re-solved four times with everything else unchanged:
 
 | Case | Value | vs base | Called | Still called | Same offer |
 | --- | --- | --- | --- | --- | --- |
-| Base | $182,949 | — | 901 | — | — |
-| Contract effects ×0.5 | $152,614 | −16.6% | 852 | 88.3% | 44.7% |
-| Contract effects ×0.25 | $126,815 | −30.7% | 848 | 81.5% | 47.0% |
-| Acceptance 15% | $104,046 | −43.1% | 763 | 79.6% | 51.6% |
-| Acceptance 50% | $248,230 | +35.7% | 973 | 95.3% | 72.6% |
+| Base | $149,869 | — | 740 | — | — |
+| Contract effects ×0.5 | $123,961 | −17.3% | 740 | 100.0% | 84.9% |
+| Contract effects ×0.25 | $97,650 | −34.8% | 740 | 100.0% | 75.4% |
+| Acceptance 15% | $78,597 | −47.6% | 699 | 94.5% | 67.5% |
+| Acceptance 50% | $201,495 | +34.4% | 739 | 99.9% | 55.2% |
 
-(App values at a 0.1% solver gap. At 0.01%, as in `verify.py` G9/G10: $152,666, $126,880, $104,046, $248,344, with
-the same shares to within a point.)
+(App values at a 0.1% solver gap. At 0.01%, as in `verify.py` G9/G10, the same except acceptance 50%: $201,679, 740 called.)
 
-**Reading the result.** *Who* to call is fairly robust: about 80-95% of the base list is still called in every case. *Which
-offer* is not: under weaker contract effects fewer than half keep their offer, as the mix moves from one-year
-contracts to two-year contracts and online security. A campaign should treat the call list as the firm output and
-the offer assignment as conditional on the contract-effect assumption.
+**Reading the result.** *Who* to call barely moves: with only 740 current candidates and enough money for nearly all of
+them, 94-100% of the list is called in every case. *Which offer* is less stable: 55-85% keep their offer, as weaker
+contract effects shift customers between the two-year contract and the two-year + tech support bundle, and higher
+acceptance favours cheaper one-year contracts. The call list is the firm output; the offer is conditional on the
+contract-effect and acceptance assumptions.
 
 ## 5. Coupling: retention spend frees pricing room
 
@@ -105,19 +109,19 @@ the offer assignment as conditional on the contract-effect assumption.
 | Retention budget | Spent | Offer value | Net gain | Fibre | Phone | Add-ons |
 | --- | --- | --- | --- | --- | --- | --- |
 | $0 | $0 | $0 | $1.29M | −17.9% | +12.5% | +25% |
-| $15,000 | $14,997 | $96,719 | $2.32M | +0.4% | +12.5% | +25% |
-| $30,000 | $29,998 | $182,949 | $3.15M | +15.0% | +15.0% | +15.0% |
-| $60,000 | $59,925 | $322,279 | $3.28M | +15.0% | +15.0% | +15.0% |
-| $90,000 | $89,973 | $372,420 | $3.30M | +15.0% | +15.0% | +15.0% |
+| $15,000 | $14,999 | $89,635 | $2.27M | −0.5% | +12.5% | +25% |
+| $30,000 | $29,998 | $149,869 | $2.94M | +11.0% | +15.0% | +24.6% |
+| $60,000 | $56,071 | $168,068 | $2.99M | +12.3% | +15.0% | +15.0% |
+| $90,000 | $56,071 | $168,068 | $2.99M | +12.3% | +15.0% | +15.0% |
 
 Net gain is lifetime profit at the new prices and hazards, minus retention spend, minus today's lifetime profit
 ($17.01M). The $0 row is Engine 1 alone.
 
 **Reading the result.** Retention spending lowers churn among the customers called, which leaves room under the
-churn ceiling to raise prices. At $15,000 the fibre cut disappears; from $30,000 every price reaches the +15%
-bill-shock limit and the ceiling no longer binds, so extra budget only adds offer value. Net gain (already after
-spend) still rises, but slowly: +$0.13M for the next $30,000 and +$0.03M for the $30,000 after that, against
-+$1.03M for the first $15,000 and +$0.83M for the next $15,000.
+churn ceiling to raise prices. At $15,000 the fibre cut almost disappears (−0.5%); at $30,000 fibre rises 11%. Net gain
+grows by $0.97M for the first $15,000 and $0.67M for the next, then by only $0.05M from $30,000 to $60,000. Beyond about
+**$56,000 nothing more can be spent**: every current candidate is already called with the offer that suits them, so
+$60,000 and $90,000 give identical results. The size of the current at-risk base, not the budget, is the limit.
 
 ## 6. Speed
 

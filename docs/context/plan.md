@@ -64,18 +64,23 @@ when a day overruns). Tick a task only when its closing test passes. Days 1-2 ar
 ## Acceptance numbers (what the screens must show)
 | Screen | Settings | Must show |
 | --- | --- | --- |
-| Overview | none | 7,043 customers; churn 26.5%; R2 0.9988; 1,651 candidates; month-to-month churn 42.7% |
+| Overview | none | 7,043 customers; churn 26.5%; R2 0.9988; 740 candidates (current customers at >= 3%); month-to-month churn 42.7% |
 | Pricing | eta 0.8, margin 70%, ceiling on | fibre -17.9% (churn ceiling); phone +12.5%; DSL -1.0%; add-ons +25%; revenue +3.5%; $164,816 per 1% churn room |
 | Pricing | eta 1.5 | fibre -18.3% |
 | Pricing | ceiling off | every price +15% |
 | Pricing sensitivity | eta 0.4/0.8/1.2/1.5 | same pattern +U--UUUUUU; fibre -17.65/-17.89/-18.15/-18.34 |
-| Retention | $30,000, 500 h, cap 350, acceptance 30% | $182,949; 901 called; gap < 0.01%; greedy 5.16% worse; CSV 901 rows |
-| Retention | contract effects x0.5 | $152,666 within 0.1% |
-| Coupling | $0, $15k, $30k, $60k, $90k | net gain $1.29M, $2.32-2.34M, $3.15M, $3.28M, $3.30M, each within 1% |
+| Retention | $30,000, 500 h, cap 350, acceptance 30% | $149,869; 740 called; gap < 0.01%; greedy 8.25% worse; CSV 740 rows |
+| Retention | contract effects x0.5 | $123,961 within 0.1% |
+| Coupling | $0, $15k, $30k, $60k, $90k | net gain $1.29M, $2.27M, $2.94M, $2.99M, $2.99M, each within 1% |
+
+v1.3 decision (2026-10-05, the user's): Engine 2 calls current customers only (Churn = No); the churn model is still fitted
+on everyone. This replaced the Overview, Retention and Coupling rows above. Values before it, kept for reference (and
+reproducible with `includeFormer: true`): 1,651 candidates; $182,949, 901 called, greedy 5.16% worse, CSV 901 rows;
+x0.5 $152,666; coupling $1.29M, $2.32-2.34M, $3.15M, $3.28M, $3.30M. 557 of those 901 calls were to customers who had left.
 
 ## Slide fixes (deck)
 7 tenure = exposure time in the hazard model; 8 churn 26.5% and 42.7/11.3/2.8% by contract (not 26.6% / 75%);
 9 within fibre churn falls 56.6% -> 23.3% as bills rise; 10 one margin, costs fixed per service; 14 monthly hazard from
 a piecewise-exponential model, price sensitivity a scenario input; 15 remove or redefine the bundle constraint;
-17 expected value at 30% acceptance, effect lasting the offer term; 18 9,124 eligible pairs at 3%, IP beats best greedy
-by 5.16%; 21 add SciPy SLSQP for Engine 1 (PuLP/CBC cannot solve nonlinear programs).
+17 expected value at 30% acceptance, effect lasting the offer term; 18 740 current customers at 3%, 3,952 eligible pairs, IP beats best greedy
+by 8.25% (v1.3; was 9,124 pairs and 5.16%); 21 add SciPy SLSQP for Engine 1 (PuLP/CBC cannot solve nonlinear programs).

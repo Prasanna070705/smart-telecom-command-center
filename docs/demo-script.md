@@ -20,7 +20,7 @@ this sheet. Screenshots of every page are in `docs/screenshots/` as a fallback.
 
 **Say:** "IBM's Telco file: 7,043 customers, 26.5% left. Month-to-month customers left at 42.7%, two-year customers
 at 2.8%. The bill isn't itemised, so we recovered a price for each of ten services; that price list explains the
-bills with R² 0.9988. 1,651 customers have a monthly churn risk of 3% or more; those are our retention candidates."
+bills with R² 0.9988. 740 customers who are still with us have a monthly churn risk of 3% or more; those are our retention candidates."
 
 **Point at:** the four KPIs, then the churn-by-contract bars.
 
@@ -49,22 +49,25 @@ the fibre cut moves, from −17.6% to −18.3%."
 
 **Click:** Retention → Run Engine 2.
 
-**Say:** "Engine 2 is a binary integer program: for each of the 1,651 at-risk customers, at most one of six offers,
+**Say:** "Engine 2 is a binary integer program: for each of the 740 at-risk customers who are still with us, at most one of six offers,
 within $30,000, 500 agent hours and 350 customers per offer."
 
-**Point at:** "901 customers called, $182,949 of lifetime value preserved, within 0.005% of the best possible. A
-greedy ranking would be 5.2% worse." Then the offer mix: autopay 350, one-year 349, two-year 198, security 4.
+**Point at:** "All 740 called, $149,869 of lifetime value preserved, within 0.002% of the best possible. A
+greedy ranking would be 8.3% worse." Then the offer mix: two-year 350, autopay 350, two-year + tech support 40.
 
-**Say (always with it):** "$182,949 is an expected value: it assumes 30% of customers accept, and that an offer
+**If asked why only 740:** "Customers who already left can't be called. The churn model still learns from them, but the
+call list only includes people still with the company."
+
+**Say (always with it):** "$149,869 is an expected value: it assumes 30% of customers accept, and that an offer
 changes churn the way our model associates that contract or service with churn, for the offer's term. Neither was
 measured; no offer was ever made in this data."
 
 **Click:** Run robustness (about 6 s; talk while it runs). **Say:** "So we stress those two assumptions. Cut the
-contract effects to half or a quarter, or move acceptance to 15% or 50%: 80 to 95% of the same customers are still
-called. Which offer they get is less stable: under half keep it when contract effects are cut. The call list is the
-firm output; the offer is conditional."
+contract effects to half or a quarter, or move acceptance to 15% or 50%: 94 to 100% of the same customers are still
+called. Which offer they get is less stable: 55 to 85% keep it. The call list is the firm output; the offer is
+conditional."
 
-**Optional (10 s):** Export CSV. "The call centre gets this file: 901 rows."
+**Optional (10 s):** Export CSV. "The call centre gets this file: 740 rows."
 
 ## 4. Coupling: retention money buys pricing room (2 min)
 
@@ -73,13 +76,13 @@ firm output; the offer is conditional."
 **Say:** "Spending on retention lowers churn among the customers we call, which leaves room under the churn rule to
 raise prices. Engine 2 at each budget, then Engine 1 on the lower churn."
 
-**Point at:** "No retention budget: $1.29M net gain from pricing alone. $15,000: $2.32M, and the fibre cut is gone.
-$30,000: $3.15M, every price at the 15% limit. Beyond that, gains are small: $3.28M at $60,000, $3.30M at $90,000.
-These are net of the retention spend."
+**Point at:** "No retention budget: $1.29M net gain from pricing alone. $15,000: $2.27M, and the fibre cut is almost
+gone. $30,000: $2.94M, fibre now up 11%. Beyond that, almost nothing: $2.99M at $60,000 and the same at $90,000,
+because every current at-risk customer is already being called. These are net of the retention spend."
 
-## 5. How we know the numbers are right (Data & checks, 30 s)
+## 5. How we know the numbers are right (Index, 30 s)
 
-**Click:** Data & checks.
+**Click:** Index, then scroll to "Assumptions, limits and verification" at the bottom.
 
 **Say:** "Every number is re-derived from the raw file by 76 automated checks. 70 pass; the 6 that fail are claims
 from our earlier deck and report that the data contradicts, and we corrected them. And these are the assumptions
@@ -110,7 +113,7 @@ first $30,000."
 - **"Does a two-year contract really cut churn by 95%?"** No such claim. Two-year customers churn far less in the
   data (hazard ratio 0.055), but they chose those contracts; it's an association. That's what the robustness panel
   stresses.
-- **"Why not just rank customers by risk?"** The best of three greedy rankings is 5.16% worse than the integer
+- **"Why not just rank customers by risk?"** The best of three greedy rankings is 8.25% worse than the integer
   program under the same budget, hours and caps.
 - **"Is the fibre cut a recommendation?"** Only under the rule that churn may not rise. Without it, every price
   rises 15%. With $30,000 of retention spend, fibre rises instead.

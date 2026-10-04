@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-10-04T08:15:06.183Z",
+ "generatedAt": "2026-10-04T21:35:33.288Z",
  "settings": "API defaults: eta 0.8, margin 70%, discount 1%/month; Engine 2 $30,000, 500 h, cap 350, acceptance 30%, solver gap 0.1%",
  "meta": {
   "customers": 7043,
@@ -66,6 +66,8 @@
    "pool2": 2396,
    "pool3": 1651
   },
+  "currentCustomers": 5174,
+  "candidates": 740,
   "churnByContractPct": {
    "Month-to-month": 42.71,
    "One year": 11.27,
@@ -78,6 +80,66 @@
    "updated": 1
   },
   "startupSeconds": 0.07,
+  "meanBill": 64.86,
+  "offerDefaults": {
+   "acceptance": 0.3,
+   "margin": 0.7,
+   "discount": 0.01,
+   "threshold": 0.03,
+   "discount1yr": 0.1,
+   "discount2yr": 0.15,
+   "freeMonths": 6,
+   "autopayCredit": 25,
+   "comboPremium": 10
+  },
+  "offers": [
+   {
+    "key": "1yr",
+    "name": "One-year contract",
+    "hours": 0.5,
+    "costIfAccepted": 77.83,
+    "expectedCost": 23.35
+   },
+   {
+    "key": "2yr",
+    "name": "Two-year contract",
+    "hours": 0.75,
+    "costIfAccepted": 233.49,
+    "expectedCost": 70.05
+   },
+   {
+    "key": "tech",
+    "name": "Free tech support",
+    "hours": 0.5,
+    "costIfAccepted": 9.05,
+    "expectedCost": 2.72
+   },
+   {
+    "key": "sec",
+    "name": "Free online security",
+    "hours": 0.5,
+    "costIfAccepted": 9.02,
+    "expectedCost": 2.71
+   },
+   {
+    "key": "auto",
+    "name": "Autopay switch",
+    "hours": 0.5,
+    "costIfAccepted": 25,
+    "expectedCost": 7.5
+   },
+   {
+    "key": "2yr+tech",
+    "name": "Two-year + tech support",
+    "hours": 1,
+    "costIfAccepted": 252.54,
+    "expectedCost": 75.76
+   }
+  ],
+  "coupling": {
+   "dollarsPerHour": 60,
+   "dollarsPerCapSlot": 85.7
+  },
   "cached": true
  },
  "engine1": {
@@ -182,7 +244,7 @@
    "spread": 1.2393419623890622e-12
   },
   "maxViolation": 3.469446951953614e-18,
-  "runtimeMs": 254,
+  "runtimeMs": 262,
   "cached": true
  },
  "engine1NoCeiling": [
@@ -258,26 +320,28 @@
   }
  ],
  "engine2": {
-  "value": 182949,
-  "lpBound": 182959,
-  "gapPct": 0.0054,
-  "greedyShortfallPct": 5.16,
+  "value": 149869,
+  "lpBound": 149872,
+  "gapPct": 0.0021,
+  "greedyShortfallPct": 8.25,
   "budgetUsedPct": 100,
-  "hoursUsedPct": 100,
-  "pool": 1651,
-  "pairs": 9124,
-  "called": 901,
+  "hoursUsedPct": 95.5,
+  "pool": 740,
+  "pairs": 3952,
+  "called": 740,
   "mix": {
+   "2yr": 350,
    "auto": 350,
-   "1yr": 349,
-   "2yr": 198,
-   "sec": 4
+   "2yr+tech": 40
+  },
+  "perCall": {
+   "expectedCost": 40.54,
+   "hours": 0.645
   },
   "valueByOffer": {
-   "1yr": 42965,
-   "2yr": 57145,
-   "auto": 82667,
-   "sec": 172
+   "2yr": 76503,
+   "2yr+tech": 11640,
+   "auto": 61726
   },
   "feasible": {
    "one_per_customer": true,
@@ -286,17 +350,19 @@
    "caps": true
   },
   "solverStatus": 0,
-  "runtimeMs": 1588
+  "timeLimitHit": false,
+  "timeLimitS": 30,
+  "runtimeMs": 547
  },
  "robustness": {
   "base": {
-   "value": 182949,
-   "called": 901,
+   "value": 149869,
+   "timeLimitHit": false,
+   "called": 740,
    "mix": {
+    "2yr": 350,
     "auto": 350,
-    "1yr": 349,
-    "2yr": 198,
-    "sec": 4
+    "2yr+tech": 40
    },
    "haircut": 1,
    "acceptance": 0.3
@@ -305,64 +371,67 @@
    {
     "kind": "haircut",
     "factor": 0.5,
-    "value": 152614,
-    "valueChangePct": -16.6,
-    "called": 852,
-    "keptPct": 88.3,
-    "sameOfferPct": 44.7,
+    "value": 123961,
+    "valueChangePct": -17.3,
+    "timeLimitHit": false,
+    "called": 740,
+    "keptPct": 100,
+    "sameOfferPct": 84.9,
     "mix": {
      "auto": 350,
-     "2yr": 294,
-     "sec": 208
+     "2yr": 260,
+     "2yr+tech": 130
     }
    },
    {
     "kind": "haircut",
     "factor": 0.25,
-    "value": 126815,
-    "valueChangePct": -30.7,
-    "called": 848,
-    "keptPct": 81.5,
-    "sameOfferPct": 47,
+    "value": 97650,
+    "valueChangePct": -34.8,
+    "timeLimitHit": false,
+    "called": 740,
+    "keptPct": 100,
+    "sameOfferPct": 75.4,
     "mix": {
      "auto": 350,
-     "2yr": 301,
-     "sec": 197
+     "2yr": 260,
+     "2yr+tech": 130
     }
    },
    {
     "kind": "acceptance",
     "factor": 0.15,
-    "value": 104046,
-    "valueChangePct": -43.1,
-    "called": 763,
-    "keptPct": 79.6,
-    "sameOfferPct": 51.6,
+    "value": 78597,
+    "valueChangePct": -47.6,
+    "timeLimitHit": false,
+    "called": 699,
+    "keptPct": 94.5,
+    "sameOfferPct": 67.5,
     "mix": {
      "2yr": 350,
-     "auto": 350,
-     "2yr+tech": 62,
-     "1yr": 1
+     "auto": 223,
+     "2yr+tech": 126
     }
    },
    {
     "kind": "acceptance",
     "factor": 0.5,
-    "value": 248230,
-    "valueChangePct": 35.7,
-    "called": 973,
-    "keptPct": 95.3,
-    "sameOfferPct": 72.6,
+    "value": 201495,
+    "valueChangePct": 34.4,
+    "timeLimitHit": false,
+    "called": 739,
+    "keptPct": 99.9,
+    "sameOfferPct": 55.2,
     "mix": {
-     "1yr": 350,
      "auto": 350,
-     "sec": 221,
-     "2yr": 52
+     "1yr": 221,
+     "2yr": 168
     }
    }
   ],
   "mipGapPct": 0.1,
-  "runtimeMs": 5531
+  "timeLimitS": 30,
+  "runtimeMs": 1326
  },
  "coupling": {
   "baselineLifetimeProfit": 17013333,
@@ -375,49 +444,55 @@
     "fibrePct": -17.9,
     "phonePct": 12.5,
     "addonPct": 25,
-    "mipGapPct": null
+    "mipGapPct": null,
+    "timeLimitHit": false
    },
    {
     "budget": 15000,
-    "spend": 14997,
-    "offerValue": 96719,
-    "netGain": 2320895,
-    "fibrePct": 0.4,
+    "spend": 14999,
+    "offerValue": 89635,
+    "netGain": 2266626,
+    "fibrePct": -0.5,
     "phonePct": 12.5,
     "addonPct": 25,
-    "mipGapPct": 0.0292
+    "mipGapPct": 0.0298,
+    "timeLimitHit": false
    },
    {
     "budget": 30000,
     "spend": 29998,
-    "offerValue": 182949,
-    "netGain": 3150776,
-    "fibrePct": 15,
+    "offerValue": 149869,
+    "netGain": 2938892,
+    "fibrePct": 11,
     "phonePct": 15,
-    "addonPct": 15,
-    "mipGapPct": 0.0054
+    "addonPct": 24.6,
+    "mipGapPct": 0.0021,
+    "timeLimitHit": false
    },
    {
     "budget": 60000,
-    "spend": 59925,
-    "offerValue": 322279,
-    "netGain": 3277607,
-    "fibrePct": 15,
+    "spend": 56071,
+    "offerValue": 168068,
+    "netGain": 2991376,
+    "fibrePct": 12.3,
     "phonePct": 15,
     "addonPct": 15,
-    "mipGapPct": 0.0782
+    "mipGapPct": 0,
+    "timeLimitHit": false
    },
    {
     "budget": 90000,
-    "spend": 89973,
-    "offerValue": 372420,
-    "netGain": 3304411,
-    "fibrePct": 15,
+    "spend": 56071,
+    "offerValue": 168068,
+    "netGain": 2991376,
+    "fibrePct": 12.3,
     "phonePct": 15,
     "addonPct": 15,
-    "mipGapPct": 0.0259
+    "mipGapPct": 0,
+    "timeLimitHit": false
    }
   ],
-  "runtimeMs": 5198
+  "timeLimitS": 30,
+  "runtimeMs": 1806
  }
 }
