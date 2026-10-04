@@ -53,6 +53,14 @@ await step('Data & checks: verification counts and assumptions shown', async () 
   await page.getByText('One price sensitivity for every customer').waitFor(); });
 await step('Invalid input surfaces the API error message', async () => {
   const r = await page.evaluate(async () => (await fetch('/api/engine1', { method: 'POST', body: JSON.stringify({ eta: 99 }) })).status); if (r !== 400) throw new Error('status ' + r); });
+await step('Theme: dark mode applies, survives a reload, and light mode returns', async () => {
+  const isDark = () => page.evaluate(() => document.documentElement.classList.contains('dark'));
+  const bodyBg = () => page.evaluate(() => getComputedStyle(document.body).backgroundColor);
+  await page.getByRole('button', { name: 'Dark', exact: true }).click(); if (!(await isDark())) throw new Error('no .dark after Dark');
+  const dark = await bodyBg(); await page.reload(); await page.getByText('7,043', { exact: true }).waitFor({ timeout: 30000 });
+  if (!(await isDark())) throw new Error('dark not kept after reload');
+  await page.getByRole('button', { name: 'Light', exact: true }).click(); if (await isDark()) throw new Error('.dark still set after Light');
+  if ((await bodyBg()) === dark) throw new Error('background did not change: ' + dark); });
 await page.screenshot({ path: (await import('node:path')).join((await import('node:os')).tmpdir(), 'e2e_last_page.png') });
 console.log(errors.length ? 'BROWSER ERRORS: ' + errors.join(' | ') : 'no browser console errors');
 await browser.close();
