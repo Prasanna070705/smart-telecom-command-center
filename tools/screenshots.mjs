@@ -21,9 +21,9 @@ await page.getByRole('button', { name: 'Run sensitivity' }).click(); await page.
 await shot('02-pricing.png');
 await nav('Retention'); await page.getByRole('button', { name: 'Run Engine 2' }).click(); await page.getByText('$182,949').first().waitFor({ timeout: 60000 });
 await page.getByRole('button', { name: 'Run robustness' }).click(); await page.getByRole('table', { name: 'Robustness of the call list' }).getByText('Acceptance 50%').waitFor({ timeout: 120000 });
-await page.getByText('Finished · 4 of 4 cases solved').waitFor({ timeout: 60000 });
+await page.getByText('Finished', { exact: true }).filter({ visible: true }).waitFor({ timeout: 60000 });
 await shot('03-retention.png');
-await nav('Coupling'); await page.getByRole('button', { name: 'Run sweep' }).click(); await page.getByText('Finished', { exact: true }).waitFor({ timeout: 180000 });
+await nav('Coupling'); await page.getByRole('button', { name: 'Run sweep' }).click(); await page.getByText('Finished', { exact: true }).filter({ visible: true }).waitFor({ timeout: 180000 });
 await shot('04-coupling.png');
 await nav('Index'); await page.getByText('76 total').waitFor();
 await shot('05-index.png');
