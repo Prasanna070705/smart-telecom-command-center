@@ -23,6 +23,18 @@ From a fresh clone (macOS / Linux shell; on Windows activate with `.venv\Scripts
     npm run api                     # API + two Python workers on http://localhost:8787, serving the built UI
 
 The first `npm run api` after installing the libraries can take ~40 s while Python compiles them; after that ~1.5 s.
+On Windows (PowerShell), the same steps; the CI run in `.github/workflows/windows.yml` passes every test on
+windows-latest (it installs into the runner's Python, so the venv lines below are standard but not exercised by CI):
+
+    npm ci
+    npm --prefix ui ci
+    python -m venv .venv; .venv\Scripts\Activate.ps1
+    pip install --only-binary=:all: -r engine/requirements.txt
+    npm run check; npm run build:ui; npm run api
+
+If PowerShell refuses to run `Activate.ps1`, its execution policy blocks scripts (see `Get-Help about_Execution_Policies`).
+Port 8787 busy on Windows: `Get-NetTCPConnection -LocalPort 8787 -State Listen | % { Stop-Process -Id $_.OwningProcess }`.
+
 For UI work, `npm run ui` serves http://localhost:5173 with hot reload and proxies /api to 8787.
 
 ## Test it
@@ -44,6 +56,7 @@ For UI work, `npm run ui` serves http://localhost:5173 with hot reload and proxi
 | Machine | Node / Python | API ready | Engine 1 | Engine 2 | Coupling (3 budgets) | verify (73 checks) | test:api | test:e2e |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | Sandbox, Linux, 1 CPU, 3 GB | 22.22.2 / 3.12.3 | 4.2-4.6 s | 0.6 s | 7.4 s | 16 s | 81 s, 67 PASS + 6 expected FAIL | all match | 11 steps PASS |
+| GitHub windows-latest (CI) | 22.23.3 / 3.12.10 | 4.1 s | 0.81 s | 3.1 s | 10.3 s (5 budgets) | 41.8 s, 67 PASS + 6 expected FAIL | all match | 16/16 PASS |
 | MacBook Air, macOS 27.0.1 | 24.12.0 / 3.14.3 | 1.3 s | 0.27 s | 1.6 s | 4.0 s | 38.2 s, 67 PASS + 6 expected FAIL | all match | 16/16 PASS (Chrome, Chromium, WebKit) |
 
 ## Tools
