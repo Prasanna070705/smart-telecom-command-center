@@ -12,7 +12,8 @@
     "verify": "node tests/run-verify.mjs",
     "verify:coupling": "node tests/run-verify.mjs H",
     "report:data": "node tools/report-data.mjs",
-    "screenshots": "node tools/screenshots.mjs"
+    "screenshots": "node tools/screenshots.mjs",
+    "timing": "node tools/timing.mjs"
   },
   "devDependencies": {
     "playwright": "^1.63.0"
