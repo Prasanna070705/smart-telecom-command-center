@@ -9,6 +9,8 @@ for (;;) { try { const h = await (await fetch(B + '/api/health')).json(); if (h.
   await new Promise((r) => setTimeout(r, 300)); }
 console.log('server + 2 Python workers ready after'.padEnd(44), `${(performance.now() - boot).toFixed(0)} ms`);
 const meta = await t('GET /api/meta', () => j('GET', '/api/meta'));
+const o = Object.fromEntries(meta.body.offers.map((x) => [x.key, x]));
+console.log('  offers', meta.body.offers.length, '| 2yr', o['2yr'].hours, 'h', o['2yr'].expectedCost, '| 1yr', o['1yr'].hours, 'h', o['1yr'].expectedCost, '| coupling $/h', meta.body.coupling.dollarsPerHour);
 console.log('  customers', meta.body.customers, 'churn %', meta.body.churnRatePct, 'pool3', meta.body.hazard.pool3, 'bytes', meta.bytes);
 const e1 = await t('POST /api/engine1 (eta 0.8, margin 0.7)', () => j('POST', '/api/engine1', { eta: 0.8, margin: 0.7 }));
 const fib = e1.body.prices.find((p) => p.key === 'Fiber');
@@ -20,6 +22,7 @@ console.log('  same pattern:', sens.body.samePattern, sens.body.patterns.join(',
 const sensBad = await j('POST', '/api/engine1/sensitivity', { etas: [99] });
 console.log('  invalid etas status', sensBad.status, sensBad.body.error);
 const e2 = await t('POST /api/engine2 (defaults)', () => j('POST', '/api/engine2', {}));
+console.log('  per customer called: $', e2.body.perCall.expectedCost, '|', e2.body.perCall.hours, 'h');
 console.log('  time limit hit:', e2.body.timeLimitHit, '| limit', e2.body.timeLimitS, 's');
 const e2t = await t('POST /api/engine2 (1 s limit, gap 0.0001%)', () => j('POST', '/api/engine2', { mipGap: 0.000001, timeLimit: 1 }));
 console.log('  forced time limit hit:', e2t.body.timeLimitHit === true && e2t.body.solverStatus === 1, '| called', e2t.body.called, '| gap %', e2t.body.gapPct);

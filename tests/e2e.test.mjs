@@ -12,7 +12,7 @@ for (;;) { try { const h = await (await fetch(B + '/api/health')).json(); if (h.
 const browser = await launch(); console.log('browser:', BROWSER, browser.version()); const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
 const errors = []; page.on('pageerror', (e) => errors.push(e.message)); page.on('console', (m) => m.type() === 'error' && errors.push(m.text()));
 const step = async (label, fn) => { const s = Date.now(); await fn(); console.log('PASS', label.padEnd(58), `${Date.now() - s} ms`); };
-await step('Overview loads meta: 7,043 customers, R² 0.9988', async () => { await page.goto(B); await page.getByText('7,043', { exact: true }).waitFor(); await page.getByText('0.9988').waitFor(); await page.getByText('Engines ready').waitFor(); });
+await step('Overview loads meta: 7,043 customers, R² 0.9988', async () => { await page.goto(B); await page.getByText('7,043', { exact: true }).waitFor(); await page.getByText('0.9988', { exact: true }).waitFor(); await page.getByText('Engines ready').waitFor(); });
 await step('Overview shows churn by contract 42.7%', () => page.getByText('42.7%').waitFor());
 await step('No literal \\u escapes leaked into the page', async () => { const html = await page.content(); if (/\\u[0-9a-f]{4}/i.test(html)) throw new Error('escape leaked'); });
 await step('Pricing: run Engine 1 → fibre −17.9%, churn ceiling', async () => {
@@ -20,7 +20,7 @@ await step('Pricing: run Engine 1 → fibre −17.9%, churn ceiling', async () =
   await page.getByText('−17.9%').waitFor({ timeout: 30000 }); await page.getByText('churn ceiling', { exact: true }).first().waitFor(); await page.getByText('+3.5%').waitFor(); });
 await step('Pricing: value of 1% churn room = $164,816', () => page.getByText('$164,816').waitFor());
 await step('Pricing: moving η slider and re-running changes fibre', async () => {
-  const sl = page.getByLabel('Price sensitivity (η)'); await sl.focus(); for (let i = 0; i < 7; i++) await sl.press('ArrowRight');
+  const sl = page.getByLabel('Price sensitivity (η)', { exact: true }); await sl.focus(); for (let i = 0; i < 7; i++) await sl.press('ArrowRight');
   await page.getByText('1.5', { exact: true }).waitFor(); await page.getByRole('button', { name: 'Run Engine 1' }).click(); await page.getByText('−18.3%').waitFor({ timeout: 30000 }); });
 await step('Pricing: sensitivity panel shows the same pattern for eta 0.4-1.5', async () => {
   await page.getByRole('button', { name: 'Run sensitivity' }).click(); await page.getByText('Same pattern in all 4 cases').waitFor({ timeout: 60000 });
@@ -28,6 +28,12 @@ await step('Pricing: sensitivity panel shows the same pattern for eta 0.4-1.5', 
 await step('Retention: run Engine 2 → $182,949, 901 called', async () => {
   await page.getByRole('button', { name: 'Retention' }).click(); await page.getByRole('button', { name: 'Run Engine 2' }).click();
   await page.getByText('$182,949').waitFor({ timeout: 60000 }); await page.getByText('901', { exact: true }).waitFor(); });
+await step('Retention: the budget is typed; an invalid amount disables Run', async () => {
+  const b = page.getByLabel('Retention budget', { exact: true }); await b.fill(''); await page.getByText('Enter a whole number of dollars').waitFor();
+  if (await page.getByRole('button', { name: 'Run Engine 2' }).isEnabled()) throw new Error('Run enabled with no budget');
+  await b.fill('45000'); await page.getByRole('button', { name: 'Run Engine 2' }).click(); await page.getByText('expected · LP bound').waitFor();
+  await page.getByText('$182,949').waitFor({ state: 'detached', timeout: 60000 });
+  await b.fill('30000'); await page.getByRole('button', { name: 'Run Engine 2' }).click(); await page.getByText('$182,949').first().waitFor({ timeout: 60000 }); });
 await step('Retention: call list paginates (page 1 of 61)', async () => { await page.getByText('Page 1 of 61').waitFor(); await page.getByRole('button', { name: 'Next' }).click(); await page.getByText('Page 2 of 61').waitFor(); });
 await step('Retention: CSV export downloads 902 lines', async () => {
   const [dl] = await Promise.all([page.waitForEvent('download'), page.getByRole('button', { name: 'Export CSV' }).click()]);
@@ -43,7 +49,7 @@ await step('Retention: robustness panel solves four cases (background job)', asy
   await tb.getByText(/^\$152,\d{3}$/).waitFor(); await tb.getByText('Acceptance 50%').waitFor(); await tb.getByText(/^\$248,\d{3}$/).waitFor(); });
 await step('Shared settings: changing margin marks the call list stale; reset clears it', async () => {
   const stale = page.getByText('Settings changed since this run. Run again to update.').filter({ visible: true });
-  const m = page.getByLabel('Profit margin'); await m.focus(); await m.press('ArrowRight'); await page.getByText('75%', { exact: true }).waitFor();
+  const m = page.getByLabel('Profit margin', { exact: true }); await m.focus(); await m.press('ArrowRight'); await page.getByText('75%', { exact: true }).waitFor();
   await stale.first().waitFor(); await page.getByRole('button', { name: 'Reset to defaults' }).click();
   await page.getByText('70%', { exact: true }).waitFor(); if (await stale.count()) throw new Error('still stale after reset'); });
 await step('Coupling: background job for $0 and $15,000 finishes, curve drawn', async () => {
@@ -54,9 +60,13 @@ await step('Coupling: background job for $0 and $15,000 finishes, curve drawn', 
 await step('Coupling: a running sweep can be cancelled', async () => {
   await page.getByRole('button', { name: 'Run sweep' }).click(); await page.getByRole('button', { name: 'Cancel' }).click();
   await page.getByText('Cancelled', { exact: true }).waitFor({ timeout: 10000 }); });
-await step('Data & checks: verification counts and assumptions shown', async () => {
-  await page.getByRole('button', { name: 'Data & checks' }).click(); await page.getByText('76 total').waitFor();
-  await page.getByText('One price sensitivity for every customer').waitFor(); });
+await step('Index: agent time and cost per offer from the API; verification counts', async () => {
+  await page.getByRole('button', { name: 'Index', exact: true }).click(); const t = page.getByRole('table', { name: 'Agent time and cost per offer' });
+  await t.getByRole('row', { name: /Two-year contract 0\.75 h \(45 min\)/ }).waitFor(); await t.getByText('$23.35').waitFor(); await page.getByText('76 total').waitFor(); });
+await step('Index: a "?" next to a label opens that term', async () => {
+  await page.getByRole('button', { name: 'Retention', exact: true }).click(); await page.getByRole('button', { name: 'Acceptance rate: explain in the Index' }).click();
+  await page.waitForFunction(() => location.hash === '#term-acceptance' && !document.querySelector('#term-acceptance').closest('[hidden]'), null, { timeout: 5000 });
+  await page.evaluate(() => history.replaceState(null, '', location.pathname)); });
 await step('Sidebar and logo stay in view when the page scrolls', async () => {
   await page.getByRole('button', { name: 'Retention', exact: true }).click(); await page.mouse.wheel(0, 1500); await page.waitForTimeout(300);
   const top = await page.evaluate(() => [scrollY, document.querySelector('aside').getBoundingClientRect().top]);
