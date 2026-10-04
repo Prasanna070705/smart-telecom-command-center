@@ -12,7 +12,7 @@ retention spend frees room to raise prices. Read `docs/context/` before starting
 - `engine/` Python, all modelling. `common.py` load + price recovery, `hazard.py` monthly hazard model,
   `engine1.py` SLSQP price optimizer, `engine2.py` offer assignment (SciPy HiGHS), `worker.py` JSON-lines worker,
   `verify.py` 76 model checks (73 in stages A-G, I, J via `npm run verify`; 3 in stage H via `npm run verify:coupling`).
-- `server/server.mjs` Node.js API, no npm dependencies. Spawns two Python workers (interactive + background jobs).
+- `server/server.mjs` Node.js API, no npm dependencies. Spawns two Python workers (interactive + background jobs: coupling, robustness).
 - `ui/` React + Tailwind 4, built with Vite 8 (scaffolded from the official react template; our files are in `ui/src`).
 - `tests/` `day1-check.mjs` (prerequisites), `api.test.mjs`, `e2e.test.mjs` (Playwright, 12 steps), `run-verify.mjs`.
 - `tools/create-issues.mjs` GitHub issues per plan day. `docs/day1-baseline.md` timings per machine.
@@ -46,4 +46,5 @@ retention spend frees room to raise prices. Read `docs/context/` before starting
   (HEAD was f63898a "test: cover the sensitivity call and panel"), pushed to origin/main.
 - Mac measurements recorded (docs/day1-baseline.md, README "Where it has run"): verify (73 checks) 67/6 in 38.8 s, API ready
   1.3 s, test:e2e 12/12.
-- Next: Day 3 (Engine 2 robustness call + Retention panel, gate G2). See `docs/context/plan.md`.
+- Day 3 done: robustness background job + Retention panel; gate G2 passes through the API.
+- Next: Day 4 (coupling, verify stage H on the 0.1% gap). See `docs/context/plan.md`.
