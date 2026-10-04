@@ -90,6 +90,19 @@ export function Loading({ children }) {
   )
 }
 
+// Shown when the integer solver stopped at its time limit, so the list is the best found, not proven within the gap.
+// count = how many of several solves stopped (robustness, coupling); gapPct = the single solve's distance from the LP bound.
+export function TimeLimitNote({ seconds, gapPct, count, of }) {
+  const limit = seconds ? `${seconds} s solver time limit` : 'solver time limit'
+  return (
+    <p role="note" className="mb-3 rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-800 ring-1 ring-amber-200 dark:bg-amber-500/15 dark:text-amber-300 dark:ring-amber-500/30">
+      {count ? `${count} of ${of} solves stopped at the ${limit}; their values are the best found in that time, not proven within the gap.`
+        : <>Stopped at the {limit}{gapPct != null && <>: this call list is within {gapPct.toFixed(3)}% of the best possible</>}.</>}
+      {' '}A faster machine or a longer limit closes the gap.
+    </p>
+  )
+}
+
 // Shown over a result whose settings no longer match the page, so a stale number is never read as current.
 export function StaleNote({ show }) {
   if (!show) return null
