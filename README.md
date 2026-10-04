@@ -44,7 +44,7 @@ For UI work, `npm run ui` serves http://localhost:5173 with hot reload and proxi
 | Machine | Node / Python | API ready | Engine 1 | Engine 2 | Coupling (3 budgets) | verify (73 checks) | test:api | test:e2e |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | Sandbox, Linux, 1 CPU, 3 GB | 22.22.2 / 3.12.3 | 4.2-4.6 s | 0.6 s | 7.4 s | 16 s | 81 s, 67 PASS + 6 expected FAIL | all match | 11 steps PASS |
-| MacBook Air, macOS 27.0.1 | 24.12.0 / 3.14.3 | 1.3 s | 0.27 s | 1.6 s | 4.0 s | 38.8 s, 67 PASS + 6 expected FAIL | all match | 12/12 PASS |
+| MacBook Air, macOS 27.0.1 | 24.12.0 / 3.14.3 | 1.3 s | 0.27 s | 1.6 s | 4.0 s | 38.2 s, 67 PASS + 6 expected FAIL | all match | 16/16 PASS (Chrome, Chromium, WebKit) |
 
 ## Tools
 

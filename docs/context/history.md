@@ -102,6 +102,15 @@
   likely questions, rehearsal log. Screenshots in docs/screenshots/ are current (no UI change since 92dcd23).
 - Timed rehearsals: the user's (log table in the script).
 
+## Day 10 (gate G5, my side)
+- Final run on the main checkout: verify PASS 67 | FAIL 6 (expected six) 38.2 s; verify:coupling PASS 3 10.5 s;
+  test:api all matching; test:e2e 16/16.
+- Definition of done: (1) API + built UI on :8787 yes; (2) five working pages yes; (3) acceptance numbers reproduced
+  yes (Day 4 coupling, Day 7 results-data.json); (4) fresh clone passes verify, test:api, test:e2e yes (Day 9, from
+  GitHub); (5) slide fixes and two rehearsals: the user's (checklist docs/slide-fixes.md, log in docs/demo-script.md).
+- Tag v1.0 created locally on the final commit; pushing it waits for the user's approval (and for the rehearsals, in
+  case they lead to changes: then the tag is moved before pushing).
+
 ## Problems hit and fixes
 - `npm run check` FAIL on pinned libraries before install: expected.
 - `npm run test:api` "API not reachable": API not started (it also appears when workers fail to start).
