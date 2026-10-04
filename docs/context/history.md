@@ -111,6 +111,16 @@
 - Tag v1.0 created locally on the final commit; pushing it waits for the user's approval (and for the rehearsals, in
   case they lead to changes: then the tag is moved before pushing).
 
+## v1.1 (after Day 10, branch v2)
+- Windows: fixed day1-check (shell only for npm), e2e /tmp path, screenshots URL.pathname; windows-latest CI passes
+  every test (it checks result lines, since verify and test:api exit 0 even on wrong numbers).
+- UI: light/system/dark toggle; ambient canvas (signal network + broadcast rings, page colour) behind frosted cards;
+  motion; animated logo; sticky sidebar. Light secondary text slate-600 to keep >= 5.5:1 over the background.
+- Docker: one image (Python 3.12 + node binary, UI built in stage 1), non-root, health check, ./results volume.
+  Mac arm64: ready 1.5 s, e2e 19/19; CI amd64: 19/19. First local build ~9 min (Docker Hub at 70-100 KB/s here).
+- Problems: e2e text matches found hidden pages / chart labels -> scoped locators (no expected values changed).
+  The $15k coupling row is $2,336,994 on arm64 Docker (gap 0.1%), inside its 2.32-2.34M acceptance range.
+
 ## Problems hit and fixes
 - `npm run check` FAIL on pinned libraries before install: expected.
 - `npm run test:api` "API not reachable": API not started (it also appears when workers fail to start).
