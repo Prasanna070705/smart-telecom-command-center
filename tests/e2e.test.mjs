@@ -1,12 +1,15 @@
 // Browser end-to-end test: Chromium -> React UI -> Node API -> Python engines -> back to the screen.
 import { createRequire } from 'node:module';
-const { chromium } = createRequire(import.meta.url)(process.env.PLAYWRIGHT_MODULE || 'playwright');
+const pw = createRequire(import.meta.url)(process.env.PLAYWRIGHT_MODULE || 'playwright');
+// BROWSER=chromium (default) | chrome (installed Google Chrome) | webkit | firefox
+const BROWSER = process.env.BROWSER || 'chromium';
+const launch = () => (BROWSER === 'chrome' ? pw.chromium.launch({ channel: 'chrome' }) : pw[BROWSER].launch());
 const B = 'http://localhost:8787';
 const waitUntil = Date.now() + Number(process.env.WAIT_MS || 60000);
 for (;;) { try { const h = await (await fetch(B + '/api/health')).json(); if (h.ok) break; } catch {}
   if (Date.now() > waitUntil) { console.error('API not reachable on http://localhost:8787. Start it first with: npm run api'); process.exit(1); }
   await new Promise((r) => setTimeout(r, 300)); }
-const browser = await chromium.launch(); const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
+const browser = await launch(); console.log('browser:', BROWSER, browser.version()); const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
 const errors = []; page.on('pageerror', (e) => errors.push(e.message)); page.on('console', (m) => m.type() === 'error' && errors.push(m.text()));
 const step = async (label, fn) => { const s = Date.now(); await fn(); console.log('PASS', label.padEnd(58), `${Date.now() - s} ms`); };
 await step('Overview loads meta: 7,043 customers, R² 0.9988', async () => { await page.goto(B); await page.getByText('7,043', { exact: true }).waitFor(); await page.getByText('0.9988').waitFor(); await page.getByText('Engines ready').waitFor(); });
