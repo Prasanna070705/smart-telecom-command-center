@@ -1,0 +1,17 @@
+# Render blueprint: New > Blueprint > this repository. Render builds the Dockerfile and deploys every push to main.
+# Plan: free. Measured locally with each plan's limits (docker run --cpus/--memory), one maths thread per process:
+#   free     (0.1 CPU, 512 MB)  wake ~1.5-2 min, Engine 1 13.5 s, Engine 2 46 s, sensitivity 51 s, sweep 2 min 45 s
+#   starter  (0.5 CPU, 512 MB)  start 8 s, Engine 1 0.6 s, Engine 2 7.5 s, sensitivity 1.9 s, sweep 22.5 s (paid)
+# Free web services sleep after 15 minutes without traffic; 750 free instance hours per workspace per month.
+services:
+  - type: web
+    name: smart-telecom-command-center
+    runtime: docker
+    plan: free
+    branch: main
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: PORT
+        value: "8787"
