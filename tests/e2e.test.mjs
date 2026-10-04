@@ -51,6 +51,11 @@ await step('Coupling: a running sweep can be cancelled', async () => {
 await step('Data & checks: verification counts and assumptions shown', async () => {
   await page.getByRole('button', { name: 'Data & checks' }).click(); await page.getByText('76 total').waitFor();
   await page.getByText('One price sensitivity for every customer').waitFor(); });
+await step('Sidebar and logo stay in view when the page scrolls', async () => {
+  await page.getByRole('button', { name: 'Retention', exact: true }).click(); await page.mouse.wheel(0, 1500); await page.waitForTimeout(300);
+  const top = await page.evaluate(() => [scrollY, document.querySelector('aside').getBoundingClientRect().top]);
+  if (top[0] < 500) throw new Error('page did not scroll: ' + top[0]); if (Math.abs(top[1]) > 1) throw new Error('sidebar moved to ' + top[1]);
+  await page.evaluate(() => scrollTo(0, 0)); });
 await step('Ambient background animates, and stands still under reduced motion', async () => {
   const frame = () => page.evaluate(() => document.querySelector('canvas[data-ambient]').toDataURL());
   const a = await frame(); await page.waitForTimeout(600); if ((await frame()) === a) throw new Error('background not moving');
