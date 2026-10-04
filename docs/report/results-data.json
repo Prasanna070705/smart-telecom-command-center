@@ -1,0 +1,423 @@
+{
+ "generatedAt": "2026-10-04T08:15:06.183Z",
+ "settings": "API defaults: eta 0.8, margin 70%, discount 1%/month; Engine 2 $30,000, 500 h, cap 350, acceptance 30%, solver gap 0.1%",
+ "meta": {
+  "customers": 7043,
+  "churners": 1869,
+  "churnRatePct": 26.54,
+  "meanTenure": 32.37,
+  "decompositionR2": 0.9988,
+  "baskets": 322,
+  "prices": [
+   {
+    "key": "Phone",
+    "name": "Phone line",
+    "price": 20.05
+   },
+   {
+    "key": "Multi",
+    "name": "Multiple lines",
+    "price": 5.01
+   },
+   {
+    "key": "DSL",
+    "name": "DSL internet",
+    "price": 25.05
+   },
+   {
+    "key": "Fiber",
+    "name": "Fibre internet",
+    "price": 50.01
+   },
+   {
+    "key": "Sec",
+    "name": "Online security",
+    "price": 5.01
+   },
+   {
+    "key": "Bk",
+    "name": "Online backup",
+    "price": 4.99
+   },
+   {
+    "key": "Dev",
+    "name": "Device protection",
+    "price": 5.02
+   },
+   {
+    "key": "Tech",
+    "name": "Tech support",
+    "price": 5.03
+   },
+   {
+    "key": "TV",
+    "name": "Streaming TV",
+    "price": 9.97
+   },
+   {
+    "key": "Mov",
+    "name": "Streaming movies",
+    "price": 9.96
+   }
+  ],
+  "hazard": {
+   "meanPct": 2.18,
+   "medianPct": 0.89,
+   "pool2": 2396,
+   "pool3": 1651
+  },
+  "churnByContractPct": {
+   "Month-to-month": 42.71,
+   "One year": 11.27,
+   "Two year": 2.83
+  },
+  "verification": {
+   "checks": 76,
+   "passed": 70,
+   "refuted": 5,
+   "updated": 1
+  },
+  "startupSeconds": 0.07,
+  "cached": true
+ },
+ "engine1": {
+  "prices": [
+   {
+    "key": "Phone",
+    "name": "Phone line",
+    "current": 20.05,
+    "optimal": 22.56,
+    "changePct": 12.5,
+    "limitedBy": "bill-shock cap: Phone line + Multiple lines"
+   },
+   {
+    "key": "Multi",
+    "name": "Multiple lines",
+    "current": 5.01,
+    "optimal": 6.27,
+    "changePct": 25,
+    "limitedBy": "price bound"
+   },
+   {
+    "key": "DSL",
+    "name": "DSL internet",
+    "current": 25.05,
+    "optimal": 24.81,
+    "changePct": -0.96,
+    "limitedBy": "bill-shock cap: DSL internet + Online security + Online backup + Device protection + Tech support + Streaming TV + Streaming movies"
+   },
+   {
+    "key": "Fiber",
+    "name": "Fibre internet",
+    "current": 50.01,
+    "optimal": 41.06,
+    "changePct": -17.89,
+    "limitedBy": "churn ceiling"
+   },
+   {
+    "key": "Sec",
+    "name": "Online security",
+    "current": 5.01,
+    "optimal": 6.27,
+    "changePct": 25,
+    "limitedBy": "price bound"
+   },
+   {
+    "key": "Bk",
+    "name": "Online backup",
+    "current": 4.99,
+    "optimal": 6.24,
+    "changePct": 25,
+    "limitedBy": "price bound"
+   },
+   {
+    "key": "Dev",
+    "name": "Device protection",
+    "current": 5.02,
+    "optimal": 6.28,
+    "changePct": 25,
+    "limitedBy": "price bound"
+   },
+   {
+    "key": "Tech",
+    "name": "Tech support",
+    "current": 5.03,
+    "optimal": 6.29,
+    "changePct": 25,
+    "limitedBy": "price bound"
+   },
+   {
+    "key": "TV",
+    "name": "Streaming TV",
+    "current": 9.97,
+    "optimal": 12.46,
+    "changePct": 25,
+    "limitedBy": "price bound"
+   },
+   {
+    "key": "Mov",
+    "name": "Streaming movies",
+    "current": 9.96,
+    "optimal": 12.45,
+    "changePct": 25,
+    "limitedBy": "price bound"
+   }
+  ],
+  "revenueChangePct": 3.52,
+  "profitUpliftPct": 7.61,
+  "lifetimeProfitNow": 17013333,
+  "lifetimeProfitNew": 18307575,
+  "meanHazardRatio": 1,
+  "binding": {
+   "billShockUpper": 3,
+   "billShockLower": 0,
+   "priceBounds": 7,
+   "tierGapDollars": 16.25,
+   "ceilingBinding": true
+  },
+  "shadowPricePerPctHeadroom": 164816,
+  "starts": {
+   "requested": 8,
+   "succeeded": 8,
+   "spread": 1.2393419623890622e-12
+  },
+  "maxViolation": 3.469446951953614e-18,
+  "runtimeMs": 254,
+  "cached": true
+ },
+ "engine1NoCeiling": [
+  {
+   "key": "Phone",
+   "changePct": 15
+  },
+  {
+   "key": "Multi",
+   "changePct": 15
+  },
+  {
+   "key": "DSL",
+   "changePct": 15
+  },
+  {
+   "key": "Fiber",
+   "changePct": 15
+  },
+  {
+   "key": "Sec",
+   "changePct": 15
+  },
+  {
+   "key": "Bk",
+   "changePct": 15
+  },
+  {
+   "key": "Dev",
+   "changePct": 15
+  },
+  {
+   "key": "Tech",
+   "changePct": 15
+  },
+  {
+   "key": "TV",
+   "changePct": 15
+  },
+  {
+   "key": "Mov",
+   "changePct": 15
+  }
+ ],
+ "sensitivity": [
+  {
+   "eta": 0.4,
+   "pattern": "+U--UUUUUU",
+   "revenueChangePct": 3.61,
+   "profitUpliftPct": 8.08,
+   "fibrePct": -17.65
+  },
+  {
+   "eta": 0.8,
+   "pattern": "+U--UUUUUU",
+   "revenueChangePct": 3.52,
+   "profitUpliftPct": 7.61,
+   "fibrePct": -17.89
+  },
+  {
+   "eta": 1.2,
+   "pattern": "+U--UUUUUU",
+   "revenueChangePct": 3.44,
+   "profitUpliftPct": 7.15,
+   "fibrePct": -18.15
+  },
+  {
+   "eta": 1.5,
+   "pattern": "+U--UUUUUU",
+   "revenueChangePct": 3.37,
+   "profitUpliftPct": 6.81,
+   "fibrePct": -18.34
+  }
+ ],
+ "engine2": {
+  "value": 182949,
+  "lpBound": 182959,
+  "gapPct": 0.0054,
+  "greedyShortfallPct": 5.16,
+  "budgetUsedPct": 100,
+  "hoursUsedPct": 100,
+  "pool": 1651,
+  "pairs": 9124,
+  "called": 901,
+  "mix": {
+   "auto": 350,
+   "1yr": 349,
+   "2yr": 198,
+   "sec": 4
+  },
+  "valueByOffer": {
+   "1yr": 42965,
+   "2yr": 57145,
+   "auto": 82667,
+   "sec": 172
+  },
+  "feasible": {
+   "one_per_customer": true,
+   "budget": true,
+   "hours": true,
+   "caps": true
+  },
+  "solverStatus": 0,
+  "runtimeMs": 1588
+ },
+ "robustness": {
+  "base": {
+   "value": 182949,
+   "called": 901,
+   "mix": {
+    "auto": 350,
+    "1yr": 349,
+    "2yr": 198,
+    "sec": 4
+   },
+   "haircut": 1,
+   "acceptance": 0.3
+  },
+  "cases": [
+   {
+    "kind": "haircut",
+    "factor": 0.5,
+    "value": 152614,
+    "valueChangePct": -16.6,
+    "called": 852,
+    "keptPct": 88.3,
+    "sameOfferPct": 44.7,
+    "mix": {
+     "auto": 350,
+     "2yr": 294,
+     "sec": 208
+    }
+   },
+   {
+    "kind": "haircut",
+    "factor": 0.25,
+    "value": 126815,
+    "valueChangePct": -30.7,
+    "called": 848,
+    "keptPct": 81.5,
+    "sameOfferPct": 47,
+    "mix": {
+     "auto": 350,
+     "2yr": 301,
+     "sec": 197
+    }
+   },
+   {
+    "kind": "acceptance",
+    "factor": 0.15,
+    "value": 104046,
+    "valueChangePct": -43.1,
+    "called": 763,
+    "keptPct": 79.6,
+    "sameOfferPct": 51.6,
+    "mix": {
+     "2yr": 350,
+     "auto": 350,
+     "2yr+tech": 62,
+     "1yr": 1
+    }
+   },
+   {
+    "kind": "acceptance",
+    "factor": 0.5,
+    "value": 248230,
+    "valueChangePct": 35.7,
+    "called": 973,
+    "keptPct": 95.3,
+    "sameOfferPct": 72.6,
+    "mix": {
+     "1yr": 350,
+     "auto": 350,
+     "sec": 221,
+     "2yr": 52
+    }
+   }
+  ],
+  "mipGapPct": 0.1,
+  "runtimeMs": 5531
+ },
+ "coupling": {
+  "baselineLifetimeProfit": 17013333,
+  "rows": [
+   {
+    "budget": 0,
+    "spend": 0,
+    "offerValue": 0,
+    "netGain": 1294242,
+    "fibrePct": -17.9,
+    "phonePct": 12.5,
+    "addonPct": 25,
+    "mipGapPct": null
+   },
+   {
+    "budget": 15000,
+    "spend": 14997,
+    "offerValue": 96719,
+    "netGain": 2320895,
+    "fibrePct": 0.4,
+    "phonePct": 12.5,
+    "addonPct": 25,
+    "mipGapPct": 0.0292
+   },
+   {
+    "budget": 30000,
+    "spend": 29998,
+    "offerValue": 182949,
+    "netGain": 3150776,
+    "fibrePct": 15,
+    "phonePct": 15,
+    "addonPct": 15,
+    "mipGapPct": 0.0054
+   },
+   {
+    "budget": 60000,
+    "spend": 59925,
+    "offerValue": 322279,
+    "netGain": 3277607,
+    "fibrePct": 15,
+    "phonePct": 15,
+    "addonPct": 15,
+    "mipGapPct": 0.0782
+   },
+   {
+    "budget": 90000,
+    "spend": 89973,
+    "offerValue": 372420,
+    "netGain": 3304411,
+    "fibrePct": 15,
+    "phonePct": 15,
+    "addonPct": 15,
+    "mipGapPct": 0.0259
+   }
+  ],
+  "runtimeMs": 5198
+ }
+}
