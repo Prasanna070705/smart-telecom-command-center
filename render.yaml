@@ -1,6 +1,6 @@
 # Render blueprint: New > Blueprint > this repository. Render builds the Dockerfile and deploys every push to main.
 # Plan: free. Measured locally with each plan's limits (docker run --cpus/--memory), one maths thread per process:
-#   free     (0.1 CPU, 512 MB)  wake ~1.5-2 min, Engine 1 13.5 s, Engine 2 46 s, sensitivity 51 s, sweep 2 min 45 s
+#   free     (0.1 CPU, 512 MB)  wake ~1.5-2 min, Engine 1 13.5 s, Engine 2 ~2 min to the full 0.1% gap, sensitivity 51 s
 #   starter  (0.5 CPU, 512 MB)  start 8 s, Engine 1 0.6 s, Engine 2 7.5 s, sensitivity 1.9 s, sweep 22.5 s (paid)
 # Free web services sleep after 15 minutes without traffic; 750 free instance hours per workspace per month.
 services:
@@ -15,3 +15,9 @@ services:
     envVars:
       - key: PORT
         value: "8787"
+      # At 0.1 CPU Engine 2 needs ~110 s to reach its 0.1% gap ($182,949, 901 called; measured with docker --cpus 0.1).
+      # The laptop default of 30 s stops it early ($182,763, 900 called, flagged as time limit hit).
+      - key: ENGINE2_TIME_LIMIT
+        value: "180"
+      - key: API_TIMEOUT_MS
+        value: "300000"

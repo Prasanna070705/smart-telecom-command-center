@@ -52,7 +52,8 @@ on /api/health). Finished jobs are kept in `./results`. The tests run from the h
 
 `render.yaml` deploys the Docker image from `main` to Render's free plan (0.1 CPU, 512 MB). It sleeps after 15 minutes
 without visitors: the first visit then takes about 1.5-2 minutes to wake the engines, and solves are slower than on a
-laptop (measured with the same limits: Engine 1 13.5 s, Engine 2 46 s, five-budget sweep 2 min 45 s). For a live
+laptop (measured with the same limits: Engine 1 13.5 s, Engine 2 about 2 minutes; the solver time limit is raised to
+180 s there with `ENGINE2_TIME_LIMIT` so results match the reference, and any solve that still stops at the limit says so). For a live
 presentation, run it locally or with Docker instead.
 
 ## Test it
