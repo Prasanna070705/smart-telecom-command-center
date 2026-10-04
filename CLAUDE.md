@@ -14,7 +14,7 @@ retention spend frees room to raise prices. Read `docs/context/` before starting
   `verify.py` 76 model checks (73 in stages A-G, I, J via `npm run verify`; 3 in stage H via `npm run verify:coupling`).
 - `server/server.mjs` Node.js API, no npm dependencies. Spawns two Python workers (interactive + background jobs: coupling, robustness).
 - `ui/` React + Tailwind 4, built with Vite 8 (scaffolded from the official react template; our files are in `ui/src`).
-- `tests/` `day1-check.mjs` (prerequisites), `api.test.mjs`, `e2e.test.mjs` (Playwright, 12 steps), `run-verify.mjs`.
+- `tests/` `day1-check.mjs` (prerequisites), `api.test.mjs`, `e2e.test.mjs` (Playwright, 14 steps), `run-verify.mjs`.
 - `tools/create-issues.mjs` GitHub issues per plan day. `docs/day1-baseline.md` timings per machine.
 
 ## Commands (macOS, zsh, Python env in .venv)
@@ -47,4 +47,5 @@ retention spend frees room to raise prices. Read `docs/context/` before starting
 - Mac measurements recorded (docs/day1-baseline.md, README "Where it has run"): verify (73 checks) 67/6 in 38.8 s, API ready
   1.3 s, test:e2e 12/12.
 - Day 3 done: robustness background job + Retention panel; gate G2 passes through the API.
-- Next: Day 4 (coupling, verify stage H on the 0.1% gap). See `docs/context/plan.md`.
+- Day 4 done: stage H on the 0.1% gap checked against acceptance; job cancel (DELETE /api/jobs/:id).
+- Next: Day 5 (production build + browser test from a fresh clone, gate G3). See `docs/context/plan.md`.
