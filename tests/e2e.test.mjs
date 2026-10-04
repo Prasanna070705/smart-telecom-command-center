@@ -44,6 +44,12 @@ await step('Retention: a solve that stopped at the time limit says so', async ()
   await page.getByRole('button', { name: 'Run Engine 2' }).click(); await page.getByText(/Stopped at the 30 s solver time limit/).waitFor();
   await page.unroute('**/api/engine2'); await page.getByRole('button', { name: 'Run Engine 2' }).click();
   await page.getByText(/Stopped at the 30 s solver time limit/).waitFor({ state: 'detached' }); });
+await step('Retention: Engine 2 shows a clock, and warns when a background run shares the server', async () => {
+  await page.route('**/api/health', (r) => r.fulfill({ json: { ok: true, workers: { fast: true, jobs: true }, jobsRunning: ['coupling'] } }));
+  await page.route('**/api/engine2', async (r) => { await new Promise((ok) => setTimeout(ok, 1500)); await r.continue(); });
+  await page.getByRole('button', { name: 'Run Engine 2' }).click(); await page.getByText('Solving Engine 2', { exact: true }).waitFor();
+  await page.getByText('A background run (coupling sweep) is using the server at the same time').waitFor();
+  await page.getByText('Solving Engine 2', { exact: true }).waitFor({ state: 'detached' }); await page.unroute('**/api/health'); await page.unroute('**/api/engine2'); });
 await step('Retention: robustness panel solves four cases (background job)', async () => {
   await page.getByRole('button', { name: 'Run robustness' }).click(); const tb = page.getByRole('table', { name: 'Robustness of the call list' });
   await tb.getByText('Base (these settings)').waitFor({ timeout: 120000 }); await tb.getByText('Contract effects ×0.5').waitFor();
@@ -55,12 +61,20 @@ await step('Shared settings: changing margin marks the call list stale; reset cl
   await page.getByText('70%', { exact: true }).waitFor(); if (await stale.count()) throw new Error('still stale after reset'); });
 await step('Coupling: background job for $0 and $15,000 finishes, curve drawn', async () => {
   await page.getByRole('button', { name: 'Coupling' }).click(); await page.getByLabel('Budgets in dollars, comma separated').fill('0, 15000');
-  await page.getByRole('button', { name: 'Run sweep' }).click(); await page.getByText('Finished', { exact: true }).waitFor({ timeout: 120000 });
+  await page.getByRole('button', { name: 'Run sweep' }).click(); await page.getByText('Finished', { exact: true }).filter({ visible: true }).waitFor({ timeout: 120000 });
   const sweep = page.locator('table', { hasText: 'Net gain' });   // the chart's axis labels can show the same amounts
   await sweep.getByText('$1.29M', { exact: true }).waitFor(); await sweep.getByText(/^\$2\.3\dM$/).waitFor(); await page.locator('svg[aria-label="Net lifetime-profit gain by retention budget"] circle').nth(1).waitFor(); });
+await step('Coupling: the same sweep again reuses the finished run', async () => {
+  await page.getByRole('button', { name: 'Run sweep' }).click(); await page.getByText('Reused a finished run with the same settings.').filter({ visible: true }).waitFor(); });
+await step('Coupling: a sweep the server lost says so', async () => {
+  await page.route('**/api/jobs/*', (r) => (r.request().method() === 'GET' ? r.fulfill({ status: 404, json: { error: 'no such job' } }) : r.continue()));
+  await page.getByLabel('Budgets in dollars, comma separated').fill('0, 45000'); await page.getByRole('button', { name: 'Run sweep' }).click();
+  await page.getByText('The server restarted and this run was lost. Start it again.').waitFor(); await page.getByText('Interrupted', { exact: true }).filter({ visible: true }).waitFor();
+  await page.unroute('**/api/jobs/*'); });
 await step('Coupling: a running sweep can be cancelled', async () => {
+  await page.getByLabel('Budgets in dollars, comma separated').fill('0, 15000, 30000, 60000');
   await page.getByRole('button', { name: 'Run sweep' }).click(); await page.getByRole('button', { name: 'Cancel' }).click();
-  await page.getByText('Cancelled', { exact: true }).waitFor({ timeout: 10000 }); });
+  await page.getByText('Cancelled', { exact: true }).filter({ visible: true }).waitFor({ timeout: 10000 }); });
 await step('Index: agent time and cost per offer from the API; verification counts', async () => {
   await page.getByRole('button', { name: 'Index', exact: true }).click(); const t = page.getByRole('table', { name: 'Agent time and cost per offer' });
   await t.getByRole('row', { name: /Two-year contract 0\.75 h \(45 min\)/ }).waitFor(); await t.getByText('$23.35').waitFor(); await page.getByText('76 total').waitFor(); });
