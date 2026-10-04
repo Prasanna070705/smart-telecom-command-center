@@ -29,6 +29,10 @@ await step('Retention: call list paginates (page 1 of 61)', async () => { await 
 await step('Retention: CSV export downloads 902 lines', async () => {
   const [dl] = await Promise.all([page.waitForEvent('download'), page.getByRole('button', { name: 'Export CSV' }).click()]);
   const txt = await (await import('node:fs/promises')).readFile(await dl.path(), 'utf8'); if (txt.trim().split('\n').length !== 902) throw new Error('rows ' + txt.split('\n').length); });
+await step('Retention: robustness panel solves four cases (background job)', async () => {
+  await page.getByRole('button', { name: 'Run robustness' }).click(); const tb = page.getByRole('table', { name: 'Robustness of the call list' });
+  await tb.getByText('Base (these settings)').waitFor({ timeout: 120000 }); await tb.getByText('Contract effects ×0.5').waitFor();
+  await tb.getByText(/^\$152,\d{3}$/).waitFor(); await tb.getByText('Acceptance 50%').waitFor(); await tb.getByText(/^\$248,\d{3}$/).waitFor(); });
 await step('Coupling: background job for $0 and $15,000 finishes, curve drawn', async () => {
   await page.getByRole('button', { name: 'Coupling' }).click(); await page.getByLabel('Budgets in dollars, comma separated').fill('0, 15000');
   await page.getByRole('button', { name: 'Run sweep' }).click(); await page.getByText('Finished').waitFor({ timeout: 120000 });
