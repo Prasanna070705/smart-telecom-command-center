@@ -50,4 +50,5 @@ retention spend frees room to raise prices. Read `docs/context/` before starting
 - Day 4 done: stage H on the 0.1% gap checked against acceptance; job cancel (DELETE /api/jobs/:id).
 - Day 5 done (gate G3): fresh clone passes check, test:api, test:e2e (15 steps); finished jobs saved to results/jobs.
 - Day 6 done: shared assumptions card (margin, discount, eta) across Pricing/Retention/Coupling; loading/error states.
-- Next: Day 7 (report drafts in docs/report/). See `docs/context/plan.md`.
+- Day 7 done: report drafts in docs/report/, `npm run report:data`, `npm run screenshots`.
+- Next: Day 8 (timings vs budgets, two browsers, slide-fixes checklist; gate G4). See `docs/context/plan.md`.
