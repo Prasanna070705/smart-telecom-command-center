@@ -56,4 +56,5 @@ retention spend frees room to raise prices. Read `docs/context/` before starting
 - Day 8 done on my side: `npm run timing` all within budget, e2e 16/16 in Chrome, docs/slide-fixes.md. G4 waits on
   the user's Safari check and deck edits.
 - Day 9 done: fresh GitHub clone passes every test; docs/demo-script.md; WebKit e2e 16/16.
-- Next: Day 10 (final verify, tag v1.0 after the user approves; gate G5). See `docs/context/plan.md`.
+- Day 10 done on my side: final verify 67/6 + 3/0, tests pass, tag v1.0 local (push on approval).
+- Open, the user's: Safari check, deck edits (docs/slide-fixes.md), two timed rehearsals, submission.
