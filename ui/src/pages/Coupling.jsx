@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { api } from '../api.js'
 import { useJob, JOB_STATUS } from '../useJob.js'
-import { Card, Button, CancelButton, ErrorNote, Empty, Loading, StaleNote } from '../components/ui.jsx'
+import { Card, Button, CancelButton, ErrorNote, Empty, Loading, StaleNote, TimeLimitNote } from '../components/ui.jsx'
 import { pick } from '../settings.js'
 import { money, pct } from '../format.js'
 
@@ -57,7 +57,8 @@ export default function Coupling({ shared }) {
           {rows.length ? <GainChart rows={rows} /> : running ? <Loading>Solving the first budget…</Loading> : <Empty>Start the sweep to draw the curve</Empty>}
         </Card>
         <Card title="Sweep results">
-          {!rows.length ? (running ? <Loading>Waiting for the first row…</Loading> : <Empty>No rows yet</Empty>) : (
+          {!rows.length ? (running ? <Loading>Waiting for the first row…</Loading> : <Empty>No rows yet</Empty>) : (<>
+            {rows.some((r) => r.timeLimitHit) && <TimeLimitNote seconds={job.result?.timeLimitS} count={rows.filter((r) => r.timeLimitHit).length} of={rows.filter((r) => r.budget > 0).length} />}
             <table className="w-full text-sm">
               <thead><tr className="text-left text-xs uppercase tracking-wide text-slate-600 dark:text-slate-400"><th className="pb-2 font-medium">Budget</th><th className="pb-2 text-right font-medium">Offer value</th><th className="pb-2 text-right font-medium">Net gain</th><th className="pb-2 text-right font-medium">Fibre</th></tr></thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
@@ -66,7 +67,7 @@ export default function Coupling({ shared }) {
                     <td className="py-2 text-right font-medium tabular-nums text-slate-900 dark:text-slate-100">{money(r.netGain)}</td><td className="py-2 text-right tabular-nums text-slate-600 dark:text-slate-300">{pct(r.fibrePct)}</td></tr>
                 ))}
               </tbody>
-            </table>
+            </table></>
           )}
         </Card>
       </div>

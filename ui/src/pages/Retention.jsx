@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { api } from '../api.js'
 import { useJob, JOB_STATUS } from '../useJob.js'
-import { Card, Kpi, Button, CancelButton, Slider, ErrorNote, Empty, Badge, Loading, StaleNote } from '../components/ui.jsx'
+import { Card, Kpi, Button, CancelButton, Slider, ErrorNote, Empty, Badge, Loading, StaleNote, TimeLimitNote } from '../components/ui.jsx'
 import { pick } from '../settings.js'
 import { money, int, pct } from '../format.js'
 
@@ -30,6 +30,8 @@ function RobustnessPanel({ settings }) {
       {!rows.length ? (running ? <Loading>Solving the base case…</Loading> : <Empty>Run it to compare four cases with this list</Empty>) : (
         <>
           <StaleNote show={ran !== key} />
+          {(() => { const n = rows.filter((c) => c.timeLimitHit).length + (job.result?.base.timeLimitHit ? 1 : 0)
+            return n > 0 && <TimeLimitNote seconds={job.result?.timeLimitS} count={n} of={rows.length + (job.result ? 1 : 0)} /> })()}
           <div className="overflow-x-auto">
             <table className="w-full text-sm" aria-label="Robustness of the call list">
               <thead><tr className="text-left text-xs uppercase tracking-wide text-slate-600 dark:text-slate-400">
@@ -110,6 +112,7 @@ export default function Retention({ shared }) {
           {busy && !res ? <Loading>Solving Engine 2…</Loading> : !res ? <Empty>No call list yet: press Run Engine 2</Empty> : (
             <>
               <StaleNote show={ran !== key} />
+              {res.timeLimitHit && <TimeLimitNote seconds={res.timeLimitS} gapPct={res.gapPct} />}
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead><tr className="text-left text-xs uppercase tracking-wide text-slate-600 dark:text-slate-400">
