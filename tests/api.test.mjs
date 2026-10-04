@@ -32,6 +32,12 @@ const js = performance.now(); let st;
 for (;;) { st = (await j('GET', `/api/jobs/${job.body.jobId}`)).body; if (st.status !== 'running') break; await new Promise((r) => setTimeout(r, 500)); }
 console.log('coupling job finished'.padEnd(44), `${(performance.now() - js).toFixed(0)} ms`, st.status);
 for (const r of st.result.rows) console.log('  ', JSON.stringify(r));
+const cj = await j('POST', '/api/jobs/coupling', {});
+const cx = await t('DELETE /api/jobs/:id (running sweep)', () => j('DELETE', `/api/jobs/${cj.body.jobId}`));
+const cx2 = await j('DELETE', `/api/jobs/${cj.body.jobId}`);
+console.log('  status', cx.status, cx.body.status, '| again', cx2.status, cx2.body.error, '| GET', (await j('GET', `/api/jobs/${cj.body.jobId}`)).body.status);
+const rw = performance.now(); for (;;) { const h = (await j('GET', '/api/health')).body; if (h.ok) break; await new Promise((r) => setTimeout(r, 200)); }
+console.log('jobs worker back after cancel'.padEnd(44), `${(performance.now() - rw).toFixed(0)} ms`);
 const rb = await t('POST /api/engine2/robustness (gap 0.01%)', () => j('POST', '/api/engine2/robustness', { mipGap: 0.0001 }));
 console.log('  status', rb.status, 'jobId', rb.body.jobId.slice(0, 8));
 const rs = performance.now(); let rj;
