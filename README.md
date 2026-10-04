@@ -12,27 +12,23 @@ Three parts, one repo:
 ## Run it
 
 Needs Node.js 20.19+ or 22.12+ (Vite's requirement) and Python 3.12 or newer with the pinned libraries (all 76 model checks run on 3.12.3 and 3.14.3).
+From a fresh clone (macOS / Linux shell; on Windows activate with `.venv\Scripts\activate`). In zsh, run `setopt interactivecomments` first or the `# notes` break pasted lines:
 
+    npm ci                          # root: Playwright for the browser test
+    npm --prefix ui ci              # UI: React, Vite, Tailwind (versions locked in ui/package-lock.json)
+    python3 -m venv .venv && source .venv/bin/activate
+    pip install --only-binary=:all: -r engine/requirements.txt
     npm run check                   # Node, npm, git, Python, pinned libraries, dataset
-    pip install -r engine/requirements.txt
-    npm run api                     # API on http://localhost:8787 (starts two Python workers, ~5 s)
+    npm run build:ui                # production build into ui/dist
+    npm run api                     # API + two Python workers on http://localhost:8787, serving the built UI
 
-UI, first time only (scaffold with the official template, then drop in this repo's files):
-
-    npm create vite@latest ui-scaffold -- --template react
-    cd ui-scaffold && npm install && npm install tailwindcss @tailwindcss/vite
-    cp -r ../ui/src ../ui/index.html ../ui/vite.config.js .   # replace the template's versions
-    cd .. && rm -rf ui && mv ui-scaffold ui
-
-Then:
-
-    npm run ui                      # http://localhost:5173, /api is proxied to 8787
-    npm run build:ui                # production build into ui/dist, served by the API at http://localhost:8787
+The first `npm run api` after installing the libraries can take ~40 s while Python compiles them; after that ~1.5 s.
+For UI work, `npm run ui` serves http://localhost:5173 with hot reload and proxies /api to 8787.
 
 ## Test it
 
     npm run test:api                # with the API running
-    npm i -D playwright && npx playwright install chromium
+    npx playwright install chromium # once per machine
     npm run test:e2e                # with the API running and ui/dist built
     npm run verify                  # 73 of verify.py's 76 checks (stages A-G, I, J); npm run verify:coupling runs the other 3 (stage H)
 
