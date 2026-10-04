@@ -33,6 +33,11 @@ await step('Retention: robustness panel solves four cases (background job)', asy
   await page.getByRole('button', { name: 'Run robustness' }).click(); const tb = page.getByRole('table', { name: 'Robustness of the call list' });
   await tb.getByText('Base (these settings)').waitFor({ timeout: 120000 }); await tb.getByText('Contract effects ×0.5').waitFor();
   await tb.getByText(/^\$152,\d{3}$/).waitFor(); await tb.getByText('Acceptance 50%').waitFor(); await tb.getByText(/^\$248,\d{3}$/).waitFor(); });
+await step('Shared settings: changing margin marks the call list stale; reset clears it', async () => {
+  const stale = page.getByText('Settings changed since this run. Run again to update.').filter({ visible: true });
+  const m = page.getByLabel('Profit margin'); await m.focus(); await m.press('ArrowRight'); await page.getByText('75%', { exact: true }).waitFor();
+  await stale.first().waitFor(); await page.getByRole('button', { name: 'Reset to defaults' }).click();
+  await page.getByText('70%', { exact: true }).waitFor(); if (await stale.count()) throw new Error('still stale after reset'); });
 await step('Coupling: background job for $0 and $15,000 finishes, curve drawn', async () => {
   await page.getByRole('button', { name: 'Coupling' }).click(); await page.getByLabel('Budgets in dollars, comma separated').fill('0, 15000');
   await page.getByRole('button', { name: 'Run sweep' }).click(); await page.getByText('Finished', { exact: true }).waitFor({ timeout: 120000 });
