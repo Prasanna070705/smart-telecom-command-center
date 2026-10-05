@@ -49,7 +49,7 @@ offered a contract or a service to stay.
 
 **Known flaw.** The model misses the two-year lock-in (it predicts 14.1 churn events in the first 24 months of
 two-year contracts; there are 0). A contract × tenure-band model fixes the fit and changes no conclusion:
-fibre −18.4% (vs −17.9%), Engine 2 value $200,904 with 86% of the same customers called. [verify stage I]
+fibre −18.4% (vs −17.9%), Engine 2 value $154,062 with 92% of the same customers called. [verify stage I]
 
 ## 4. Engine 1: price optimizer (nonlinear program)
 
@@ -161,7 +161,7 @@ the earlier deck and report that the data contradicts:
 - "Offer X reduces churn by Y%." The hazard ratios are model associations; no offer was ever made.
 - "The campaign will save $149,869." It is the expected value under the stated settings.
 - That Engine 1's answer is an interior optimum from the objective's curvature. The churn ceiling produces it.
-- That a greedy ranking matches the integer program. Greedy is 4-6% worse.
+- That a greedy ranking matches the integer program. Greedy is 8.25% worse.
 
 ## 10. Known limits
 

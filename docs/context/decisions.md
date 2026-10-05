@@ -14,7 +14,8 @@ add-ons ~5.0, streaming ~9.97. Residual SD $1.02, uncorrelated with tenure and c
   sklearn PoissonRegressor(alpha=0, solver newton-cholesky, weights = exposure). Equals the textbook offset GLM to
   2e-15. Hazard ratios: one-year 0.21, two-year 0.055, tech support 0.65, security 0.52, card autopay 0.52.
   Known flaw: misses two-year lock-in (0 events vs 14.1 predicted in first 24 months); a contract x band model
-  changes no conclusion (fibre -18.4%, Engine 2 $200,904, 86% same customers).
+  changes no conclusion (fibre -18.4%, Engine 2 $154,062, 92% same customers; before v1.3, with former customers
+  in the pool: $200,904, 86%).
 - Price sensitivity eta is NOT estimable (price coefficient flips sign with the model). It is a scenario input,
   swept 0.4-1.5 (range carried from the earlier report, unsourced: cite a source or call it a sensitivity range).
   Hazard response h(P) = h0 (B(P)/B0)^eta.
@@ -38,7 +39,7 @@ add-ons ~5.0, streaming ~9.97. Residual SD $1.02, uncorrelated with tenure and c
 ## Never claim
 Measured price sensitivity; "offer X reduces churn by Y%" (it is a model association); "the campaign will save
 $149,869" (expected value under stated settings); an interior optimum from Engine 1's curvature (the ceiling does it);
-greedy ranking matching the integer program (4-6% worse).
+greedy ranking matching the integer program (8.25% worse since v1.3; 4-6% before).
 
 ## Known gaps (open, not decided)
 - Settings across pages: CLOSED Day 6. One shared margin / discount / eta for Pricing, Retention and Coupling.
