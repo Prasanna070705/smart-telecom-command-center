@@ -1,0 +1,870 @@
+[
+ {
+  "id": "A1",
+  "claim": "rows x columns",
+  "actual": [
+   7043,
+   21
+  ],
+  "expected": [
+   7043,
+   21
+  ],
+  "status": "PASS"
+ },
+ {
+  "id": "A2",
+  "claim": "duplicate customerIDs",
+  "actual": 0,
+  "expected": 0,
+  "status": "PASS"
+ },
+ {
+  "id": "A3",
+  "claim": "blank TotalCharges rows are exactly the tenure-0 rows (count)",
+  "actual": 11,
+  "expected": 11,
+  "status": "PASS"
+ },
+ {
+  "id": "A4",
+  "claim": "churners",
+  "actual": 1869,
+  "expected": 1869,
+  "status": "PASS"
+ },
+ {
+  "id": "A5",
+  "claim": "churn rate % (2 dp)",
+  "actual": 26.54,
+  "expected": 26.54,
+  "status": "PASS"
+ },
+ {
+  "id": "A5b",
+  "claim": "deck slide 8 says 26.6%; correct 1-dp rounding",
+  "actual": 26.5,
+  "expected": 26.6,
+  "status": "FAIL"
+ },
+ {
+  "id": "A6",
+  "claim": "female % / male %",
+  "actual": [
+   49.52,
+   50.48
+  ],
+  "expected": [
+   49.52,
+   50.48
+  ],
+  "status": "PASS"
+ },
+ {
+  "id": "A7",
+  "claim": "churn within M2M / 1yr / 2yr %",
+  "actual": [
+   42.71,
+   11.27,
+   2.83
+  ],
+  "expected": [
+   42.71,
+   11.27,
+   2.83
+  ],
+  "status": "PASS"
+ },
+ {
+  "id": "A7b",
+  "claim": "deck slide 8 claims 75% of M2M customers left",
+  "actual": 42.7,
+  "expected": 75.0,
+  "status": "FAIL"
+ },
+ {
+  "id": "A8",
+  "claim": "share of churners on M2M %",
+  "actual": 88.55,
+  "expected": 88.55,
+  "status": "PASS"
+ },
+ {
+  "id": "A9",
+  "claim": "fibre: churn in lowest vs highest bill quintile %",
+  "actual": [
+   56.6,
+   23.3
+  ],
+  "expected": [
+   56.6,
+   23.3
+  ],
+  "status": "PASS"
+ },
+ {
+  "id": "A10",
+  "claim": "MonthlyCharges min / max",
+  "actual": [
+   18.25,
+   118.75
+  ],
+  "expected": [
+   18.25,
+   118.75
+  ],
+  "status": "PASS"
+ },
+ {
+  "id": "A11",
+  "claim": "TotalCharges/(MonthlyCharges x tenure): median, p10, p90",
+  "actual": [
+   1.0,
+   0.95,
+   1.049
+  ],
+  "expected": 1.0,
+  "status": "PASS"
+ },
+ {
+  "id": "A12",
+  "claim": "label check: % with tenure>=24 vs % implied if 26.54% were monthly; % in first month",
+  "actual": [
+   55.8,
+   0.061,
+   8.9
+  ],
+  "expected": null,
+  "status": "PASS"
+ },
+ {
+  "id": "A13",
+  "claim": "shortest tenure among churners: 1yr / 2yr",
+  "actual": [
+   2,
+   25
+  ],
+  "expected": null,
+  "status": "PASS"
+ },
+ {
+  "id": "A14",
+  "claim": "mean tenure (months)",
+  "actual": 32.37,
+  "expected": 32.37,
+  "status": "PASS"
+ },
+ {
+  "id": "B1",
+  "claim": "decomposition R^2 (gate >= 0.97)",
+  "actual": 0.9988,
+  "expected": 0.9988,
+  "status": "PASS"
+ },
+ {
+  "id": "B2",
+  "claim": "recovered prices $ (Phone,Multi,DSL,Fibre,Sec,Bk,Dev,Tech,TV,Mov)",
+  "actual": [
+   20.05,
+   5.01,
+   25.05,
+   50.01,
+   5.01,
+   4.99,
+   5.02,
+   5.03,
+   9.97,
+   9.96
+  ],
+  "expected": null,
+  "status": "PASS"
+ },
+ {
+  "id": "B2b",
+  "claim": "fibre price: report says ~$45",
+  "actual": 50.01,
+  "expected": 45.0,
+  "status": "FAIL"
+ },
+ {
+  "id": "B3",
+  "claim": "all 10 prices positive",
+  "actual": true,
+  "expected": true,
+  "status": "PASS"
+ },
+ {
+  "id": "B4",
+  "claim": "max VIF among the 10 flags (gate < 10)",
+  "actual": 2.74,
+  "expected": null,
+  "status": "PASS"
+ },
+ {
+  "id": "B5",
+  "claim": "VIF of MonthlyCharges given the flags (report says ~100)",
+  "actual": 862.0,
+  "expected": null,
+  "status": "PASS"
+ },
+ {
+  "id": "B6",
+  "claim": "bill variation left at a fixed bundle: residual SD $",
+  "actual": 1.02,
+  "expected": 1.02,
+  "status": "PASS"
+ },
+ {
+  "id": "B7",
+  "claim": "corr(residual, tenure), corr(residual, churn)",
+  "actual": [
+   -0.0025,
+   -0.0071
+  ],
+  "expected": null,
+  "status": "PASS"
+ },
+ {
+  "id": "B8",
+  "claim": "max |residual| $",
+  "actual": 4.8,
+  "expected": null,
+  "status": "PASS"
+ },
+ {
+  "id": "B9",
+  "claim": "distinct service baskets (report says 1,400-1,800; structural max 386)",
+  "actual": 322,
+  "expected": 322,
+  "status": "PASS"
+ },
+ {
+  "id": "B10",
+  "claim": "customers without phone: all on DSL (count)",
+  "actual": 682,
+  "expected": null,
+  "status": "PASS"
+ },
+ {
+  "id": "B11",
+  "claim": "single-service customers: phone-only / DSL-only",
+  "actual": [
+   1184,
+   80
+  ],
+  "expected": [
+   1184,
+   80
+  ],
+  "status": "PASS"
+ },
+ {
+  "id": "C1",
+  "claim": "price coefficient flips sign with specification (without / with service flags)",
+  "actual": [
+   0.0286,
+   -0.0351
+  ],
+  "expected": null,
+  "status": "PASS"
+ },
+ {
+  "id": "C2",
+  "claim": "+$10 on every bill: predicted churn % under each spec",
+  "actual": [
+   26.5,
+   30.8,
+   21.9
+  ],
+  "expected": null,
+  "status": "PASS"
+ },
+ {
+  "id": "D1",
+  "claim": "person-month file: events / exposure months",
+  "actual": [
+   1869,
+   227990
+  ],
+  "expected": [
+   1869,
+   227990
+  ],
+  "status": "PASS"
+ },
+ {
+  "id": "D2",
+  "claim": "sklearn weighted Poisson == textbook offset GLM (max |coef diff|)",
+  "actual": 1.33e-15,
+  "expected": null,
+  "status": "PASS"
+ },
+ {
+  "id": "D3",
+  "claim": "calibration obs/pred, M2M bands 0-4",
+  "actual": [
+   1.05,
+   1.04,
+   1.05,
+   0.98,
+   0.62
+  ],
+  "expected": null,
+  "status": "PASS"
+ },
+ {
+  "id": "D3b",
+  "claim": "two-year: observed vs predicted churn events in first 24 months",
+  "actual": [
+   0,
+   14.1
+  ],
+  "expected": null,
+  "status": "PASS"
+ },
+ {
+  "id": "D4",
+  "claim": "hazard ratios: 1yr, 2yr, tech support, online security, autopay(card)",
+  "actual": [
+   0.21,
+   0.055,
+   0.649,
+   0.521,
+   0.517
+  ],
+  "expected": null,
+  "status": "PASS"
+ },
+ {
+  "id": "D5",
+  "claim": "current monthly hazard: mean / median",
+  "actual": [
+   0.0218,
+   0.0089
+  ],
+  "expected": null,
+  "status": "PASS"
+ },
+ {
+  "id": "D6",
+  "claim": "candidate pool at 2% / 3% monthly hazard",
+  "actual": [
+   2396,
+   1651
+  ],
+  "expected": [
+   2345,
+   1629
+  ],
+  "status": "FAIL"
+ },
+ {
+  "id": "D7",
+  "claim": "hazard model fit time (s)",
+  "actual": 0.0,
+  "expected": null,
+  "status": "PASS"
+ },
+ {
+  "id": "D8",
+  "claim": "report's lifetime test ('mean implied lifetime ~32 mo'): [mean, median months, % >30 yrs, pool@3%, pool@2%] for shrinkage k=0/50/200",
+  "actual": {
+   "0": [
+    Infinity,
+    67.0,
+    35.4,
+    2674,
+    3001
+   ],
+   "50": [
+    260.0,
+    68.0,
+    23.7,
+    2674,
+    2674
+   ],
+   "200": [
+    146.0,
+    68.0,
+    11.8,
+    2200,
+    2873
+   ]
+  },
+  "expected": null,
+  "status": "FAIL"
+ },
+ {
+  "id": "D9",
+  "claim": "M2M+fibre+e-check: churn %, mean tenure, report-formula hazard % (report: 58 / 14 / 6.0)",
+  "actual": [
+   60.4,
+   19.4,
+   4.67
+  ],
+  "expected": null,
+  "status": "FAIL"
+ },
+ {
+  "id": "D10",
+  "claim": "pool @3% using events/exposure per segment",
+  "actual": 1508,
+  "expected": null,
+  "status": "PASS"
+ },
+ {
+  "id": "E1",
+  "claim": "CLV closed form pi/(d+h) equals the explicit month-by-month sum (rel. error)",
+  "actual": 7.4e-16,
+  "expected": null,
+  "status": "PASS"
+ },
+ {
+  "id": "E2",
+  "claim": "temporary-effect CLV (12 months at 1%, then 3%) equals explicit sum (rel. error)",
+  "actual": 1.5e-16,
+  "expected": null,
+  "status": "PASS"
+ },
+ {
+  "id": "E3",
+  "claim": "CLV x delta-h understates the exact value by a factor of",
+  "actual": 50.0,
+  "expected": null,
+  "status": "PASS"
+ },
+ {
+  "id": "E4",
+  "claim": "report formula with logistic delta-p in a monthly denominator: % of M2M two-year pairs with zero/negative denominator; mean delta-p",
+  "actual": [
+   99.8,
+   0.287
+  ],
+  "expected": null,
+  "status": "PASS"
+ },
+ {
+  "id": "E5",
+  "claim": "reading p as cumulative everywhere: implied mean lifetime 1/(d+p) in months (observed mean tenure 32.4)",
+  "actual": 12.9,
+  "expected": null,
+  "status": "PASS"
+ },
+ {
+  "id": "E6",
+  "claim": "two-year discount cost, $70 bill, 15% x 24 months, m=0.7: report formula vs forgone revenue",
+  "actual": [
+   176.0,
+   252.0
+  ],
+  "expected": null,
+  "status": "PASS"
+ },
+ {
+  "id": "F1",
+  "claim": "no churn ceiling: every price at +15% for all 8 (eta, m) cases (max deviation)",
+  "actual": 4.1e-15,
+  "expected": null,
+  "status": "PASS"
+ },
+ {
+  "id": "F2",
+  "claim": "with ceiling: same pattern in all 8 cases (U=at +25% bound, +/- = interior up/down, 0 = within 0.5%)",
+  "actual": [
+   "+U--UUUUUU"
+  ],
+  "expected": null,
+  "status": "PASS"
+ },
+ {
+  "id": "F2b",
+  "claim": "with ceiling: range across the 8 cases of each price change %",
+  "actual": {
+   "Phone": [
+    12.5,
+    12.5
+   ],
+   "Multi": [
+    25.0,
+    25.0
+   ],
+   "DSL": [
+    -1.0,
+    -1.0
+   ],
+   "Fiber": [
+    -18.3,
+    -17.7
+   ],
+   "Sec": [
+    25.0,
+    25.0
+   ],
+   "Bk": [
+    25.0,
+    25.0
+   ],
+   "Dev": [
+    25.0,
+    25.0
+   ],
+   "Tech": [
+    25.0,
+    25.0
+   ],
+   "TV": [
+    25.0,
+    25.0
+   ],
+   "Mov": [
+    25.0,
+    25.0
+   ]
+  },
+  "expected": null,
+  "status": "PASS"
+ },
+ {
+  "id": "F3",
+  "claim": "with ceiling (eta=0.8, m=0.7): % change by service",
+  "actual": {
+   "Phone": 12.5,
+   "Multi": 25.0,
+   "DSL": -1.0,
+   "Fiber": -17.9,
+   "Sec": 25.0,
+   "Bk": 25.0,
+   "Dev": 25.0,
+   "Tech": 25.0,
+   "TV": 25.0,
+   "Mov": 25.0
+  },
+  "expected": null,
+  "status": "PASS"
+ },
+ {
+  "id": "F4",
+  "claim": "fibre change range %, profit uplift range % (m=0.3..0.7), revenue range %",
+  "actual": [
+   -18.3,
+   -17.7,
+   6.8,
+   19.3,
+   3.37,
+   3.61
+  ],
+  "expected": null,
+  "status": "PASS"
+ },
+ {
+  "id": "F5",
+  "claim": "binding at eta=0.8,m=0.7: bill-shock upper / lower, price bounds, tier gap $, mean hazard ratio",
+  "actual": [
+   3,
+   0,
+   7,
+   16.25,
+   1.0
+  ],
+  "expected": null,
+  "status": "PASS"
+ },
+ {
+  "id": "F6",
+  "claim": "multi-start agreement: max spread across starts / successful starts",
+  "actual": [
+   1.9e-12,
+   8
+  ],
+  "expected": null,
+  "status": "PASS"
+ },
+ {
+  "id": "F7",
+  "claim": "max constraint violation at the reported optimum",
+  "actual": 1.9e-14,
+  "expected": null,
+  "status": "PASS"
+ },
+ {
+  "id": "F8",
+  "claim": "seconds per solve (8 starts): min / max",
+  "actual": [
+   0.2,
+   0.3
+  ],
+  "expected": null,
+  "status": "PASS"
+ },
+ {
+  "id": "F9",
+  "claim": "no ceiling, m=0.7: interior optimum appears only at high eta [eta, mean price change %, baskets at +15% cap]",
+  "actual": [
+   [
+    1.5,
+    15.0,
+    322
+   ],
+   [
+    2.0,
+    15.0,
+    322
+   ],
+   [
+    3.0,
+    17.6,
+    22
+   ],
+   [
+    5.0,
+    15.3,
+    0
+   ]
+  ],
+  "expected": null,
+  "status": "PASS"
+ },
+ {
+  "id": "F10",
+  "claim": "SLSQP returns 'multipliers' (count) and ceiling shadow price: FD value of +1% headroom $ vs multiplier estimate $",
+  "actual": [
+   646,
+   164467.0,
+   164816.0
+  ],
+  "expected": null,
+  "status": "PASS"
+ },
+ {
+  "id": "G1",
+  "claim": "candidates at 3% / eligible customer-offer pairs",
+  "actual": [
+   1651,
+   9124
+  ],
+  "expected": null,
+  "status": "PASS"
+ },
+ {
+  "id": "G2",
+  "claim": "IP value $, LP bound $, LP-IP gap %, HiGHS status, reported MIP gap",
+  "actual": [
+   182949.0,
+   182959.0,
+   0.0054,
+   0,
+   5.382535550321447e-05
+  ],
+  "expected": null,
+  "status": "PASS"
+ },
+ {
+  "id": "G3",
+  "claim": "LP fractional customers <= 8 and variables <= 16 (theory)",
+  "actual": [
+   3,
+   4
+  ],
+  "expected": null,
+  "status": "PASS"
+ },
+ {
+  "id": "G4",
+  "claim": "best of 3 greedy rankings falls short of the IP by %",
+  "actual": 5.16,
+  "expected": null,
+  "status": "PASS"
+ },
+ {
+  "id": "G5",
+  "claim": "IP solution feasible (one offer each, budget, hours, caps)",
+  "actual": {
+   "one_per_customer": true,
+   "budget": true,
+   "hours": true,
+   "caps": true
+  },
+  "expected": null,
+  "status": "PASS"
+ },
+ {
+  "id": "G6",
+  "claim": "budget used %, hours used %, customers called, offer mix",
+  "actual": [
+   100.0,
+   100.0,
+   901,
+   {
+    "auto": 350,
+    "1yr": 349,
+    "2yr": 198,
+    "sec": 4
+   }
+  ],
+  "expected": null,
+  "status": "PASS"
+ },
+ {
+  "id": "G7",
+  "claim": "solve seconds: LP / IP",
+  "actual": [
+   0.08,
+   1.48
+  ],
+  "expected": null,
+  "status": "PASS"
+ },
+ {
+  "id": "G8",
+  "claim": "report formulas: claimed value $, its list re-valued correctly $ (% of corrected optimum), Jaccard, same-offer %, mix",
+  "actual": [
+   1015049.0,
+   60988.0,
+   33.3,
+   0.57,
+   2.0,
+   {
+    "1yr": 350,
+    "sec": 350,
+    "tech": 299,
+    "auto": 1
+   }
+  ],
+  "expected": null,
+  "status": "PASS"
+ },
+ {
+  "id": "G9",
+  "claim": "contract-effect haircut [factor, value $, % of customers kept, % same offer, greedy gap %, mix]",
+  "actual": [
+   [
+    0.5,
+    152666.0,
+    88.0,
+    45.0,
+    4.13,
+    {
+     "auto": 350,
+     "2yr": 294,
+     "sec": 209
+    }
+   ],
+   [
+    0.25,
+    126880.0,
+    81.0,
+    47.0,
+    6.14,
+    {
+     "auto": 350,
+     "2yr": 302,
+     "sec": 197
+    }
+   ]
+  ],
+  "expected": null,
+  "status": "PASS"
+ },
+ {
+  "id": "G10",
+  "claim": "acceptance rate [rate, value $, % of customers kept, mix]",
+  "actual": [
+   [
+    0.15,
+    104046.0,
+    80.0,
+    {
+     "2yr": 350,
+     "auto": 350,
+     "2yr+tech": 62,
+     "1yr": 1
+    }
+   ],
+   [
+    0.5,
+    248344.0,
+    95.0,
+    {
+     "1yr": 350,
+     "auto": 350,
+     "sec": 222,
+     "2yr": 52
+    }
+   ]
+  ],
+  "expected": null,
+  "status": "PASS"
+ },
+ {
+  "id": "I1",
+  "claim": "interaction model: worst obs/pred in cells with events; predicted events in zero-event cells",
+  "actual": [
+   1.04,
+   0.63,
+   1.84
+  ],
+  "expected": null,
+  "status": "PASS"
+ },
+ {
+  "id": "I2",
+  "claim": "interaction model: mean hazard, pool @3%",
+  "actual": [
+   0.022,
+   1752
+  ],
+  "expected": null,
+  "status": "PASS"
+ },
+ {
+  "id": "I3",
+  "claim": "Engine 1 with interaction hazards (eta=0.8, m=0.7): % change by service",
+  "actual": {
+   "Phone": 12.5,
+   "Multi": 25.0,
+   "DSL": -1.0,
+   "Fiber": -18.4,
+   "Sec": 25.0,
+   "Bk": 25.0,
+   "Dev": 25.0,
+   "Tech": 25.0,
+   "TV": 25.0,
+   "Mov": 25.0
+  },
+  "expected": null,
+  "status": "PASS"
+ },
+ {
+  "id": "I4",
+  "claim": "Engine 2 with interaction hazards: value $, mix, % of main-model customers still called",
+  "actual": [
+   200905.0,
+   {
+    "1yr": 350,
+    "auto": 350,
+    "2yr": 200
+   },
+   86.0
+  ],
+  "expected": null,
+  "status": "PASS"
+ },
+ {
+  "id": "J1",
+  "claim": "environment used for verification",
+  "actual": {
+   "python": "3.14.3",
+   "numpy": "2.4.4",
+   "pandas": "3.0.2",
+   "scipy": "1.17.1",
+   "sklearn": "1.8.0",
+   "pyarrow": "not installed here",
+   "pulp": "not installed here",
+   "statsmodels": "not installed here",
+   "streamlit": "not installed here",
+   "plotly": "not installed here"
+  },
+  "expected": null,
+  "status": "PASS"
+ }
+]

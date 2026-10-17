@@ -1,0 +1,135 @@
+[
+ {
+  "id": "D1",
+  "claim": "person-month file: events / exposure months",
+  "actual": [
+   1869,
+   227990
+  ],
+  "expected": [
+   1869,
+   227990
+  ],
+  "status": "PASS"
+ },
+ {
+  "id": "D2",
+  "claim": "sklearn weighted Poisson == textbook offset GLM (max |coef diff|)",
+  "actual": 1.33e-15,
+  "expected": null,
+  "status": "PASS"
+ },
+ {
+  "id": "D3",
+  "claim": "calibration obs/pred, M2M bands 0-4",
+  "actual": [
+   1.05,
+   1.04,
+   1.05,
+   0.98,
+   0.62
+  ],
+  "expected": null,
+  "status": "PASS"
+ },
+ {
+  "id": "D3b",
+  "claim": "two-year: observed vs predicted churn events in first 24 months",
+  "actual": [
+   0,
+   14.1
+  ],
+  "expected": null,
+  "status": "PASS"
+ },
+ {
+  "id": "D4",
+  "claim": "hazard ratios: 1yr, 2yr, tech support, online security, autopay(card)",
+  "actual": [
+   0.21,
+   0.055,
+   0.649,
+   0.521,
+   0.517
+  ],
+  "expected": null,
+  "status": "PASS"
+ },
+ {
+  "id": "D5",
+  "claim": "current monthly hazard: mean / median",
+  "actual": [
+   0.0218,
+   0.0089
+  ],
+  "expected": null,
+  "status": "PASS"
+ },
+ {
+  "id": "D6",
+  "claim": "candidate pool at 2% / 3% monthly hazard",
+  "actual": [
+   2396,
+   1651
+  ],
+  "expected": [
+   2345,
+   1629
+  ],
+  "status": "FAIL"
+ },
+ {
+  "id": "D7",
+  "claim": "hazard model fit time (s)",
+  "actual": 0.0,
+  "expected": null,
+  "status": "PASS"
+ },
+ {
+  "id": "D8",
+  "claim": "report's lifetime test ('mean implied lifetime ~32 mo'): [mean, median months, % >30 yrs, pool@3%, pool@2%] for shrinkage k=0/50/200",
+  "actual": {
+   "0": [
+    Infinity,
+    67.0,
+    35.4,
+    2674,
+    3001
+   ],
+   "50": [
+    260.0,
+    68.0,
+    23.7,
+    2674,
+    2674
+   ],
+   "200": [
+    146.0,
+    68.0,
+    11.8,
+    2200,
+    2873
+   ]
+  },
+  "expected": null,
+  "status": "FAIL"
+ },
+ {
+  "id": "D9",
+  "claim": "M2M+fibre+e-check: churn %, mean tenure, report-formula hazard % (report: 58 / 14 / 6.0)",
+  "actual": [
+   60.4,
+   19.4,
+   4.67
+  ],
+  "expected": null,
+  "status": "FAIL"
+ },
+ {
+  "id": "D10",
+  "claim": "pool @3% using events/exposure per segment",
+  "actual": 1508,
+  "expected": null,
+  "status": "PASS"
+ }
+]

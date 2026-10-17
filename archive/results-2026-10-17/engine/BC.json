@@ -1,0 +1,127 @@
+[
+ {
+  "id": "B1",
+  "claim": "decomposition R^2 (gate >= 0.97)",
+  "actual": 0.9988,
+  "expected": 0.9988,
+  "status": "PASS"
+ },
+ {
+  "id": "B2",
+  "claim": "recovered prices $ (Phone,Multi,DSL,Fibre,Sec,Bk,Dev,Tech,TV,Mov)",
+  "actual": [
+   20.05,
+   5.01,
+   25.05,
+   50.01,
+   5.01,
+   4.99,
+   5.02,
+   5.03,
+   9.97,
+   9.96
+  ],
+  "expected": null,
+  "status": "PASS"
+ },
+ {
+  "id": "B2b",
+  "claim": "fibre price: report says ~$45",
+  "actual": 50.01,
+  "expected": 45.0,
+  "status": "FAIL"
+ },
+ {
+  "id": "B3",
+  "claim": "all 10 prices positive",
+  "actual": true,
+  "expected": true,
+  "status": "PASS"
+ },
+ {
+  "id": "B4",
+  "claim": "max VIF among the 10 flags (gate < 10)",
+  "actual": 2.74,
+  "expected": null,
+  "status": "PASS"
+ },
+ {
+  "id": "B5",
+  "claim": "VIF of MonthlyCharges given the flags (report says ~100)",
+  "actual": 862.0,
+  "expected": null,
+  "status": "PASS"
+ },
+ {
+  "id": "B6",
+  "claim": "bill variation left at a fixed bundle: residual SD $",
+  "actual": 1.02,
+  "expected": 1.02,
+  "status": "PASS"
+ },
+ {
+  "id": "B7",
+  "claim": "corr(residual, tenure), corr(residual, churn)",
+  "actual": [
+   -0.0025,
+   -0.0071
+  ],
+  "expected": null,
+  "status": "PASS"
+ },
+ {
+  "id": "B8",
+  "claim": "max |residual| $",
+  "actual": 4.8,
+  "expected": null,
+  "status": "PASS"
+ },
+ {
+  "id": "B9",
+  "claim": "distinct service baskets (report says 1,400-1,800; structural max 386)",
+  "actual": 322,
+  "expected": 322,
+  "status": "PASS"
+ },
+ {
+  "id": "B10",
+  "claim": "customers without phone: all on DSL (count)",
+  "actual": 682,
+  "expected": null,
+  "status": "PASS"
+ },
+ {
+  "id": "B11",
+  "claim": "single-service customers: phone-only / DSL-only",
+  "actual": [
+   1184,
+   80
+  ],
+  "expected": [
+   1184,
+   80
+  ],
+  "status": "PASS"
+ },
+ {
+  "id": "C1",
+  "claim": "price coefficient flips sign with specification (without / with service flags)",
+  "actual": [
+   0.0286,
+   -0.0351
+  ],
+  "expected": null,
+  "status": "PASS"
+ },
+ {
+  "id": "C2",
+  "claim": "+$10 on every bill: predicted churn % under each spec",
+  "actual": [
+   26.5,
+   30.8,
+   21.9
+  ],
+  "expected": null,
+  "status": "PASS"
+ }
+]
