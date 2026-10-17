@@ -1,0 +1,512 @@
+{
+ "generatedAt": "2026-10-06T06:44:48.367Z",
+ "host": "https://smart-telecom-command-center.onrender.com",
+ "meta": {
+  "customers": 7043,
+  "churners": 1869,
+  "churnRatePct": 26.54,
+  "meanTenure": 32.37,
+  "decompositionR2": 0.9988,
+  "baskets": 322,
+  "prices": [
+   {
+    "key": "Phone",
+    "name": "Phone line",
+    "price": 20.05
+   },
+   {
+    "key": "Multi",
+    "name": "Multiple lines",
+    "price": 5.01
+   },
+   {
+    "key": "DSL",
+    "name": "DSL internet",
+    "price": 25.05
+   },
+   {
+    "key": "Fiber",
+    "name": "Fibre internet",
+    "price": 50.01
+   },
+   {
+    "key": "Sec",
+    "name": "Online security",
+    "price": 5.01
+   },
+   {
+    "key": "Bk",
+    "name": "Online backup",
+    "price": 4.99
+   },
+   {
+    "key": "Dev",
+    "name": "Device protection",
+    "price": 5.02
+   },
+   {
+    "key": "Tech",
+    "name": "Tech support",
+    "price": 5.03
+   },
+   {
+    "key": "TV",
+    "name": "Streaming TV",
+    "price": 9.97
+   },
+   {
+    "key": "Mov",
+    "name": "Streaming movies",
+    "price": 9.96
+   }
+  ],
+  "hazard": {
+   "meanPct": 2.18,
+   "medianPct": 0.89,
+   "pool2": 2396,
+   "pool3": 1651
+  },
+  "currentCustomers": 5174,
+  "candidates": 740,
+  "churnByContractPct": {
+   "Month-to-month": 42.71,
+   "One year": 11.27,
+   "Two year": 2.83
+  },
+  "verification": {
+   "checks": 76,
+   "passed": 70,
+   "refuted": 5,
+   "updated": 1
+  },
+  "startupSeconds": 4.2,
+  "meanBill": 64.86,
+  "offerDefaults": {
+   "acceptance": 0.3,
+   "margin": 0.7,
+   "discount": 0.01,
+   "threshold": 0.03,
+   "discount1yr": 0.1,
+   "discount2yr": 0.15,
+   "freeMonths": 6,
+   "autopayCredit": 25,
+   "comboPremium": 10
+  },
+  "offers": [
+   {
+    "key": "1yr",
+    "name": "One-year contract",
+    "hours": 0.5,
+    "costIfAccepted": 77.83,
+    "expectedCost": 23.35
+   },
+   {
+    "key": "2yr",
+    "name": "Two-year contract",
+    "hours": 0.75,
+    "costIfAccepted": 233.49,
+    "expectedCost": 70.05
+   },
+   {
+    "key": "tech",
+    "name": "Free tech support",
+    "hours": 0.5,
+    "costIfAccepted": 9.05,
+    "expectedCost": 2.72
+   },
+   {
+    "key": "sec",
+    "name": "Free online security",
+    "hours": 0.5,
+    "costIfAccepted": 9.02,
+    "expectedCost": 2.71
+   },
+   {
+    "key": "auto",
+    "name": "Autopay switch",
+    "hours": 0.5,
+    "costIfAccepted": 25,
+    "expectedCost": 7.5
+   },
+   {
+    "key": "2yr+tech",
+    "name": "Two-year + tech support",
+    "hours": 1,
+    "costIfAccepted": 252.54,
+    "expectedCost": 75.76
+   }
+  ],
+  "coupling": {
+   "dollarsPerHour": 60,
+   "dollarsPerCapSlot": 85.7
+  },
+  "cached": true
+ },
+ "engine1": {
+  "prices": [
+   {
+    "key": "Phone",
+    "name": "Phone line",
+    "current": 20.05,
+    "optimal": 22.56,
+    "changePct": 12.5,
+    "limitedBy": "bill-shock cap: Phone line + Multiple lines"
+   },
+   {
+    "key": "Multi",
+    "name": "Multiple lines",
+    "current": 5.01,
+    "optimal": 6.27,
+    "changePct": 25,
+    "limitedBy": "price bound"
+   },
+   {
+    "key": "DSL",
+    "name": "DSL internet",
+    "current": 25.05,
+    "optimal": 24.81,
+    "changePct": -0.96,
+    "limitedBy": "bill-shock cap: DSL internet + Online security + Online backup + Device protection + Tech support + Streaming TV + Streaming movies"
+   },
+   {
+    "key": "Fiber",
+    "name": "Fibre internet",
+    "current": 50.01,
+    "optimal": 41.06,
+    "changePct": -17.89,
+    "limitedBy": "churn ceiling"
+   },
+   {
+    "key": "Sec",
+    "name": "Online security",
+    "current": 5.01,
+    "optimal": 6.27,
+    "changePct": 25,
+    "limitedBy": "price bound"
+   },
+   {
+    "key": "Bk",
+    "name": "Online backup",
+    "current": 4.99,
+    "optimal": 6.24,
+    "changePct": 25,
+    "limitedBy": "price bound"
+   },
+   {
+    "key": "Dev",
+    "name": "Device protection",
+    "current": 5.02,
+    "optimal": 6.28,
+    "changePct": 25,
+    "limitedBy": "price bound"
+   },
+   {
+    "key": "Tech",
+    "name": "Tech support",
+    "current": 5.03,
+    "optimal": 6.29,
+    "changePct": 25,
+    "limitedBy": "price bound"
+   },
+   {
+    "key": "TV",
+    "name": "Streaming TV",
+    "current": 9.97,
+    "optimal": 12.46,
+    "changePct": 25,
+    "limitedBy": "price bound"
+   },
+   {
+    "key": "Mov",
+    "name": "Streaming movies",
+    "current": 9.96,
+    "optimal": 12.45,
+    "changePct": 25,
+    "limitedBy": "price bound"
+   }
+  ],
+  "revenueChangePct": 3.52,
+  "profitUpliftPct": 7.61,
+  "lifetimeProfitNow": 17013333,
+  "lifetimeProfitNew": 18307575,
+  "meanHazardRatio": 1,
+  "binding": {
+   "billShockUpper": 3,
+   "billShockLower": 0,
+   "priceBounds": 7,
+   "tierGapDollars": 16.25,
+   "ceilingBinding": true
+  },
+  "shadowPricePerPctHeadroom": 164816,
+  "starts": {
+   "requested": 8,
+   "succeeded": 8,
+   "spread": 1.2390088954816747e-12
+  },
+  "maxViolation": 1.4210854715202004e-14,
+  "runtimeMs": 2911
+ },
+ "noCeiling": {
+  "profitUpliftPct": 17.49,
+  "meanHazardRatio": 1.1183,
+  "lifetimeProfitNew": 19988232,
+  "prices": [
+   {
+    "key": "Phone",
+    "changePct": 15
+   },
+   {
+    "key": "Multi",
+    "changePct": 15
+   },
+   {
+    "key": "DSL",
+    "changePct": 15
+   },
+   {
+    "key": "Fiber",
+    "changePct": 15
+   },
+   {
+    "key": "Sec",
+    "changePct": 15
+   },
+   {
+    "key": "Bk",
+    "changePct": 15
+   },
+   {
+    "key": "Dev",
+    "changePct": 15
+   },
+   {
+    "key": "Tech",
+    "changePct": 15
+   },
+   {
+    "key": "TV",
+    "changePct": 15
+   },
+   {
+    "key": "Mov",
+    "changePct": 15
+   }
+  ]
+ },
+ "sensitivity": [
+  {
+   "eta": 0.4,
+   "pattern": "+U--UUUUUU",
+   "revenueChangePct": 3.61,
+   "profitUpliftPct": 8.08,
+   "fibrePct": -17.65
+  },
+  {
+   "eta": 0.8,
+   "pattern": "+U--UUUUUU",
+   "revenueChangePct": 3.52,
+   "profitUpliftPct": 7.61,
+   "fibrePct": -17.89
+  },
+  {
+   "eta": 1.2,
+   "pattern": "+U--UUUUUU",
+   "revenueChangePct": 3.44,
+   "profitUpliftPct": 7.15,
+   "fibrePct": -18.15
+  },
+  {
+   "eta": 1.5,
+   "pattern": "+U--UUUUUU",
+   "revenueChangePct": 3.37,
+   "profitUpliftPct": 6.81,
+   "fibrePct": -18.34
+  }
+ ],
+ "engine2": {
+  "value": 149869,
+  "lpBound": 149872,
+  "gapPct": 0.0021,
+  "greedyShortfallPct": 8.25,
+  "budgetUsedPct": 100,
+  "hoursUsedPct": 95.5,
+  "pool": 740,
+  "pairs": 3952,
+  "called": 740,
+  "mix": {
+   "2yr": 350,
+   "auto": 350,
+   "2yr+tech": 40
+  },
+  "perCall": {
+   "expectedCost": 40.54,
+   "hours": 0.645
+  },
+  "valueByOffer": {
+   "2yr": 76503,
+   "2yr+tech": 11640,
+   "auto": 61726
+  },
+  "feasible": {
+   "one_per_customer": true,
+   "budget": true,
+   "hours": true,
+   "caps": true
+  },
+  "solverStatus": 0,
+  "timeLimitHit": false,
+  "timeLimitS": 180,
+  "runtimeMs": 8109
+ },
+ "robustness": {
+  "base": {
+   "value": 149869,
+   "timeLimitHit": false,
+   "called": 740,
+   "mix": {
+    "2yr": 350,
+    "auto": 350,
+    "2yr+tech": 40
+   },
+   "haircut": 1,
+   "acceptance": 0.3
+  },
+  "cases": [
+   {
+    "kind": "haircut",
+    "factor": 0.5,
+    "value": 123961,
+    "valueChangePct": -17.3,
+    "timeLimitHit": false,
+    "called": 740,
+    "keptPct": 100,
+    "sameOfferPct": 85.1,
+    "mix": {
+     "auto": 350,
+     "2yr": 260,
+     "2yr+tech": 130
+    }
+   },
+   {
+    "kind": "haircut",
+    "factor": 0.25,
+    "value": 97650,
+    "valueChangePct": -34.8,
+    "timeLimitHit": false,
+    "called": 740,
+    "keptPct": 100,
+    "sameOfferPct": 75.4,
+    "mix": {
+     "auto": 350,
+     "2yr": 260,
+     "2yr+tech": 130
+    }
+   },
+   {
+    "kind": "acceptance",
+    "factor": 0.15,
+    "value": 78597,
+    "valueChangePct": -47.6,
+    "timeLimitHit": false,
+    "called": 699,
+    "keptPct": 94.5,
+    "sameOfferPct": 67.5,
+    "mix": {
+     "2yr": 350,
+     "auto": 223,
+     "2yr+tech": 126
+    }
+   },
+   {
+    "kind": "acceptance",
+    "factor": 0.5,
+    "value": 201495,
+    "valueChangePct": 34.4,
+    "timeLimitHit": false,
+    "called": 739,
+    "keptPct": 99.9,
+    "sameOfferPct": 55.2,
+    "mix": {
+     "auto": 350,
+     "1yr": 221,
+     "2yr": 168
+    }
+   }
+  ],
+  "mipGapPct": 0.1,
+  "timeLimitS": 180,
+  "runtimeMs": 21921
+ },
+ "coupling": {
+  "baselineLifetimeProfit": 17013333,
+  "rows": [
+   {
+    "budget": 0,
+    "spend": 0,
+    "offerValue": 0,
+    "netGain": 1294242,
+    "fibrePct": -17.9,
+    "phonePct": 12.5,
+    "addonPct": 25,
+    "mipGapPct": null,
+    "timeLimitHit": false
+   },
+   {
+    "budget": 15000,
+    "spend": 14990,
+    "offerValue": 89636,
+    "netGain": 2263232,
+    "fibrePct": -0.5,
+    "phonePct": 12.5,
+    "addonPct": 25,
+    "mipGapPct": 0.0286,
+    "timeLimitHit": false
+   },
+   {
+    "budget": 30000,
+    "spend": 29998,
+    "offerValue": 149869,
+    "netGain": 2938891,
+    "fibrePct": 11,
+    "phonePct": 15,
+    "addonPct": 24.6,
+    "mipGapPct": 0.0021,
+    "timeLimitHit": false
+   },
+   {
+    "budget": 60000,
+    "spend": 56071,
+    "offerValue": 168068,
+    "netGain": 2991376,
+    "fibrePct": 12.3,
+    "phonePct": 15,
+    "addonPct": 15,
+    "mipGapPct": 0,
+    "timeLimitHit": false
+   },
+   {
+    "budget": 90000,
+    "spend": 56071,
+    "offerValue": 168068,
+    "netGain": 2991376,
+    "fibrePct": 12.3,
+    "phonePct": 15,
+    "addonPct": 15,
+    "mipGapPct": 0,
+    "timeLimitHit": false
+   }
+  ],
+  "timeLimitS": 180,
+  "runtimeMs": 28212
+ },
+ "uiTexts": {
+  "pricingTable": "Optimal price list\n\n8 of 8 starts agree · solved in 3023 ms\n\nSERVICE\tNOW\tNEW\tCHANGE\tLIMITED BY\nPhone line\t$20.05\t$22.56\t\n+12.5%\n\tbill-shock cap\nMultiple lines\t$5.01\t$6.27\t\n+25.0%\n\tprice bound\nDSL internet\t$25.05\t$24.81\t\n−1.0%\n\tbill-shock cap\nFibre internet\t$50.01\t$41.06\t\n−17.9%\n\tchurn ceiling\nOnline security\t$5.01\t$6.27\t\n+25.0%\n\tprice bound\nOnline backup\t$4.99\t$6.24\t\n+25.0%\n\tprice bound\nDevice protection\t$5.02\t$6.28\t\n+25.0%\n\tprice bound\nTech support\t$5.03\t$6.29\t\n+25.0%\n\tprice bound\nStreaming TV\t$9.97\t$12.46\t\n+25.0%\n\tprice bound\nStreaming movies\t$9.96\t$12.45\t\n+25.0%\n\tprice bound",
+  "sensitivity": "Does the answer depend on price sensitivity?\n\nEngine 1 re-solved at four values of η, every other setting unchanged\n\nRun sensitivity\nSame pattern in all 4 cases\nSERVICE\tη 0.4\tη 0.8\tη 1.2\tη 1.5\nPhone line\t+12.5%\t+12.5%\t+12.5%\t+12.5%\nMultiple lines\t+25.0%\t+25.0%\t+25.0%\t+25.0%\nDSL internet\t−1.0%\t−1.0%\t−1.0%\t−1.0%\nFibre internet\t−17.6%\t−17.9%\t−18.1%\t−18.3%\nOnline security\t+25.0%\t+25.0%\t+25.0%\t+25.0%\nOnline backup\t+25.0%\t+25.0%\t+25.0%\t+25.0%\nDevice protection\t+25.0%\t+25.0%\t+25.0%\t+25.0%\nTech support\t+25.0%\t+25.0%\t+25.0%\t+25.0%\nStreaming TV\t+25.0%\t+25.0%\t+25.0%\t+25.0%\nStreaming movies\t+25.0%\t+25.0%\t+25.0%\t+25.0%\nRevenue\t+3.6%\t+3.5%\t+3.4%\t+3.4%\nLifetime profit\t+8.1%\t+7.6%\t+7.2%\t+6.8%\n\nSolved in 12.7 s.",
+  "retentionKpis": "VALUE PRESERVED\n?\n\n$149,869\n\nexpected · LP bound $149,872\n\nCUSTOMERS CALLED\n?\n\n740\n\nof 740 at-risk customers\n\nOPTIMALITY GAP\n?\n\n0.002%\n\ngreedy is 8.3% worse\n\nBUDGET · HOURS USED\n?\n\n100% · 96%\n\nper customer called: $40.54 · 39 min",
+  "offerMix": "Offer mix\n\nCustomers per offer and the value each offer preserves\n\nTwo-year contract\n350 · $76,503\nAutopay switch\n350 · $61,726\nTwo-year + tech support\n40 · $11,640",
+  "callList": "Call list\n\n740 customers, highest value first · solved in 7.9 s\n\nExport CSV\nCUSTOMER\tOFFER\tCONTRACT\tRISK / MO\tCOST\tVALUE\n2786-GCDPI\tTwo-year contract\tMonth-to-month\t7.4%\t$113\t$373\n4062-HBMOS\tTwo-year contract\tMonth-to-month\t6.4%\t$113\t$369\n7901-TBKJX\tTwo-year + tech support\tMonth-to-month\t11.4%\t$114\t$369\n5649-RXQTV\tTwo-year + tech support\tMonth-to-month\t10.2%\t$114\t$367\n1427-VERSM\tTwo-year contract\tMonth-to-month\t7.6%\t$108\t$356\n4553-DVPZG\tTwo-year contract\tMonth-to-month\t7.3%\t$108\t$355\n2208-UGTGR\tTwo-year contract\tMonth-to-month\t7.3%\t$108\t$355\n6988-CJEYV\tTwo-year contract\tMonth-to-month\t7.3%\t$108\t$355\n0129-KPTWJ\tTwo-year + tech support\tMonth-to-month\t11.7%\t$108\t$350\n6212-ATMLK\tTwo-year + tech support\tMonth-to-month\t16.7%\t$108\t$350\n2452-KDRRH\tTwo-year contract\tMonth-to-month\t5.9%\t$108\t$348\n8065-BVEPF\tTwo-year contract\tMonth-to-month\t5.3%\t$108\t$344\n2386-OWURY\tTwo-year contract\tMonth-to-month\t17.3%\t$103\t$342\n6350-XFYGW\tTwo-year contract\tMonth-to-month\t8.6%\t$103\t$341\n3170-GWYKC\tTwo-year contract\tMonth-to-month\t3.6%\t$113\t$340\nPage 1 of 50\nPrevious\nNext",
+  "robustness": "Does the call list survive weaker assumptions?\n\nEngine 2 re-solved with contract effects cut and other acceptance rates; both are scenario inputs, not measured\n\nRun robustness\n\nFinished · 4 of 4 solved\n\nCASE\tVALUE\tVS BASE\tCALLED\tSTILL CALLED\tSAME OFFER\nBase (these settings)\t$149,869\t—\t740\t—\t—\nContract effects ×0.5\t$123,961\t−17.3%\t740\t100.0%\t85.1%\nContract effects ×0.25\t$97,650\t−34.8%\t740\t100.0%\t75.4%\nAcceptance 15%\t$78,597\t−47.6%\t699\t94.5%\t67.5%\nAcceptance 50%\t$201,495\t+34.4%\t739\t99.9%\t55.2%\n\nStill called: share of the base list's customers called again. Same offer: share of those given the same offer. Solved in 20.5 s at a 0.1% gap.",
+  "sweep": "Sweep results\nBUDGET\tOFFER VALUE\tNET GAIN\tFIBRE\n$0\t$0\t$1.29M\t−17.9%\n$15,000\t$89,636\t$2.26M\t−0.5%\n$30,000\t$149,869\t$2.94M\t+11.0%\n$60,000\t$168,068\t$2.99M\t+12.3%\n$90,000\t$168,068\t$2.99M\t+12.3%",
+  "overviewTop": "INDEX\n\nTerms, formulas and methods\nEngines ready\nLight\nSystem\nDark\nHow to use the app\nAgent time and cost per customer\nTerms\nFormulas\nMethods\nAssumptions, limits and verification\nHow to use the app\n\nFive pages; the shared assumptions at the top of three of them apply to all three\n\nOverview. The 7,043 customers, how many left, the price of each service recovered from the bills, and who is at risk.\n\nPricing (Engine 1). Sets a new price for each of the ten services. Press Run Engine 1; then Run sensitivity to see whether the answer depends on price sensitivity.\n\nRetention (Engine 2). Picks which at-risk customers to call and with which offer, within your budget, agent hours and cap per offer. Export the call list as a CSV for the call centre.\n\nCoupling. Runs Engine 2 at several budgets, then Engine 1 on the lower churn, to show how retention spending frees room to raise prices.\n\nClick any ? next to a label to jump to its entry below. Every result is an expected value under the settings on screen, not a forecast.\n\nAgent time and cost per customer\n\nWhat one call takes and costs, by offer · costs at the average bill of $64.86 a month\n\nOFFER\tAGENT TIME PER CALL\tCOST IF ACCEPTED\tEXPECTED COST PER CALL\nOne-year contract\t0.5 h (30 min)\t$77.83\t$23.35\nTwo-year contract\t0.75 h (45 min)\t$233.49\t$70.05\nFree tech support\t0.5 h (30 min)\t$9.05\t$2.72\nFree online security\t0.5 h (30 min)\t$9.02\t$2.71\nAutopay switch\t0.5 h (30 min)\t$25.00\t$7.50\nTwo-year + tech support\t1 h (60 min)\t$252.54\t$75.76\nAgent time is spent on every call, whether or not the customer accepts; the money cost is paid only by those who accept, so the expected cost per call is the cost if accepted × the acceptance rate (30% by default).\nWhere the costs come from: a contract discount costs the revenue given up (10% off for 12 months, 15% off for 24); a free service costs its unit cost for 6 months; the autopay switch costs a $25 credit; two-year + tech support adds a $10 premium.\nThe suggested campaign (the defaults on Retention): $30,000, 500 agent hours, at most 350 customers per offer. After a run, the Retention page shows the average expected cost and agent time per customer called.\nIn the coupling sweep each budget gets agent hours and a cap per offer in the same proportions: one agent hour per $60 and one offer slot per $85.70 of budget.\nTerms\n\nIn the order you meet them in the app\n\nChurnOverview\n\nA customer leaving. In this data a customer has churned if they left at some point in their recorded time as a customer. 26.5% of customers did.\n\nTenureOverview\n\nHow many months someone has been a customer. The churn model treats it as the time each customer was at risk of leaving.\n\nRecovered price listOverview\n\nThe bills are not itemised, so the price of each service is worked out from the bills of customers with different combinations of services (R² 0.9988: the prices explain the bills almost exactly).\n\nMonthly churn risk (hazard)Overview, Retention\n\nThe chance that a customer leaves in a given month, given their contract, services, payment method and how long they have been a customer.\n\nAt-risk customer (candidate)Overview, Retention\n\nA current customer (not one the data says has already left) whose monthly churn risk is at or above the at-risk threshold (3% a month by default): 740 of the 5,174 current customers at the default. The churn model itself learns from all 7,043 customers, including those who left.\n\nProfit marginShared assumptions\n\nThe share of each bill that is profit. Costs are fixed per service at (1 − margin) × today's price, so raising a price raises profit by the full increase.\n\nDiscount rateShared assumptions\n\nHow much less a dollar of profit next month is worth than one today, per month. It turns a stream of monthly profit into one present value.\n\nCustomer lifetime value (CLV)Pricing, Retention\n\nThe present value of all the monthly profit a customer is expected to bring before they leave. Higher churn risk means a shorter expected lifetime and a lower CLV.\n\nLifetime profitPricing, Coupling\n\nThe sum of every customer's CLV: the quantity Engine 1 maximises.\n\nPrice sensitivity (η)Shared assumptions\n\nHow strongly a customer's churn risk rises when their bill rises. It cannot be measured from this data, because no price ever changed, so it is a scenario setting tested from 0.4 to 1.5.\n\nPrice boundPricing\n\nHow far any single price may move from today's, up or down.\n\nBill-shock capPricing\n\nHow far any customer's total monthly bill may move. It is checked for every combination of services that customers actually hold.\n\nChurn ceilingPricing\n\nThe rule that average monthly churn risk may not rise above today's. It is what makes Engine 1 cut fibre: without it, every price simply rises to the bill-shock cap.\n\nValue of 1% churn roomPricing\n\nHow much more lifetime profit the best prices would make if the business accepted 1% more average churn. It prices the trade-off; it is not a recommendation.\n\nSensitivity check (pattern)Pricing\n\nEngine 1 re-solved at four price sensitivities. The pattern has one letter per service: U at the upper price bound, + or − moved up or down inside it.\n\nRetention budgetRetention\n\nThe money available for offers, counted as expected cost: what accepted offers will cost on average.\n\nAgent hoursRetention\n\nTotal call-centre time available for the campaign. Each call takes the time listed in the table above.\n\nCap per offerRetention\n\nThe most customers who may receive the same offer, so the campaign is not all one offer.\n\nAcceptance rateRetention\n\nThe share of called customers who say yes. It is not in the data; 30% comes from published retention studies.\n\nContract-effect strengthRetention\n\nHow much of the churn reduction the model links to longer contracts is believed. Customers who chose long contracts were already less likely to leave, so part of the link is selection, not effect; ×0.5 keeps half of it.\n\nValue preservedRetention\n\nThe expected gain in lifetime value from the call list: for each customer, acceptance × (CLV with the offer − CLV today).\n\nLP boundRetention\n\nThe best value possible if customers could receive fractions of offers. No real call list can beat it, so it measures how close the actual list is.\n\nOptimality gapRetention\n\nHow far the call list's value is below the LP bound. The solver stops at 0.1%; it usually does much better.\n\nGreedy rankingRetention\n\nSorting customers by a score and calling from the top until the budget, hours or caps run out. The best of three such rankings is compared with the optimiser's list.\n\nSolver time limitRetention, Coupling\n\nThe longest the offer optimiser may search. If it stops there, the page says so: the list is the best found in that time, not proven within the gap.\n\nStill called · same offerRetention\n\nFrom the robustness check: the share of the base list's customers called again under a weaker assumption, and the share of those who get the same offer.\n\nCouplingCoupling\n\nLinking the two engines: retention calls lower some customers' churn, which leaves room under the churn ceiling to raise prices.\n\nNet gainCoupling\n\nLifetime profit at the new prices and the lower churn, minus the retention spend, minus today's lifetime profit.\nFormulas\n\ni = a customer, j = an offer, B = monthly bill, h = monthly churn risk, m = margin, d = discount rate\n\nCustomer lifetime value\n\nCLVi = πi / (d + hi), πi = m × Bi\n\nMonthly profit π, discounted, for as long as the customer is expected to stay (profit arrives at the end of each month).\n\nHow churn risk responds to a new price list P (Engine 1)\n\nBi(P) = Σservices held Ps, hi(P) = hi × (Bi(P) / Bi)η\n\nEngine 1: price optimiser\n\nmaximise Σi (Bi(P) − Ci) / (d + hi(P)), Ci = (1 − m) × today's Bi\n\nsubject to: each price within the price bound; every service combination's bill within the bill-shock cap; fibre at least $10 above DSL; average h(P) ≤ today's average h (churn ceiling, when on).\n\nEngine 2: offer optimiser\n\nVij = a × (CLVi with offer j − CLVi today), costij = a × cost if accepted\nmaximise Σ Vij xij with xij ∈ {0, 1}: at most one offer per customer; Σ cost ≤ budget; Σ hoursj ≤ agent hours; customers per offer ≤ cap\n\na = acceptance rate. An offer lowers the customer's churn risk only for its term (12 or 24 months for contracts, 6 months for free services), then it returns to today's.\n\nOffer costs (if accepted)\n\ncontract discount = rate × B × months, free service = 6 × unit cost, autopay = $25 credit\n\nOptimality gap\n\ngap = (LP bound − value) / value\n\nCoupling\n\nhi′ = πi / (CLVi + Vi) − d for each called customer\nnet gain = lifetime profit(new prices, h′) − retention spend − today's lifetime profit\n\nThe lower churn risk h′ is the constant monthly risk that would give the customer the value they have with the offer; Engine 1 is then re-solved with the churn ceiling held at today's level.\n\nMethods\n\nHow each number on the screens is computed\n\nService prices: least-squares regression of each customer's bill on the services they hold; the coefficients are the prices.\n\nMonthly churn risk: a piecewise-exponential survival model, fitted as a Poisson regression on customer-months, with tenure bands 1-6, 7-12, 13-24, 25-48 and 49-72 months.\n\nEngine 1: SciPy SLSQP (sequential quadratic programming) from 8 starting points; the answer is kept only if the starts agree. Its Lagrange multiplier on the churn ceiling gives the value of 1% churn room.\n\nEngine 2: a binary integer program solved by SciPy's milp (HiGHS) to a 0.1% gap; its linear relaxation gives the LP bound; three greedy rankings are solved for comparison.\n\nSensitivity and robustness: the same engines re-solved with one assumption changed and everything else as on screen; they run as background jobs you can cancel.\n\nCoupling: Engine 2 at each budget, each called customer's churn risk lowered to h′, then Engine 1 re-solved.\n\nAssumptions, limits and verification\n\nWhat every number rests on, and how it is checked\n\nAssumptions\n\nChurn means \"left during the recorded tenure\"; the dataset card says \"last month\", which the file contradicts.\nOne price sensitivity for every customer; it is a setting, because no price ever changed in the data.\nOffer effects are what the churn model associates with each contract or service, not measured effects; no offer was ever made.\nAcceptance rate: not in the data; 30% from published studies.\nMargin, discount rate, budget, hours and caps are manager inputs, not data.\n\nNever claimed\n\nA measured price sensitivity, or \"offer X cuts churn by Y%\".\n\"The campaign will save …\": every value is expected, under the settings on screen.\nThat the price answer comes from the shape of the profit curve: the churn ceiling produces it.\nThat ranking customers by score matches the optimiser: it is several percent worse.\n\nVerification\n\nEvery number above is re-derived from the raw file by automated checks (npm run verify, npm run verify:coupling).\n\n70 passed\n5 earlier claims refuted\n1 earlier figure updated\n76 total"
+ }
+}
